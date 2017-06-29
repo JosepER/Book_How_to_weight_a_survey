@@ -1,0 +1,1155 @@
+---
+title: "(Very) basic steps to weight a survey sample"
+subtitle: An explained example with R code - V0.3
+author: "Josep Espasa Reig"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+output: bookdown::gitbook
+documentclass: book
+github-repo: JosepER/Book_How_to_weight_a_survey
+---
+
+# Welcome to the introduction on how to weight a survey sample! {-}
+
+This guide was written by [Josep Espasa](https://www.linkedin.com/in/josepespasareig/). You can visit the [GitHub repository for this site](https://github.com/JosepER/Book_How_to_weight_a_survey)
+
+<!--chapter:end:index.Rmd-->
+
+# Introduction {#introduction}
+
+
+## Aim of this guide and further readings
+
+This is a short introductory guide that shows the basic procedures to weight a survey. Please keep in mind that
+there are many different ways of doing this. This guide intends to be a practical document and a step-by-step walkthrough for weighting a survey. It provides [R code](https://www.r-project.org/) for all actions: from reading, manipulating and presenting data to modelling and callibration. This should allow readers to reproduce procerudes and results as well as to inspect objects at any given part of this guide. The source code in an 'R notebook' format can be found and publicly accessed from the [author's github page](https://github.com/JosepER/PPMI_how_to_weight_a_survey/01-_Basic_steps_on_how_to_weight_a_survey_sample.Rmd). It is important to note that this is not an 'R tutorial'. Thus, the guide does not provide a detailed comment on general functions used in this walk-through. Some intermediate 'R' skills might be requiered to follow all steps of the procedure. Readers with basic or no knowledge of 'R' can still benefit from this note as it explains the steps and principles behind weighting. 
+
+For questions, clarifications or suggestions feel free to contact him at *jespasareig at gmail.com*. It is relevant to say that this text intentionally avoids explaining complex or advanced methods. Instead, it aims at providing users with a standard way of weighting and a limited number of variations.
+
+Next sections will first give a very broad glimpse at all [main survey weighting steps](#basic_steps).The second section deals with importing data into R, data manipulation and briefly [presenting the dataset used for this guide](#exploring and presenting the dataset). Readers interested in a specific step, familiar with the 7th round of the European Social Survey or that want to jump directly into weighting procedures can skip this part of the guide. The three sections are the main components of this guide and show how to compute [design weights](#design_weights), [non-response weights](#nonresponse_weights) and [calibration weights](#calibration). Two more sections will be added to this survey in the future. These correspond to the analysis of weight variability and computing weighted estimates.
+
+For more information you can check the following introductory texts:
+
+  * Valliant et al. (2013) *Practical Tools for Designing and Weighting Survey Samples*. New York: Springer Science Business Media.
+  * Lohr,S.L. (2009) *Sampling: Design and Analysis*. 2nd Edition. Boston: Books/Cole.
+  * Blair, E. & Blair, J. (2015) *Applied Survey Sampling*. London: SAGE Publications Inc.  
+  
+And the book accompaining the R 'survey' package:  
+
+  * Lumley,T. (2010) *Complex Surveys: A Guide to Analysis Using R*. New Jersey: John Wiley & Sons Inc.
+
+It might be also worth keeping an eye on the (still incipient) R package [*srvyr*](https://cran.r-project.org/web/packages/srvyr/index.html), developed and maintained by Greg Freedman Ellis.
+
+Note: This guide focuses on surveys based on 'probability sample'. These are surveys where all units in our statistical population have a chance of being selected and the probability of selection is known to the researcher. A brief note on how to weight non-probability samples is included at the end of the guide. 
+
+## Basic steps in weighting a survey {#basic_steps}
+
+Weights are applied to reduce survey bias. In plain words, weighting consists on making our sample of survey respondents (more) representative of our statistical population. By statistical population we mean all those units for which we want to compute estimates.
+
+There are four basic steps in weighting. These are:
+
+1. __Base/design weights__
+2. __Non-response weights__
+3. __Use of auxiliary data/calibration__
+4. __Analysis of weight variability/trimming__
+
+The first step consists on computing weights to take into account the differences of units in the probability of being sampled.
+'Being sampled' means being selected from the survey frame (i.e. the list of all units) to be approached for a survey response.
+This step can be skipped if all units in the survey frame have the same probability of being sampled. This happens, for example:
+* when all units in the survey frame are approached for the sample or; 
+* with certain sampling designs (such as 'simple random sampling without replacement' or 'stratified random sampling without replacement' with distribution of sampled units across stratums proportional to the number of units in each stratum). These are usually called 'self-weighted' surveys. 
+
+In the second step we need to adjust our responses by the differences in the probability of sampled units to reply to our survey. Our estimates would be biased if some profile of sampled units had higher propensity to reply than another and these profiles had differences in the dependent variables (i.e. our variables of interest). In this step, we need to estimate the probability of response using information available for both respondents and non-respondents. Non-response adjustment is not needed if all sampled units responded to the survey (i.e. in probability sampling surveys with 100% response rates).
+
+The third step consists on adjusting our weights using available information about total population estimates. Note that this requieres data that is different from that needed in non-response adjustment (second step). Here we need auxiliary data which tells us information (i.e. estimates such as proportions, means, sums, counts) about the statistical population. The same variables should be available from our respondents but here we don't need information about non-respondents.
+
+The last step is to check the variablity in our computed weights. High variation in weights can lead to some observations having too much importance in our sample. Even if weights reduce bias, they might largely inflate variance of estimates. Therefore, some survey practitioners worry about dealing with highly unequal weights.
+
+
+<!--chapter:end:01-Introduction.Rmd-->
+
+# Import data and data management {#import_data_management}
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+library(RCurl)
+library(MASS)
+library(glmnet)
+library(caret)
+library(survey)
+library(readxl)
+library(stringr)
+library(forcats)
+library(foreign)
+library(magrittr)
+library(tidyverse)
+options(scipen = 9999)
+options(dplyr.width = Inf)
+
+
+set.seed(456162)
+
+```
+
+We first need to import data into R. In this guide we will use UK data from the 7th round of the [European Social Survey](http://www.europeansocialsurvey.org/). The advantage of this data is that the European Social Survey (ESS) is a well documented and high quality probability survey. It allows us to understand how responses were collected and provides some useful information about non-respondents. At the same time, the 7th ESS was weighted by expert statisticians. The process of the two phases of weighting they applied is explained in their [website](http://www.europeansocialsurvey.org/methodology/ess_methodology/data_processing_archiving/weighting.html). This will allow us to compare our own weights and results with those already computed by their team of experts. Focusing on the UK sample will allow us to narrow down the analysis and fasten computation by reducing the amount of data used in each step. 
+
+For this guide we will use the following 7th ESS datafiles in SPSS ('.sav') format: 
+
+  * [sample data (SDDF), edition 1.1](http://www.europeansocialsurvey.org/download.html?file=ESS7SDDFe01_1&y=2014), which contains the  probability of being sampled for all respondents and non-respondents invited to the survey;  
+  * [the data from Contact forms, edition 2.1](http://www.europeansocialsurvey.org/download.html?file=ESS7CFe02_1&y=2014), which provides information about the process of data collection (e.g. number of times the person was approached for a response, ID of interviewer in each approach, conditions of the house/area where the potential respondent lived.). We will call this data the *'paradata'* of the survey;
+  * [the integrated interviewer data file, edition2.1](http://www.europeansocialsurvey.org/download.html?file=ESS7INTe02_1&y=2014). These are the responses to the survey. 
+
+The following sections explain data import, selection, merging and recoding. Readers who are not interested in technical details about datasets can skip them and jump directly into [exploration and presentation of the data](#exploring and presenting the dataset)
+
+### Import data
+
+The following chunk of code loads the data sets from a *data* folder in the working directory. The sample data file is stored into the *sample.data* 'data_frame' object. The contact forms information is stored into the *paradata* folder. Survey responses from the integrated interviewer file are saved in the *responses* object. We also store the weight variables included in the integrated interviewer file in the *original.weights* data_frame.
+
+```{r echo=TRUE, warning=FALSE, message=FALSE, cache=TRUE}
+
+sample.data <- read.spss("data/ESS7SDDFe1_1.sav", to.data.frame = T)  %>%
+  filter(cntry == "United Kingdom")
+
+paradata <- read.spss("data/ess7CFe02_1.sav", to.data.frame = T) %>%
+  filter(cntry == "United Kingdom") 
+
+responses <- read.spss("data/ESS7e02_1.sav", to.data.frame = T) %>%
+  filter(cntry == "United Kingdom") 
+
+original.weights <- responses %>% select(idno ,dweight, pspwght, pweight)
+
+```
+
+### Select variables
+
+Once the data has been read into R, we select the variables we are going to use in our analysis. Selecting variables is a good practice as the ESS files contain much more information that we need for this example. This will allow us to easily find and see the data that is important for us in this guide. Here we just write the names of the variables we intend to use and we will later explain the content of these in more substantial terms.
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+vars.sample.data <- c("idno", "psu", "prob")
+
+vars.paradata <- c("idno", "typesamp", "interva", "telnum", 
+                   "agea_1", "gendera1", "type", "access", 
+                   "physa", "littera", "vandaa")
+
+resp.id <- c("idno")
+
+resp.y <- c("cgtsmke", "cgtsday",
+         "alcfreq", "alcwkdy", "alcwknd")
+
+resp.x <- c("vote", "prtvtbgb",
+            "prtclbgb", "prtdgcl",
+            "ctzcntr", "ctzshipc",
+         "brncntr","cntbrthc",
+         "gndr", "agea", "hhmmb","eisced", "region",
+         "pdwrk", "edctn", "uempla", "uempli", "rtrd",
+         "wrkctra", "hinctnta")
+
+```
+
+We will also keep the variable labels from the SPSS (.sav) file, although these are not so common in R.
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+selected.labels.sample.data <- attributes(sample.data)$variable.labels[which(names(sample.data) %in% vars.sample.data)]
+
+selected.labels.paradata <- attributes(paradata)$variable.labels[which(names(paradata) %in% vars.paradata)]
+
+selected.labels.responses <- attributes(responses)$variable.labels[which(names(responses) %in% c(resp.y, resp.x))] 
+
+attributes(responses)$variable.labels %>% 
+  cbind(names(responses),.) %>% 
+  as_data_frame %>% 
+  write_csv("interim_output/variable_labels.csv")
+
+```
+
+Now we do the selection of variables from the three data sets using the names of the variables written a couple of code chunks ago. 
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+sample.data %<>% 
+  .[vars.sample.data]
+
+paradata %<>%
+  .[vars.paradata]
+
+responses %<>%
+  .[which(names(responses) %in% c(resp.id, resp.y, resp.x))]
+
+```
+
+
+### Merging datafiles
+
+After selecting the variables for the analysis, we merge the 'paradata' file containing all sampled units (respondents and non-respondents) with the 'survey responses' file, containing interview responses (only for respondents). The resulting data_frame is the 'data' object. It contains the 'paradata' information for all sampled individuals and responses for those that were interviewed successfully. 
+
+In a real situation where we collect the data ourselves we would also have a 'survey frame'. This 'survey frame' would ideally include include all units from the population and characteristics of these such as stratification variables. A survey frame would include sampled units (respondents and non-respondents) as well as non-sampled units. 
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+data <- paradata %>%
+  left_join(sample.data, by = "idno") %>%
+  left_join(responses, by = "idno") %>%
+  arrange(interva) 
+
+rm(paradata,
+   sample.data,
+   responses)
+
+```
+
+Here we add the variable labels to the datasets with we kept before.
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+attributes(data)$variable.labels <- c(selected.labels.paradata, selected.labels.sample.data[!names(selected.labels.sample.data) %in% "idno"],
+                                      selected.labels.responses)
+```
+
+
+### Recoding
+
+Here we will recode our two dependent variables: cigarette and alcohol consumption. All those respondents that don't smoke should have a 0 in the __cigarretes smoked per day__ variable. To calculate the __alcohol consumption__ of respondents, we first calculate the daily consumption of alcohol if they were to consume alcohol daily and then weight by their stated frequency of alcohol consumption.
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+data$cgtsday[data$cgtsmke %in% c("I have never smoked",
+                                 "I don't smoke now but I used to",
+                                 "I have only smoked a few times")] <- 0
+
+data$alcohol_day <- NA 
+data$alcohol_day <- (data$alcwkdy * 5 + data$alcwknd *2)/7 
+
+data$alcohol_day[which(data$alcfreq == "Several times a week")] <- data$alcohol_day / 2.5
+data$alcohol_day[which(data$alcfreq == "Once a week")] <- data$alcohol_day/7
+data$alcohol_day[which(data$alcfreq == "2-3 times a month")] <- data$alcohol_day/10
+data$alcohol_day[which(data$alcfreq == "Once a month")] <- data$alcohol_day/30
+data$alcohol_day[which(data$alcfreq == "Less than once a month")] <- data$alcohol_day/50
+data$alcohol_day[which(data$alcfreq == "Never")] <- 0
+
+resp.y <- c(resp.y, "alcohol_day")
+```
+
+
+## Exploring and presenting the dataset
+
+The merged data set contains sampled **respondents and non-respondents**. It contains a total of `r dim(data)[[1]]` units and `r dim(data)[[2]]` variables.
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+dim(data)
+```
+
+The data set contains information about `r nrow(data %>% dplyr::filter(interva == "Complete and valid interview related to CF"))` respondents and `r nrow(data %>% dplyr::filter(interva != "Complete and valid interview related to CF"))` non-respondents.
+
+And this is a list of the variables it contains (with their labels). **idno** is the individual identification variable.
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+data.variables <- cbind(names(data),attributes(data)$variable.labels) %>% 
+  as_data_frame()
+
+data.variables$V2 <- format(data.variables$V2 , justify = "left")
+
+data.variables %>%
+  print(n = 40)
+
+rm(data.variables)
+
+```
+
+The goal of this guide will be to to give UK population estimates for cigarette and alcohol consumption based on ESS respondents. These will be our *Y* variables or variables of interest. The idea is to give descriptives of the distribution of these two variables (such as quantiles and mean) and then a simple extrapolation and compute total cigarette and alcohol consumption for the whole UK.
+
+These are our *Y* variables:
+
+* __cgtsday__ : Number of cigarettes smoked on a typical day.
+* __alcohol_day__ : Grams of alcohol ingested on a daily basis. Computed in the [*Recoding*](#recoding) section from the amount of alcohol drank last time during weekdays and weekend.
+
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+data[resp.y] %>%
+  as_data_frame() %>%
+  print()
+```
+
+
+### Paradata variables
+
+The 7th ESS survey contains variables which give information about the data collection process. First, we have some variables that come from the 'sample data (SDDF)' file. These contain info about the 'primary sampling unit' and the probability of each unit of being selected in the sample. These two variables are only available for respondents. In a real project we would most probably have to compute the probability of being sampled ourselves.   
+
+* __psu__: This variable includes information on the primary sampling unit (PSU). In the UK this refers to the 'postcode address file'.
+* __prob__: Probability of being included in the sample (i.e. approached for survey).
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+data[vars.sample.data] %>%
+  as_data_frame() %>%
+  print()
+```
+
+The 7th ESS also contains variables for all sampled units (i.e. respondents and non-respondents). These give information  about the events that occurred during the data collection process. We will use these variables as covariates during the computation of **Non-response weights** in [step two](#nonresponse weights).  
+
+* __typesamp__: Refers to the type of unit sampled. In the UK addresses were the final sampling units. In some other countries these were households and individual people.   
+* __interva__: Shows the final outcome of the contact. In the UK sample, only codes 'Complete ...' and 'No interview ...' were used for respondents and non-respondents respectively.
+* __telnum__: The interviewed person gave his/her mobile phone to the interviewer.
+* __agea_1__:  Interviewer estimation of age of respondent or household member who refuses to give the interview.
+* __gendera1__: Interviewer estimation of gender of respondent or household member who refuses to give the interview.
+* __type__: Type of house sampled unit lives in. 
+* __access__: Entry phone or locked gate/door before reaching respondent's individual door.
+* __physa__: Interviewer assessment overall physical condition building/house.
+* __littera__: Interviewer assessment of amount of litter and rubbish in the immediate vicinity.
+* __vandaa__: Interviewer assessment of amount of vandalism and graffiti in the immediate vicinity.
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+data[vars.paradata] %>%
+  head(6)
+```
+
+
+### Survey responses
+
+Apart from the variables of interest (cigarette and alcohol consumption) our dataset has other variables obtained from survey responses. Obviously, these are only available for respondents. We will try to use some of these variables to calibrate the survey in [__Use of auxiliary data/calibration__ step](#calibration). Some of these variables are:
+
+* __vote__: Voted last national election (Yes/No)
+* __prtvtbgb__: Party voted for in last national election
+* __prtclbgb__: Which party feel closer to, United Kingdom
+* __prtdgcl__: How close does the repondent feel to the party party from 'prtclbgb'
+* __ctzcntr__: Has UK citizenship (Yes/No)
+* __ctzshipc__: Citizenship of respondent
+* __brncntr__:Respondent born in the UK
+* __cntbrthc__: Respondent country of birth
+* __gndr__: Gender of respondent
+* __agea__: Calculated age of respondent
+* __eisced__: Highest level of education of respondent
+* __pdwrk__: In paid work
+* __edctn__: In education
+* __uempla__: In unemployment, actively looking for a job
+* __uempli__: In unemployment, not actively looking for a job
+* __rtrd__: Retired
+* __wrkctra__: Employment contract unlimited or limited duration
+* __hinctnta__: Household's total net income, all sources
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+data[c(resp.id, resp.x)] %>%
+  head(6)
+```
+
+<!--chapter:end:02-Import_data_and_data_management.Rmd-->
+
+# Step 1: Design weights {#design_weights}
+
+The first step in weighing is taking into account the different probabilities of being sampled that respondents may have. The 7th ESS did not use a register of people in the UK (in other countries they did). They first selected postcode sectors from the Post Office’s small user postcode address file (PAF) merging smaller sectors. The probability of each PAF of being selected was proportional to the number of addresses it contained. Then, they selected 20 addresses inside of each sampled PAF and a dwelling for each address. For each dewlling they selected a household and then a person in each household. The full explanation of the sampling procedure is given in page 163 of The data documentation report ([Edition 3.1](http://www.europeansocialsurvey.org/docs/round7/survey/ESS7_data_documentation_report_e03_1.pdf)). 
+
+This sampling design is typical of survey frames where there is an available/public list of addresses but not a list of households or individuals. If we don't weight this survey, we would probably over-represent people in addresses that have smaller number of dwellings, dwellings that include smaller number of households and households that comprise smaller number of people (we will actually see this below).
+
+Fortunately for us, the probablity of each respondent of being sampled was computed by national experts and included in the 7th ESS dataset. In many projects, however, we would have to compute sampling probailities ourselves^[In 'real' projects where we do the sampling ourselves we would have the sampling probability of both respondents and non-respondents. This example shows us that it is enough to know the probablity of inclsion of respondents.]. A basic but important test that should be performed after computing the probabilities is **making sure that all probabilities are between 0 and 1**.
+
+We will perform this test in the next chunk of code, which should give us an error if any of the probabilities is not in the interval $[0,1]$.
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+probabilities <- data %>%
+  summarise(min.probability = min(prob, na.rm = T),
+            max.probability = max(prob, na.rm = T)) %>%
+  as.vector()
+
+print(probabilities)
+
+if(probabilities$min.probability < 0){stop("Minimum probability of being sampled is smaller than 0. Review sampling probabilities before computing base weights.")}else if(probabilities$max.probability > 1){stop("Maximum probability of being sampled is larger than 1. Review sampling probabilities before computing base weights.")}
+
+rm(probabilities)
+
+```
+
+We see that there are actually `r length(unique(data$prob))` unique sampling probabilities computed in the dataset. 
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+unique(sort(data$prob))
+
+```
+
+The vast majority of respondents had probability of `r as.numeric(names(table(data$prob))[which.max(table(data$prob))]) %>% round(9)` or 0.00020306 (i.e. one in `r round(1/as.numeric(names(table(data$prob))[which.max(table(data$prob))]),0)` and one in `r round(1/0.00020306164012234,0)`). We see a minority of around 15% of observations with smaller probabilities. These probabilities might seem very small. This is because the whole population is very large and the survey only sampled a small part of it. 
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+table(round(data$prob*100,6))
+```
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+ggplot(data, aes(x = prob)) +
+  geom_histogram()
+
+```
+
+The sampling probability of respondents seems to be related to the type of dwelling of respondents and the number of people in their household. We would have expected this as some types of dwellings might tend to be linked to a single address. For other (smaller) types there might usually be many dwellings sharing the same address^[As we explained before, this is relevant because sampling allocation inside Primary Sampling Units (postcode sectors) was proportional to the number of adresses in each of these. Therefore, if an address contains a large number of dwellings, each dwelling will have a smaller probability of being sampled than a dwelling that is the only one in an address.]. Something similar would happen for size of household. Individuals in large households would have smaller probabilities of being sampled than individuals who are the only person in the household. 
+
+These differences in sampling probabilities across dweling type and household size show that, without any kind of adjustment, our sample would over-represent people living in certain types of dweling (e.g. 'Multi-unit house, flat') and people living in small households. If respondents from living in different types of dwellings and household sizes had differences in our *'Y'* variables (e.g. smoked more or drank more alcohol) then our estimates from the survey sample would be biased.
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+data %>%
+  filter(!is.na(prob)) %>%
+  group_by(type) %>%
+  summarise(n = n(),
+    mean.prob.percentage = mean(prob, na.rm = T)*100) %>%
+      arrange(desc(mean.prob.percentage))
+
+```
+
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+data %<>%
+  mutate(hhmmb.factor = as.factor(hhmmb) %>% fct_recode(`+5` = "6",
+                                                        `+5` = "7",
+                                                        `+5` = "8"))
+
+data %>%
+  filter(!is.na(prob)) %>%
+  filter(!is.na(hhmmb.factor)) %>%
+  group_by(hhmmb.factor) %>%
+  summarise(n = n(),
+    mean.prob.percentage = mean(prob, na.rm = T)*100) %>%
+      arrange(desc(mean.prob.percentage))
+
+```
+
+To solve these differences in sampling probabilities we have to compute **design weights** (sometimes also called **base weights**. The design weights are equal to the inverse of the probability of inclusion to the sample. Therefore, the design weight (*d~0~*) of a respondent (*i*) will be equal to: $d_{0i} =  1/\pi_{i}$ where $pi_{i}$ is the probability of that unit of being included in the sampling.
+
+Here we compute the design weight from the probability given in the ESS database.   
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+data %<>%
+  mutate(base.weight = 1/prob)
+
+data %>%
+  select(prob, base.weight) %>% head(10)
+
+```
+
+A simple interpretation of design weights it 'the number of units in our population that each unit in our sample represents'. There is a simple but important test that we should perform after computing design weights. **The sum of all design weights should be equal to the total number of units in our population**. The ESS dataset for UK only included sampling probabilities for respondents (i.e. sampled units that responded to the survey!) but they did not include sampling probabilities of non-respondents. We can guess that this is because sampling probability depends on information that is obtained from the interview (i.e. number of people in household, number of households in dwelling, number of dwellings in adress, etc.). Not knowing the sampling probability for some sampled units is not an optimal situation. 
+
+The sum of our computed weights in the ESS dataset with `r table(data$interva)[["Complete and valid interview related to CF"]] %>% format(big.mark = ",", big.interval = 3)` respondents equals `r data %>%  summarise(sum.base.weights.ess.dataset = round(sum(base.weight, na.rm = T),0)) %>% .[["sum.base.weights.ess.dataset"]] %>% format(big.mark = ",", big.interval = 3)`. Doing a very simple Extrapolation to include the `r table(data$interva)[["No interview for other reason"]] %>% format(big.mark = ",", big.interval = 3)` non-respondents would give us a sum of weights equal to `r format(dplyr::summarise(data, sum.base.weights.ess.dataset = round(sum(base.weight, na.rm = T),0)) %>% .[["sum.base.weights.ess.dataset"]] * (nrow(data)/ table(data$interva)[["Complete and valid interview related to CF"]] ), big.mark = ",", big.interval = 3)`. This last figure would be much closer to the total UK population over 15. 
+
+It is a common practice for many researchers to scale the weights so that their sum equals the sample size (instead of the population size). Scaled weights would equally adjust for differences in sampling probabilities. 
+
+Here we compute our scaled design weights and we compare them with the ones given in the ESS dataset. We see that our weights scaled (*base.weigth.scaled*) are almost equal to those computed in the ESS dataset (*dweigth*). The small differences are probably due to rounding error.
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+data %>%
+  filter(!is.na(base.weight)) %>% 
+  select(idno, base.weight) %>%
+  mutate(base.weight.scaled = base.weight/sum(base.weight, na.rm = T)*nrow(data[!is.na(data$prob),])) %>%
+  left_join(original.weights %>% select(idno, dweight),
+            by = "idno") %>% head(10)
+
+data %<>%
+  mutate(base.weight.scaled = base.weight/sum(base.weight, na.rm = T)*nrow(data[!is.na(data$prob),]))
+
+```
+
+As we mentioned before, design weights should sum up to the entire population from which the sample is drawn or to the total number of respondents if scaled as they did in the ESS. In this example both sums should equal `r table(data$interva)[["Complete and valid interview related to CF"]] %>% format(big.mark = ",", big.interval = 3)`. 
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+data %>%
+  left_join(original.weights %>% select(idno, dweight),
+            by = "idno") %>%
+  summarise(sum.all.base.weights.scaled = sum(base.weight.scaled, na.rm = T) %>% round(0),
+            sum.all.design.weights.ess = sum(dweight, na.rm = T) %>% round(0))
+
+```
+
+<!--chapter:end:03-Step_1_design_weights.Rmd-->
+
+# Step 2: Non-response weights {#nonresponse_weights}
+
+## What are of non-response weights?
+
+The second basic step in weighting a survey is accounting for differences in the propensity to respond. Imagine a situation in which a profile of sampled units (e.g. lower income people) had higher propensity to respond than another profile (e.g. people with higher incomes). Imagine as well that the characteristics of both profiles were associated to our *'Y'* variables, here alcohol and cigarretes consumption (e.g. people with lower income smoking and drinking more than people with higher income). As we then would have a larger proportion of lower income/smokers in our sampleour analyses would be biased.
+
+If we compute the sample ourselves, we can also compute the probability of a unit of being sampled. Computing the probability of replying to the survey is, however, slightly more challenging. We can not direclty observe the probability of a unit of replying to the survey, therefore we need to estimate it. This is done using information which we know for both respondent and non-respondent units. Here it is useful to think about the probability of response as a latent variable (i.e. not directly observable).
+
+There are two main ways of using this information. The first one would be creating cells from variable intersections (i.e. sampled units 15-24 & countryside; 15-24 & cities; 25-34 & countryside, etc.) and then calculate the probability of response in each cell. The second method is to estimate the probability of response by modelling it. 
+
+The first approach  has the advantage of being more simple. However, computing a large number of cells from crossing variable could most probably lead to having empty cells or cells with a very small number of sampled units. The probability estimated for these cells with smaller number of units could be far from the real one. We could apply it if we thought that the probability of responding can actually be explained by the variable intersections we used.
+
+The second approach (explained in ['Propensity adjustment' section](#propensity_adjustment) below) relies on the modelling skills of the researcher computing the weights. In order to estimate the proability of response we need to predict it. 'Predictive modelling' is slightly different than the usual 'inference modelling'. Here we are not interested in understanding the causes of differences in response propensities. We are just interested in predicting these. Therefore, we should take a 'data driven' approach that differs from those we usually see in social sciences. For an excellent introduction to 'predictive statistics' you can check the free book ['An Introduction to Statistical Learning' by James et al.](http://www-bcf.usc.edu/~gareth/ISL/).
+
+This is not a guide on 'predictive modelling'. However, it might be worth it to very briefly explain the basic principle behind it. We should try to build a model which is able to estimate the probability using only 'relevant' information and excluding 'noise' from the model. Therefore, a predictive model should be fitting the observed data well enough but at the same time not too specific to it. 
+
+For this specific case of non-response weighting, we are especially interested in using propensity predictors which are related to both the response propensity and our dependent variables.
+
+Here we will use the paradata information to model the probability of response. The variables describing the type of house and the immediate vicinity around houses have a relatively small number of missing values (~ 8%) these missings seem to be related (i.e. all variables missing for certain units). Those sampled units that have missing values on all these paradata variables are always non-respondents. It would be useful to know why this pattern exists. We would guess that these are sampled units which interviewers could not reach for some reason. For this analysis, we will ignore this fact and not use these units with missing values in ALL paradata variables. This should only result in a linear transformation of the estimated probabilities of response. Moreover, we can later adjust our model to 'undo' this transformation.
+
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+data.nonresponse.model <- data[vars.paradata] %>% select(idno, interva, type:vandaa)
+
+data.nonresponse.model$all.missing <- NA
+
+data.nonresponse.model$all.missing[is.na(data.nonresponse.model$type) &
+                                     is.na(data.nonresponse.model$access) &
+                                     is.na(data.nonresponse.model$physa) & 
+                                     is.na(data.nonresponse.model$littera) &
+                                     is.na(data.nonresponse.model$vandaa)] <- 1
+
+data.nonresponse.model %<>%
+  filter(is.na(all.missing)) %>%
+  select(-all.missing)
+
+indep.vars.nonresponse <- c("type", "access", "physa", "littera", "vandaa")
+
+data.nonresponse.model[,c("type", "access")]  %<>% map(function(x){as.character(x)})
+
+#data.nonresponse.model %>% map(function(x){sum(is.na(x))})
+
+# Missing category for missings in multinomial variables.
+  
+for(i in c("type", "access")) {
+  data.nonresponse.model[[i]][is.na(data.nonresponse.model[[i]])] <- "Missing"
+  
+}
+
+# Mean imputation for ordinal variables.
+
+for(i in c("physa", "littera", "vandaa")) {
+  data.nonresponse.model[[i]][is.na(data.nonresponse.model[[i]])] <- levels(data.nonresponse.model[[i]])[median(data.nonresponse.model[[i]] %>% as.numeric(), na.rm = T) ] 
+  
+}
+
+for(i in c("physa", "littera", "vandaa")) {
+  data.nonresponse.model[[i]] <- as.ordered(data.nonresponse.model[[i]])
+
+  
+}
+
+data.nonresponse.model %<>%
+  mutate(response = as.numeric(as.numeric(interva) == 1))
+
+data %<>%
+  mutate(response = as.numeric(as.numeric(interva) == 1))
+
+
+```
+
+## Estimating response propensities using logistic regression
+
+Valliant et al (2013) recommend estimating the response propensities and then grouping them in classes. The grouping step should avoid extreme weights. One way of estimating the response propensities is using logistic regression. This logistic regression should be unweighted. Later in this section we will try other ways of computing estimates of response propensities.
+
+In order to do a logistic regression in R, we need to specify the dependent variable (response) and predictors (type, access, physa, littera and vandaa) in a formula. Then we input the formula and the dataset into the *'glm'* function with a *'family = binomial'* argument. 
+
+The following output shows the first six estimated response propensities of our dataset.
+
+```{r,  warning=FALSE, message=FALSE}
+formula <- as.formula("response ~ type + access + physa + littera + vandaa")
+
+options(na.action = 'na.pass')
+
+x.matrix <- model.matrix(formula, data = data.nonresponse.model)[, -1]
+
+log.reg.m <- glm(formula,  
+  data = data.nonresponse.model,
+  family = "binomial")
+
+coef.response.log <- coef(log.reg.m)
+
+predicted.log <- log.reg.m$fitted.values
+
+data.nonresponse.model$predicted.log <- predicted.log
+
+predicted.log %>% head()
+
+```
+
+As explained before, we are now computing our estimates from a subset of sampled units. This does not take into account many non-respondents which had missing values in all predictors of our non-response model. This means that the previous propensities are slightly overestimated. This is because the response rate in our full dataset is `r (mean(data$response)*100) %>% round(1) %>% paste0("%")` and in our subset used for non-response adjustment is `r (mean(data.nonresponse.model$response)*100) %>% round(1) %>% paste0("%")`. 
+This is not entirely related to non-response weight adjustment so we will just compute the new estimates with modified intercept in the next chunk and skip the explanation on how to perform the trasformation. For an excellent description on how it's done readers can check Stanford University's online course on [SP Statistical Learning](https://lagunita.stanford.edu/courses/HumanitiesSciences/StatLearning/Winter2016/info).
+
+Below the next chunk of code you can see the first six transformed estimated response propensities of our dataset.
+
+```{r,  warning=FALSE, message=FALSE}
+
+resp.pop <-  mean(data$response)
+  
+resp.subgroup <- mean(data.nonresponse.model$response)
+
+log.reg.m$coefficients[1] <- coef(log.reg.m)[[1]] + log(resp.pop/(1-resp.pop) - log(resp.subgroup/(1-resp.subgroup)) )
+
+rm(resp.pop, resp.subgroup)
+
+predicted.log.tr <- predict(log.reg.m, data.nonresponse.model, type = "response")
+
+data.nonresponse.model$predicted.log.tr <- predicted.log.tr
+
+predicted.log.tr %>% head()
+
+rm(coef.response.log, formula, i)
+
+```
+
+
+## Creating non-response adjustment classes
+
+Here we will follow the procedure for creating classes explained in pag. 329 of Valliant et al.(2013). From their text it is not so clear how many classes should be created.
+
+Looking at the distribution of estimated probabilities of response, we observe a large majority of values between `r quantile(predicted.log, probs = 0.2) %>% round(1) ` and `r quantile(predicted.log, probs = 0.9) %>% round(1)`. However, there are several outliers at both ends of the distribution. 
+
+As there is not so much dispersion in values in the middle of the distribution, creating classess accoring to quintiles might not be the best way to account for differences in estimated response propensities. However, other methods might create classess which are too specific to outliers. This is kind of a bias-variance trade off. If we fit broad classes which encompass very different estimated probabilities within them, we will be adjusting less and so keeping more bias in our estiamtes. If we create tight classes capturing these outliers, then we will have large differences in weights and so more variance in our estimates. 
+
+
+```{r,  warning=FALSE, message=FALSE}
+
+predicted.log.tr %>% quantile(probs = seq(0,1,0.05)) %>% round(4)
+
+```
+
+These are the 5 classes created using 20th, 40th, 60th and 80th quintiles.
+
+
+```{r,  warning=FALSE, message=FALSE}
+
+data.nonresponse.model$predicted.class <- cut(x = data.nonresponse.model$predicted.log.tr, breaks = c(0,quantile(predicted.log.tr, probs = seq(0,1,0.2))[-1] ))
+
+data.nonresponse.model$predicted.class %>% levels()
+
+```
+
+Below there is a summary of the estimated propensities included in each of them (in boxplots). We can see that the first and last groups have more dispersion in propensities. The middle three groups have very little dispersion and are similar between them. In this case they are so similar that we could even consider merging them into one single group.
+
+```{r,  warning=FALSE, message=FALSE}
+
+ggplot(data.nonresponse.model, aes(x = predicted.class, y = predicted.log.tr)) +
+  geom_boxplot()
+
+```
+
+To compute the non-response weights, we can use the mean estimated probability of response in each class. 
+
+```{r,  warning=FALSE, message=FALSE}
+
+data.nonresponse.model %>%
+  group_by(predicted.class) %>%
+  summarise(mean.prob = mean(predicted.log.tr) %>% round(4))
+
+```
+
+And then we can compute the non-response weight as the inverse of the mean probabilities in each class. 
+
+```{r,  warning=FALSE, message=FALSE}
+data.nonresponse.model %<>% left_join(
+data.nonresponse.model %>%
+  group_by(predicted.class) %>%
+  summarise(mean.prob = mean(predicted.log.tr) ), by = "predicted.class")
+
+data.nonresponse.model %<>%
+  mutate(nonresp.weight = round(1/mean.prob, 4) )
+
+data.nonresponse.model$nonresp.weight %>% unique %>% sort
+
+```
+
+## Testing non-response adjustment classes
+
+After creating the classes, a good practice would be to check for covariate balance. This procedure is explained in pag. 330 of Valliant et al.(2013). Units in the same class should have similar values in covariates. At the same time, we would ideally find differencess between classes. In other words, here we would check if classes are made of homogeneous units (within-class check) and if they really distinguish different profiles of these (between-class check). For the within-group check, we are especially interested in checking if profiles of respondents and non-respondents within each class are similar. 
+
+The best way of doing this analysis might be fitting two different regressions for each covariate^[This procedure slightly differs from that recommended in Valliant et al.(2013), where they suggest to fit only one regression per covariate. Interpreting the lower order coefficients from a regression with interactions between class predictors and a response indicator might not be interpreted as the authors from Valliant et al.(2013) argue.]. As an example we will do the balance analysis for the ordinal covariate *physa*. In a real analysis this should be repeated for all covariates.
+
+For the between-class check, we can fit a model only with class predictors. This should show if classes explain differences in covariate variables. As we have an ordinal covariate (*physa*) with four categories (*'Very bad'*, *'Bad'*, *'Satisfactory'*, *'Good'*, *'Very good'*), we will use an ordered logistic regression. An alternative would be to treat the covariate as a continous varaible and use an OLS regression. 
+
+The variable *physa* compares the 'Overall physical condition building/house'. The variable is negativelly coded so larger values mean worse physical condition. The coefficients of the ordered logistic regression show that the larger the estimated propensity, the smaller the probability of being in bad physical conditions. Therefore, people in houses with worse physical conditions would have smaller response propensity and so be underrepresented in our sample. From the coefficients below we see that the classes we have created for non-response adjustment somehow explain differences in our analysed covariate. However, ideally we would have a more clear effect of classes on our covariate. We see that the second adjustment class created (that for estimated propensities between 0.41 and 0.443) actually has larger probabilities of having worse physical conditions than the base category (0 to 0.41). At the same time, the third and fourth categories (0.443 to 0.459) and (0.459 to 0.485) have very similar coefficients, which might indicate that they do not really distinguish different classes of sampled units. 
+
+
+```{r,  warning=FALSE, message=FALSE}
+
+formula. <- as.formula("physa ~ predicted.class")
+
+test.between.model <- polr(formula = formula., data = data.nonresponse.model, method = "logistic")
+
+ctable.between <- coef(summary(test.between.model))
+
+p <- pnorm(abs(ctable.between[, "t value"]), lower.tail = FALSE) %>% round(4)
+
+ctable.between <- cbind(ctable.between, "p value" = p)
+
+ctable.between
+
+```
+
+For the within-class check, we can extend our model to include interactions between class and response. This will check if, within a non-response class, there are differences between respondents and non-respondents in our covariate *physa* (ideally they wouldn't be and we would not find them).
+
+In this second test (see coefficients below) we see that one of the interactions has a significant coefficient at 5% confidence level. Ideally, all interaction terms would be non-significant, meaning that we do not observe within-group differences between respondents and non-respondents in our covariates. A way of dealing with this situation with one significant coefficient would be to explore other ways of spliting units into classes. However, as explained before, these other categorisations would have drawbacks in terms of inflated variance. Moreover, if we have a large number of classes and covariates, we would expect to find significant coefficients just by chance. Therefore, as long as these unbalances do not occur for most classes and covariates, reporting these unbalances should be enough. In this example, we see that the differences in the physical condition of their houses we observe within each computed class respondents and non-respondents are so small that might be due to sampling error^[With the exception of differences in class (0.389,0.421\], which seem too large to be caused just by sampling error.].
+
+```{r,  warning=FALSE, message=FALSE}
+
+formula. <- as.formula("physa ~ response + predicted.class + response * predicted.class")
+
+test.within.model <- polr(formula = formula., data = data.nonresponse.model, method = "logistic")
+
+ctable.within <- coef(summary(test.within.model))
+
+p <- pnorm(abs(ctable.within[, "t value"]), lower.tail = FALSE) %>% round(4)
+
+ctable.within <- cbind(ctable.within, "p value" = p)
+
+ctable.within
+
+rm(formula., test.within.model, p, indep.vars.nonresponse, i, test.between.model,
+   ctable.between, ctable.within)
+
+```
+
+## Propensity adjustment (alternative to adjustment classes) {#propensity_adjustment}
+
+An alternative to computing class adjustments is to directly use the inverse of the estimated probabilities of response. Adjustment classes act are a way of 'smoothing' predictions, avoiding extreme values and overfit. Therefore, they are based on some kind of 'mistrust' of statistical models. Even if they are a standard procedure in survey methodology and backed by solid literature, they might look a bit naive to researchers coming from other areas (e.g. econometrics, genomics, etc.). Adjusting directly with propensity scores relies more on statistical/modelling skills of researchers. Here we will show a couple of alternative methods. As previously explained, these need to avoid being too specific to our data. Instead, they should try to give information on the distribution that generated this data.
+
+### Estimating response propensities using Cross-validated LASSO Regression
+
+The first method we will try is a penalised regression, more specifically a LASSO regression. Penalised regressions are very similar to a logistic regression but have the particularity of having 'shrinked' coefficients. This reduces the influence of predictors to avoid overfit. It does this by producing a model which would be better to predict 'unseen' data and is less specific to our data. In other words, it tries to avoid noise from our data set into the model. This is done by tunning the penalty parameters with cross-validation (a resampling method).
+
+The first six estimated propensities are the output of the next code chunk. 
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+formula. <- as.formula("response ~ type + access + physa + littera + vandaa")
+
+options(na.action = 'na.pass')
+
+x.matrix <- model.matrix(formula., data = data.nonresponse.model)[, -1]
+
+glm.cv.model <- cv.glmnet(x.matrix, data.nonresponse.model$response, alpha = 1, family="binomial")
+
+predicted.lasso <- predict(glm.cv.model, x.matrix, s = "lambda.min", type = "response")[,1]
+
+data.nonresponse.model$predicted.lasso <- predicted.lasso
+
+head(predicted.lasso)
+
+```
+
+Comparing the predictions obtained with these two methods (logistic regression and cross-validated lasso) we observe that they all give relatively similar values. They are all centered around the same mean, which is the proportion of respondents in our subset. Lasso regression is the more 'rigid' with a smaller standard deviation in its predictions. Logistic regression is almost always slightly more distant of the mean than the lasso regression. It is important to note that our logistic and lasso regressions included only linear parameters (i.e. no squared coefficients nor interactions). Therefore, these were both rather 'rigid' methods. Below we will see that our prediction of response probabilities is relatively poor. This is most probably because our covariates are far from excellent predictors of response propensities^[Although it could also be the case that we are missing to explore some important interaction between predictors]. Therefore, it might not be worth the time to try more 'flexible' models.
+
+
+```{r,  echo=TRUE, warning=FALSE, message=FALSE}
+
+mean(data.nonresponse.model$response)
+
+list.comparison <- list()
+
+list.comparison$head.predicted.vals <- cbind(predicted.log, predicted.lasso) %>% head(10)
+
+list.comparison$means <- c(mean.log.reg = mean(predicted.log), 
+                               mean.lasso = mean(predicted.lasso)) 
+
+list.comparison$sd <- c(sd.log.reg = sd(predicted.log), 
+                               sd.lasso = sd(predicted.lasso)) 
+
+list.comparison
+
+rm(list.comparison)
+```
+
+Comparing the fit of both models (below the next chunk), we see that the logistic regression fits a bit better to the whole sample, with 57.6% of success in classifying sample units as respondents vs non-respondents. However, the difference is almost negligible. Moreover, a 58% success in classifying is a rather poor model (by chance we would already expect to correctly classify 50%).
+
+```{r,  echo=TRUE, warning=FALSE, message=FALSE}
+
+data.nonresponse.model %<>%
+  mutate(predicted.category.log.reg = (predicted.log > 0.5) %>% as.numeric,
+         predicted.category.lasso = (predicted.lasso > 0.5) %>% as.numeric)
+
+train.correct.logreg <- table(data.nonresponse.model$response, data.nonresponse.model$predicted.category.log.reg) %>% diag() %>% sum()/nrow(data.nonresponse.model)
+
+train.correct.lasso <- table(data.nonresponse.model$response, data.nonresponse.model$predicted.category.lasso) %>% diag() %>% sum()/nrow(data.nonresponse.model)
+
+c(train.correct.logreg = train.correct.logreg, train.correct.lasso = train.correct.lasso)
+
+```
+
+The two chunks below compute the cross-validated ratio of correctly classified units. We would expect these to be lower than the successfuly classified units for the whole sample. This is because cross-validation is a resampling method. We use it to get an idea of how our estimates (e.g. ratio of correctly classified units) would fit the whole statistical population which includes 'unseen' observations (i.e. not only the sample at hand). 
+
+Cross-validated ratio of correctly classified units would vary each time we run the procedure. This will not happen here because we set a seed for random procedures at the beginning or the script. We observe that, for both methods, the cross-validated ratio of correctly classified units is slightly lower than the estimate for our sample. Also, both methods have a very similar predictive capacity. 
+
+```{r,  echo=TRUE, warning=FALSE, message=FALSE}
+
+folds <- createFolds(data.nonresponse.model$response, k = 10, list = TRUE, returnTrain = FALSE)
+
+formula. <- as.formula("response ~ type + access + physa + littera + vandaa")
+
+  success.rate.logreg <- vector()
+
+for(i in 1:length(folds)){
+  
+  t <- i
+  
+  train.folds <- c(1:10)[-t]
+  
+  temp.train.data <- data.nonresponse.model[folds[train.folds] %>% unlist(),]
+  
+  temp.test.data <- data.nonresponse.model[folds[t] %>% unlist(),]
+  
+  temp.log.reg.m <- glm(formula., data = temp.train.data, family = "binomial")
+  
+  temp.predicted <- predict(temp.log.reg.m, temp.test.data, type = "response")
+  
+  temp.predicted <- ifelse(temp.predicted > 0.5, 1, 0)
+  
+  success.rate.logreg <- c(success.rate.logreg, table(temp.predicted, temp.test.data$response) %>% diag() %>% sum()/nrow(temp.test.data) )
+  
+  
+}
+
+  cv.success.log.reg <- success.rate.logreg %>% sum()/length(success.rate.logreg)
+
+  rm(train.folds, temp.train.data, temp.test.data, temp.log.reg.m, temp.predicted)
+
+    
+```
+
+
+```{r,  echo=TRUE, warning=FALSE, message=FALSE}
+
+  success.rate.glmnet <- vector()
+
+for(i in 1:length(folds)){
+  
+  t <- i
+  
+  train.folds <- c(1:10)[-t]
+  
+  temp.train.data <- x.matrix[folds[train.folds] %>% unlist(),]
+  
+  temp.train.y  <- data.nonresponse.model[folds[train.folds] %>% unlist(),"response"]
+
+  temp.test.data <- x.matrix[folds[t] %>% unlist(),]
+  
+  temp.test.y <- data.nonresponse.model[folds[t] %>% unlist(),"response"]
+
+  temp.glmnet.m <- glmnet(x = temp.train.data, y = temp.train.y, family = "binomial")
+  
+  temp.predicted <- predict(temp.glmnet.m, temp.test.data, type = "response", s = glm.cv.model$lambda.min)
+  
+  temp.predicted <- ifelse(temp.predicted > 0.5, 1, 0)
+  
+  success.rate.glmnet <- c(success.rate.glmnet, table(temp.predicted, temp.test.y) %>% diag() %>% sum()/nrow(temp.test.data) )
+  
+}
+
+  cv.success.glmnet <- success.rate.glmnet %>% sum()/length(success.rate.glmnet)
+
+  rm(t, train.folds, temp.train.data, temp.train.y, temp.test.data,
+     tempt.test.y, temp.glmnet.m, temp.predicted)  
+  
+  c(cv.success.log.reg = cv.success.log.reg, cv.success.glmnet = cv.success.glmnet)
+  
+```
+
+If we wanted to do an adjustment directly using the estimated propensity scores and without computing adjustment classes, we would just use the inverse of the estimated propensities as the non-response weights. It would be a good idea to use the Lasso predictions as these are less sparce than those from the logistic regression. Therefore, we might have less variance inflation with (virtually) the same expected reduction in bias.
+
+If we had no information about population estimates, we would end the weighting procedure here. The 'final weight' would be the multiplicaiton of both base scaled weight and the scaled non-response weight. Here we will call this new weights 'final weights' although we still have to perform adjustments to them and so will not really be 'final'. 
+
+Before going to the next step we will include the computed non-response weights using adjustment classes to the main *'data'* dataframe object. Then we will drop all non-respondents as we are not going to use them any more in the next steps of our analysis. After that, we will scale the non-response weights to the sample of respondents and multiply the (scaled) design weights and the (scaled) non-response weights. 
+
+```{r,  echo=TRUE, warning=FALSE, message=FALSE}
+
+data %<>%
+  left_join(data.nonresponse.model %>% select(idno, nonresp.weight),
+            by = "idno")
+
+data %<>%
+  filter(response == 1, !is.na(base.weight.scaled)) %>%
+  mutate(nonresp.weight.scaled = nonresp.weight/mean(nonresp.weight),
+         final.weight = base.weight.scaled * nonresp.weight.scaled)
+
+rm(x.matrix, cv.success.glmnet, cv.success.log.reg, folds, formula.,
+   glm.cv.model, i, log.reg.m, predicted.lasso,predicted.log.tr, success.rate.glmnet, success.rate.logreg, train.correct.lasso, train.correct.logreg)
+
+```
+
+<!--chapter:end:04-Step_2_non-response_weights.Rmd-->
+
+# Step 3: Use of auxiliary data for weight calibration {#calibration}
+
+In certain cases we might have information about our statistical population (e.g. census counts or proportions from official statistics). We can then use these to 'correct' our weights. This adjustment is called calibration and consists on finding a new set of weights that are as near as possible the input (*'final'*) weights but reproduce the population information exactly. Valliant et al (2013) explain that using the previous *'final'* weights as input for the calibration step allows us to 'borrow' good estiamtion properties from those.
+
+An important difference between this step and the one on non-response adjustment is that non-response adjustment requieres having information for both sampled respondents and non-respondents. Calibration only requieres information for respondents and population in general. 
+
+Here we will calibrate weights using a 'raking' procedure (explained in Valliant el al 2013 page 358). Unlike other calibration methods, 'raking' does not requiere information on cross-classification categories but just marginal population counts. In other words, we do not need the information from crossing several variables (although we can use it if available). As explained by Lumley (2010, page 139), the process is very much iterative. It involves post-stratifying on each set of variables in turn, and repeating the process until the weights stop changing. 
+
+The 7th ESS used cross-classifications of age group and gender plus region (separately) to calibrate UK data. Here we will try to reproduce their calibration. For more information on ESS post-stratification weights see their document: [Documentation of ESS
+Post-Stratification Weights](http://www.europeansocialsurvey.org/docs/methodology/ESS_post_stratification_weights_documentation.pdf)
+
+## Preparing data for calibration
+
+First we will compute the interaction between gender and age with the categories used for calibration in the ESS. 
+
+```{r,  echo=TRUE, warning=FALSE, message=FALSE}
+
+data %<>%
+  mutate(agea_rec = cut(agea %>% as.numeric(), breaks = c(14, 34, 54, 99))) %>%
+         unite(col = gender_age_rec, gndr, agea_rec, remove = F) %>%
+  mutate(gender_age_rec = replace(x = gender_age_rec, 
+                                  list = gender_age_rec %in% c("Female_NA", "Male_NA"),
+                                  values = NA ))
+
+data %<>%
+  filter(!is.na(gender_age_rec), !is.na(region)) # see footnote in text below.
+
+```
+
+The total number of weighted units in each of the categories we will use for calibration can be seen in tables below^[There is a small problem with 20 respondents for which we do not have information about their age. In order to keep thing simple this example we will ignore this issue.].
+
+```{r,  echo=TRUE, warning=FALSE, message=FALSE}
+
+data %>%
+  group_by(gender_age_rec) %>%
+  summarise(total_n_sample = sum(final.weight))
+
+data %>%
+  group_by(region) %>%
+  summarise(total_n_sample = sum(final.weight))
+
+```
+
+Now we import Eurostat data^[Eurostat data corresponds to tables and which give information on population by age and gender (*'demo_pjangroup'*) and age and NUTS2 region (*'demo_r_d2jan'*) on the 1st of January of 2014. Last updated on the 29th of April 2017.] and recode it into ESS adjustment/post-stratification categories.
+
+The data used in this guide are hosted in the [author's github page](https://github.com/JosepER/PPMI_how_to_weight_a_survey/tree/master/data/Eurostat) and the raw version can be checked in the following links:
+
+* [Age and gender](https://raw.githubusercontent.com/JosepER/PPMI_how_to_weight_a_survey/master/data/Eurostat/Agebygender_demo_pjangroup.csv).
+
+* [Age by NUTS 2 regions](https://raw.githubusercontent.com/JosepER/PPMI_how_to_weight_a_survey/master/data/Eurostat/Agebygender_demo_pjangroup.csv).
+
+```{r,  echo=TRUE, warning=FALSE, message=FALSE}
+
+age.gender.eurostat <- read.csv(text=getURL("https://raw.githubusercontent.com/JosepER/PPMI_how_to_weight_a_survey/master/data/Eurostat/Agebygender_demo_pjangroup.csv"), header=T)
+
+age.gender.eurostat %<>%
+  spread(key = Age, value = Value)
+
+age.gender.eurostat %<>%
+  mutate(`15to34` = `From 15 to 19 years` + `From 20 to 24 years` +  `From 25 to 29 years` +
+           `From 30 to 34 years`,
+         `35to54` = `From 35 to 39 years` + `From 40 to 44 years` + `From 45 to 49 years` + 
+           `From 50 to 54 years`,
+         `55to99` =  `From 55 to 59 years` + `From 60 to 64 years` + `From 65 to 69 years` +
+           `From 70 to 74 years` + `75 years or over`) %>%
+  select(SEX, `15to34`:`55to99`)
+
+```
+
+
+```{r,  echo=TRUE, warning=FALSE, message=FALSE}
+
+region.eurostat <- read.csv(text=getURL("https://raw.githubusercontent.com/JosepER/PPMI_how_to_weight_a_survey/master/data/Eurostat/Nuts2byage.csv"), header=T, stringsAsFactors = F)
+  
+region.eurostat %<>%
+  gather(key = age, value = population, -Country) 
+
+region.eurostat %<>%
+  group_by(Country) %>%
+  summarise(pop_sum = sum(population) )
+  
+```
+
+We will now scale the Eurostat data to our sample size. The idea is to obtain the weights that make our sample proportions look like those in Eurostat. For these, we will calculate how many respondents in our sample should pertain to each category if we had Eurostat proportions. We will use our sample size based only on (weighted) completed responses in our post-stratification adjustment variables (age, gender and region).
+
+First we compute the total (weighted) observations in our sample of respondents.
+
+```{r,  echo=TRUE, warning=FALSE, message=FALSE}
+
+data.calibration <- data
+
+weighted.pop <- sum(data.calibration$final.weight)
+
+weighted.pop
+
+```
+
+In the next chunk of code we will scale Eurostat population by age an gender data to the size of our sample. We will do this by dividing Eurostat absolute population numbers by the sum of population in all categories and multiplying it by the previously computed sum of weighted respondents. This will provide us a dataframe (*'age.gender.eurostat'*) with the number of respondents our survey sample should have in each gender and age crossed category if it was to resemble the proportions found in reality (i.e. official statistics).
+
+```{r,  echo=TRUE, warning=FALSE, message=FALSE}
+
+age.gender.eurostat %<>%
+  gather(key = age, value = population, -SEX) %>%
+  unite(col = gender_age_rec, SEX, age) 
+
+total.population <- age.gender.eurostat$population %>% 
+  sum()
+
+age.gender.eurostat %<>%
+  mutate(Freq = round(population/total.population * weighted.pop, 0) ) %>%
+  select(-population)
+
+age.gender.eurostat$gender_age_rec <- c("Female_(14,34]", "Male_(14,34]",
+                                        "Female_(34,54]", "Male_(34,54]",
+                                        "Female_(54,99]", "Male_(54,99]")
+
+age.gender.eurostat
+
+rm(total.population)
+
+```
+
+Next we will do the same for Eurostat's population data on NUTS 2 regions.
+
+```{r,  echo=TRUE, warning=FALSE, message=FALSE}
+
+total.population <- region.eurostat$pop_sum %>%
+  sum()
+
+region.eurostat %<>%
+  mutate(Freq = round(pop_sum/total.population * weighted.pop, 0) ) %>%
+  select(-pop_sum)
+
+names(region.eurostat)[[1]] <- "region" 
+
+region.eurostat$region[region.eurostat$region == "East Midlands (UK)"] <- "East Midlands (England)"
+region.eurostat$region[region.eurostat$region == "North East (UK)"] <- "North East (England)"
+region.eurostat$region[region.eurostat$region == "North West (UK)"] <- "North West (England)"
+region.eurostat$region[region.eurostat$region == "Northern Ireland (UK)"] <- "Northern Ireland"
+region.eurostat$region[region.eurostat$region == "South East (UK)"] <- "South East (England)"
+region.eurostat$region[region.eurostat$region == "South West (UK)"] <- "South West (England)"
+region.eurostat$region[region.eurostat$region == "West Midlands (UK)"] <- "West Midlands (England)"
+region.eurostat$region[region.eurostat$region == "Yorkshire and The Humber"] <- "Yorkshire and the Humber"
+
+```
+
+Here we will briefly test that we have the same categories in calibration variables of both survey and Eurostat datasets.
+
+```{r,  echo=TRUE, warning=FALSE, message=FALSE}
+
+if( identical(region.eurostat$region %>% unique %>% sort, data.calibration$region %>% as.character() %>% unique %>% sort) != T) {
+    stop("Levels in region variable have to be the the same in the calibration and dataset used for population frequencies")
+}
+
+if( identical(age.gender.eurostat$gender_age_rec %>% unique %>% sort, data.calibration$gender_age_rec %>% as.character() %>% unique %>% sort) != T) {
+    stop("Levels in age by gender categories variable have to be the the same in the calibration and dataset used for population frequencies")
+}
+
+```
+
+## Implementing calibration
+
+Now we will use the R *'survey'* package (Lumley,T., 2010) to calibrate weights using the raking procedure. We will do this twice. First time we will compute the raked weighs using our *'final.weight'* as an input. These contain information from both the base weights and our adjustment for non-response. In the second computation we will repeat the ESS design and use (only) the design/base weights as an input (variable *'base.weight'*). This will allow us to compare our output weights with those computed by the experts behind the weighting procedure of the 7th ESS. 
+
+The R *'survey'* package works in a rather particular way^[It has its own requierements in terms of coding 'grammar'. This is may be because it was programmed in 2003, almost 15 years ago! Hopefully other packages such as *'srvyr'*, which at the time of writing this guide is still in version 0.2.1, will be able to take the content  of the *'survey'* package and adapt it to current scripting]. It first requieres to specify the design of the survey with the *'svydesign'* function. This creates an object of an adhoc class 'survey.design' that is passed to further procedures such as weights raking. 
+
+The *'svydesign'* function requieres an *'ids'* argument with cluster ids. For the specific case of the 7th ESS in the UK, this would be the postal codes, which are the Primary Sampling Units (PSU). The procedures of the *'survey'* package would then take into account these related responses when computing variances. However, here we will ignore this fact and pretend that all responses where independent of each other (we can do this by passing *~ 0* to the *'ids'* argument). This should not affect the raking procedure. Next, we neet to specify the input weights in the *'weights'* argument. Here we will pass the computed *final weights* and the *design/base* weights respectively to create both survey designs. Last, we need to specify the data with the survey respondses in the *'data'* argument.
+
+In this next chunk of code we will create these two objects which will correspond to the two explained computations of raked weights.
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+our.svydesign <- svydesign(ids = ~ 0, weights = ~final.weight, data = data.calibration)
+
+ess.svydesign <- svydesign(ids = ~ 0, weights = ~base.weight, data = data.calibration)
+
+```
+
+The raking procedure can be done with the *'rake'* function form the *'survey'* package. This function requieres to pass the previously computed survey design object as its first object (*'design'*). The second argument (*'sample.margins'*) is a list of formulas describing which variables are going to be used for calibration. Here we will pass a list with two formulas. The first one using the *'region'* variable and the second one the *'gender_age_rec'* variable which corresponds to the interaction/crosstabulation of gender and age categories. The third argument (*'population.margins'*) are the population counts for our calibration variables. Here we will pass our dataframes with the number of people that should be in each region/gender and age category if our sample followed population proportions.
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+our.raked <- rake(our.svydesign, sample.margins = list(~region, ~gender_age_rec), 
+     population = list(region.eurostat, age.gender.eurostat))
+
+ess.raked <- rake(ess.svydesign, sample.margins = list(~region, ~gender_age_rec), 
+     population = list(region.eurostat, age.gender.eurostat))
+
+```
+
+Then we collect the weights from the *'our.raked'* and *'ess.raked'* objects we just computed and we add them to our dataset for this section (the *'data.calibration'* dataframe).
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+raked.weight <- our.raked$postStrata[[1]][[1]] %>% attributes() %>% .[["weights"]]
+
+ess.raked.weight <- ess.raked$postStrata[[1]][[1]] %>% attributes() %>% .[["weights"]]
+
+data.calibration$ess.raked.weight <- ess.raked.weight
+
+data.calibration$raked.weight <- raked.weight
+
+rm(raked.weight, ess.raked.weight)
+
+```
+
+## Testing results from raked weights
+
+Next we compare the frequencies of weighted observations in our sample with those we would obtain if our dataset had the same shares of age, gender and region categories as official data (i.e. the data inputed to our calibration procedure). If our calibration is successful, the frequencies should be almost the same. Here we will do this test using our calibration procedure which included design and non-response weights as an input (i.e. calibration object *'raked.weight'*). The following chunk of code shows the results for age and gender categories.
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+left_join(
+data.calibration %>%
+  group_by(gender_age_rec) %>%
+  summarise(calibrated.sample.pop = sum(raked.weight) %>% round(1)),
+age.gender.eurostat)
+
+```
+
+Here we show the compared frequencies for regions. Both comparisons allow us to see that calibration performed as expected and weighted frequencies reflect population proportions from official statistics.
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+left_join(
+data.calibration %>%
+  group_by(region) %>%
+  summarise(calibrated.sample.pop = sum(raked.weight) %>% round(1)),
+region.eurostat)
+
+```
+
+Now we can compare our computed final calibrated weights with those computed by the experts in charge of the weighting procedure of the 7th ESS. We will first join the calibrated weights with our original dataset of respondents.   
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+data %<>%
+  left_join(data.calibration %>% select(idno, raked.weight, ess.raked.weight), by = "idno")
+
+rm(data.calibration, age.gender.eurostat, region.eurostat)
+
+```
+
+Here we compare our raked weight using the same methodology as they used in the 7th ESS (*'ess.raked.weight'*) and the weight included in the 7th ESS dataset (*'pspwght'*). Looking at the first 15 observations we see that they are, in most cases, very close. This means that we successfully reproduced the weights computed in the 7th ESS!
+
+For our estimations, we could also use the calibrated/raked weights we computed ourselves using the additional input of non-response weights (variable *'raked.weight'*). Using this input, our raking procedure would also 'borrow' good estimation properties from the non-response adjustment^[This idea of calibration weights 'borrowing' properties from input weights comes from Valliant et al. (2013, pag 231)].
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+left_join(
+data %>% select(idno, raked.weight, ess.raked.weight),
+original.weights %>% select(idno, pspwght)
+) %>% head(15)
+
+```
+
+Here we try to compute a mesure of distance of our computed raked weights to those included in the original 7th ESS datafile. We can do this by calculating the sum of squared differences. As we would expect, we find that those computed using the ESS methodology tend to fall much closer to the ESS original weights than the weights which also include input from non-response estimations. It is important to stress again that this does not mean that closer weights are better than those including properties from non-response estimations.
+
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+left_join(
+data %>% select(idno, raked.weight, ess.raked.weight),
+original.weights %>% select(idno, pspwght)
+) %>%
+  mutate(diff.myraked = pspwght-raked.weight,
+         diff.essraked = pspwght-ess.raked.weight) %>%
+  summarise(ssdiff.myraked = sum(diff.myraked ^ 2),
+            ssdiff.essraked = sum(diff.essraked ^ 2))
+
+```
+
+<!--chapter:end:05-Step_3_calibration.Rmd-->
+
+# Step 4: Analysis of weight variability{#weight_variability}
+
+In progress!
+
+<!--chapter:end:06-Step_4_analysis_weight_variability.Rmd-->
+
+# Computing weighted estimates{#computing_estimates}
+
+In progress!
+
+<!--chapter:end:07-Computing_weighted_estimates.Rmd-->
+
+# Note for non-probability samples
+
+In progress!
+
+<!--chapter:end:08-Note_non-probability_samples.Rmd-->
+

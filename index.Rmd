@@ -5,6 +5,7 @@ author: "Josep Espasa Reig"
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
 output: bookdown::gitbook
+output_dir: "docs"
 documentclass: book
 github-repo: JosepER/Book_How_to_weight_a_survey
 ---
