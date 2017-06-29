@@ -1,7 +1,7 @@
 # Introduction {#introduction}
 
 
-### Aim of this guide and further readings
+## Aim of this guide and further readings
 
 This is a short introductory guide that shows the basic procedures to weight a survey. Please keep in mind that
 there are many different ways of doing this. This guide intends to be a practical document and a step-by-step walkthrough for weighting a survey. It provides [R code](https://www.r-project.org/) for all actions: from reading, manipulating and presenting data to modelling and callibration. This should allow readers to reproduce procerudes and results as well as to inspect objects at any given part of this guide. The source code in an 'R notebook' format can be found and publicly accessed from the [author's github page](https://github.com/JosepER/PPMI_how_to_weight_a_survey/01-_Basic_steps_on_how_to_weight_a_survey_sample.Rmd). It is important to note that this is not an 'R tutorial'. Thus, the guide does not provide a detailed comment on general functions used in this walk-through. Some intermediate 'R' skills might be requiered to follow all steps of the procedure. Readers with basic or no knowledge of 'R' can still benefit from this note as it explains the steps and principles behind weighting. 
@@ -24,7 +24,7 @@ It might be also worth keeping an eye on the (still incipient) R package [*srvyr
 
 Note: This guide focuses on surveys based on 'probability sample'. These are surveys where all units in our statistical population have a chance of being selected and the probability of selection is known to the researcher. A brief note on how to weight non-probability samples is included at the end of the guide. 
 
-### Basic steps in weighting a survey {#basic_steps}
+## Basic steps in weighting a survey {#basic_steps}
 
 Weights are applied to reduce survey bias. In plain words, weighting consists on making our sample of survey respondents (more) representative of our statistical population. By statistical population we mean all those units for which we want to compute estimates.
 

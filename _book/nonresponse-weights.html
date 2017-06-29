@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html >
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>(Very) basic steps to weight a survey sample</title>
+  <meta name="description" content="(Very) basic steps to weight a survey sample">
+  <meta name="generator" content="bookdown 0.4 and GitBook 2.6.7">
+
+  <meta property="og:title" content="(Very) basic steps to weight a survey sample" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="(Very) basic steps to weight a survey sample" />
+  
+  
+  
+
+<meta name="author" content="Josep Espasa Reig">
+
+
+<meta name="date" content="2017-06-29">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  
+  
+<link rel="prev" href="design-weights.html">
+<link rel="next" href="calibration.html">
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Welcome to the introduction on how to weight a survey sample!</a></li>
+<li class="chapter" data-level="1" data-path="introduction.html"><a href="introduction.html"><i class="fa fa-check"></i><b>1</b> Introduction</a><ul>
+<li class="chapter" data-level="1.1" data-path="introduction.html"><a href="introduction.html#aim-of-this-guide-and-further-readings"><i class="fa fa-check"></i><b>1.1</b> Aim of this guide and further readings</a></li>
+<li class="chapter" data-level="1.2" data-path="introduction.html"><a href="introduction.html#basic_steps"><i class="fa fa-check"></i><b>1.2</b> Basic steps in weighting a survey</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="import-data-management.html"><a href="import-data-management.html"><i class="fa fa-check"></i><b>2</b> Import data and data management</a><ul>
+<li class="chapter" data-level="2.0.1" data-path="import-data-management.html"><a href="import-data-management.html#import-data"><i class="fa fa-check"></i><b>2.0.1</b> Import data</a></li>
+<li class="chapter" data-level="2.0.2" data-path="import-data-management.html"><a href="import-data-management.html#select-variables"><i class="fa fa-check"></i><b>2.0.2</b> Select variables</a></li>
+<li class="chapter" data-level="2.0.3" data-path="import-data-management.html"><a href="import-data-management.html#merging-datafiles"><i class="fa fa-check"></i><b>2.0.3</b> Merging datafiles</a></li>
+<li class="chapter" data-level="2.0.4" data-path="import-data-management.html"><a href="import-data-management.html#recoding"><i class="fa fa-check"></i><b>2.0.4</b> Recoding</a></li>
+<li class="chapter" data-level="2.1" data-path="import-data-management.html"><a href="import-data-management.html#exploring-and-presenting-the-dataset"><i class="fa fa-check"></i><b>2.1</b> Exploring and presenting the dataset</a><ul>
+<li class="chapter" data-level="2.1.1" data-path="import-data-management.html"><a href="import-data-management.html#paradata-variables"><i class="fa fa-check"></i><b>2.1.1</b> Paradata variables</a></li>
+<li class="chapter" data-level="2.1.2" data-path="import-data-management.html"><a href="import-data-management.html#survey-responses"><i class="fa fa-check"></i><b>2.1.2</b> Survey responses</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="design-weights.html"><a href="design-weights.html"><i class="fa fa-check"></i><b>3</b> Step 1: Design weights</a></li>
+<li class="chapter" data-level="4" data-path="nonresponse-weights.html"><a href="nonresponse-weights.html"><i class="fa fa-check"></i><b>4</b> Step 2: Non-response weights</a><ul>
+<li class="chapter" data-level="4.1" data-path="nonresponse-weights.html"><a href="nonresponse-weights.html#what-are-of-non-response-weights"><i class="fa fa-check"></i><b>4.1</b> What are of non-response weights?</a></li>
+<li class="chapter" data-level="4.2" data-path="nonresponse-weights.html"><a href="nonresponse-weights.html#estimating-response-propensities-using-logistic-regression"><i class="fa fa-check"></i><b>4.2</b> Estimating response propensities using logistic regression</a></li>
+<li class="chapter" data-level="4.3" data-path="nonresponse-weights.html"><a href="nonresponse-weights.html#creating-non-response-adjustment-classes"><i class="fa fa-check"></i><b>4.3</b> Creating non-response adjustment classes</a></li>
+<li class="chapter" data-level="4.4" data-path="nonresponse-weights.html"><a href="nonresponse-weights.html#testing-non-response-adjustment-classes"><i class="fa fa-check"></i><b>4.4</b> Testing non-response adjustment classes</a></li>
+<li class="chapter" data-level="4.5" data-path="nonresponse-weights.html"><a href="nonresponse-weights.html#propensity_adjustment"><i class="fa fa-check"></i><b>4.5</b> Propensity adjustment (alternative to adjustment classes)</a><ul>
+<li class="chapter" data-level="4.5.1" data-path="nonresponse-weights.html"><a href="nonresponse-weights.html#estimating-response-propensities-using-cross-validated-lasso-regression"><i class="fa fa-check"></i><b>4.5.1</b> Estimating response propensities using Cross-validated LASSO Regression</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="calibration.html"><a href="calibration.html"><i class="fa fa-check"></i><b>5</b> Step 3: Use of auxiliary data for weight calibration</a><ul>
+<li class="chapter" data-level="5.1" data-path="calibration.html"><a href="calibration.html#preparing-data-for-calibration"><i class="fa fa-check"></i><b>5.1</b> Preparing data for calibration</a></li>
+<li class="chapter" data-level="5.2" data-path="calibration.html"><a href="calibration.html#implementing-calibration"><i class="fa fa-check"></i><b>5.2</b> Implementing calibration</a></li>
+<li class="chapter" data-level="5.3" data-path="calibration.html"><a href="calibration.html#testing-results-from-raked-weights"><i class="fa fa-check"></i><b>5.3</b> Testing results from raked weights</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="step-4-analysis-of-weight-variability.html"><a href="step-4-analysis-of-weight-variability.html"><i class="fa fa-check"></i><b>6</b> Step 4: Analysis of weight variability</a></li>
+<li class="chapter" data-level="7" data-path="computing-weighted-estimates.html"><a href="computing-weighted-estimates.html"><i class="fa fa-check"></i><b>7</b> Computing weighted estimates</a></li>
+<li class="chapter" data-level="8" data-path="note-for-non-probability-samples.html"><a href="note-for-non-probability-samples.html"><i class="fa fa-check"></i><b>8</b> Note for non-probability samples</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">(Very) basic steps to weight a survey sample</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="nonresponse_weights" class="section level1">
+<h1><span class="header-section-number">4</span> Step 2: Non-response weights</h1>
+<div id="what-are-of-non-response-weights" class="section level2">
+<h2><span class="header-section-number">4.1</span> What are of non-response weights?</h2>
+<p>The second basic step in weighting a survey is accounting for differences in the propensity to respond. Imagine a situation in which a profile of sampled units (e.g. lower income people) had higher propensity to respond than another profile (e.g. people with higher incomes). Imagine as well that the characteristics of both profiles were associated to our <em>‘Y’</em> variables, here alcohol and cigarretes consumption (e.g. people with lower income smoking and drinking more than people with higher income). As we then would have a larger proportion of lower income/smokers in our sampleour analyses would be biased.</p>
+<p>If we compute the sample ourselves, we can also compute the probability of a unit of being sampled. Computing the probability of replying to the survey is, however, slightly more challenging. We can not direclty observe the probability of a unit of replying to the survey, therefore we need to estimate it. This is done using information which we know for both respondent and non-respondent units. Here it is useful to think about the probability of response as a latent variable (i.e. not directly observable).</p>
+<p>There are two main ways of using this information. The first one would be creating cells from variable intersections (i.e. sampled units 15-24 &amp; countryside; 15-24 &amp; cities; 25-34 &amp; countryside, etc.) and then calculate the probability of response in each cell. The second method is to estimate the probability of response by modelling it.</p>
+<p>The first approach has the advantage of being more simple. However, computing a large number of cells from crossing variable could most probably lead to having empty cells or cells with a very small number of sampled units. The probability estimated for these cells with smaller number of units could be far from the real one. We could apply it if we thought that the probability of responding can actually be explained by the variable intersections we used.</p>
+<p>The second approach (explained in <a href="nonresponse-weights.html#propensity_adjustment">‘Propensity adjustment’ section</a> below) relies on the modelling skills of the researcher computing the weights. In order to estimate the proability of response we need to predict it. ‘Predictive modelling’ is slightly different than the usual ‘inference modelling’. Here we are not interested in understanding the causes of differences in response propensities. We are just interested in predicting these. Therefore, we should take a ‘data driven’ approach that differs from those we usually see in social sciences. For an excellent introduction to ‘predictive statistics’ you can check the free book <a href="http://www-bcf.usc.edu/~gareth/ISL/">‘An Introduction to Statistical Learning’ by James et al.</a>.</p>
+<p>This is not a guide on ‘predictive modelling’. However, it might be worth it to very briefly explain the basic principle behind it. We should try to build a model which is able to estimate the probability using only ‘relevant’ information and excluding ‘noise’ from the model. Therefore, a predictive model should be fitting the observed data well enough but at the same time not too specific to it.</p>
+<p>For this specific case of non-response weighting, we are especially interested in using propensity predictors which are related to both the response propensity and our dependent variables.</p>
+<p>Here we will use the paradata information to model the probability of response. The variables describing the type of house and the immediate vicinity around houses have a relatively small number of missing values (~ 8%) these missings seem to be related (i.e. all variables missing for certain units). Those sampled units that have missing values on all these paradata variables are always non-respondents. It would be useful to know why this pattern exists. We would guess that these are sampled units which interviewers could not reach for some reason. For this analysis, we will ignore this fact and not use these units with missing values in ALL paradata variables. This should only result in a linear transformation of the estimated probabilities of response. Moreover, we can later adjust our model to ‘undo’ this transformation.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data.nonresponse.model &lt;-<span class="st"> </span>data[vars.paradata] %&gt;%<span class="st"> </span><span class="kw">select</span>(idno, interva, type:vandaa)
+
+data.nonresponse.model$all.missing &lt;-<span class="st"> </span><span class="ot">NA</span>
+
+data.nonresponse.model$all.missing[<span class="kw">is.na</span>(data.nonresponse.model$type) &amp;
+<span class="st">                                     </span><span class="kw">is.na</span>(data.nonresponse.model$access) &amp;
+<span class="st">                                     </span><span class="kw">is.na</span>(data.nonresponse.model$physa) &amp;<span class="st"> </span>
+<span class="st">                                     </span><span class="kw">is.na</span>(data.nonresponse.model$littera) &amp;
+<span class="st">                                     </span><span class="kw">is.na</span>(data.nonresponse.model$vandaa)] &lt;-<span class="st"> </span><span class="dv">1</span>
+
+data.nonresponse.model %&lt;&gt;%
+<span class="st">  </span><span class="kw">filter</span>(<span class="kw">is.na</span>(all.missing)) %&gt;%
+<span class="st">  </span><span class="kw">select</span>(-all.missing)
+
+indep.vars.nonresponse &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;type&quot;</span>, <span class="st">&quot;access&quot;</span>, <span class="st">&quot;physa&quot;</span>, <span class="st">&quot;littera&quot;</span>, <span class="st">&quot;vandaa&quot;</span>)
+
+data.nonresponse.model[,<span class="kw">c</span>(<span class="st">&quot;type&quot;</span>, <span class="st">&quot;access&quot;</span>)]  %&lt;&gt;%<span class="st"> </span><span class="kw">map</span>(function(x){<span class="kw">as.character</span>(x)})
+
+<span class="co">#data.nonresponse.model %&gt;% map(function(x){sum(is.na(x))})</span>
+
+<span class="co"># Missing category for missings in multinomial variables.</span>
+  
+for(i in <span class="kw">c</span>(<span class="st">&quot;type&quot;</span>, <span class="st">&quot;access&quot;</span>)) {
+  data.nonresponse.model[[i]][<span class="kw">is.na</span>(data.nonresponse.model[[i]])] &lt;-<span class="st"> &quot;Missing&quot;</span>
+  
+}
+
+<span class="co"># Mean imputation for ordinal variables.</span>
+
+for(i in <span class="kw">c</span>(<span class="st">&quot;physa&quot;</span>, <span class="st">&quot;littera&quot;</span>, <span class="st">&quot;vandaa&quot;</span>)) {
+  data.nonresponse.model[[i]][<span class="kw">is.na</span>(data.nonresponse.model[[i]])] &lt;-<span class="st"> </span><span class="kw">levels</span>(data.nonresponse.model[[i]])[<span class="kw">median</span>(data.nonresponse.model[[i]] %&gt;%<span class="st"> </span><span class="kw">as.numeric</span>(), <span class="dt">na.rm =</span> T) ] 
+  
+}
+
+for(i in <span class="kw">c</span>(<span class="st">&quot;physa&quot;</span>, <span class="st">&quot;littera&quot;</span>, <span class="st">&quot;vandaa&quot;</span>)) {
+  data.nonresponse.model[[i]] &lt;-<span class="st"> </span><span class="kw">as.ordered</span>(data.nonresponse.model[[i]])
+
+  
+}
+
+data.nonresponse.model %&lt;&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">response =</span> <span class="kw">as.numeric</span>(<span class="kw">as.numeric</span>(interva) ==<span class="st"> </span><span class="dv">1</span>))
+
+data %&lt;&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">response =</span> <span class="kw">as.numeric</span>(<span class="kw">as.numeric</span>(interva) ==<span class="st"> </span><span class="dv">1</span>))</code></pre></div>
+</div>
+<div id="estimating-response-propensities-using-logistic-regression" class="section level2">
+<h2><span class="header-section-number">4.2</span> Estimating response propensities using logistic regression</h2>
+<p>Valliant et al (2013) recommend estimating the response propensities and then grouping them in classes. The grouping step should avoid extreme weights. One way of estimating the response propensities is using logistic regression. This logistic regression should be unweighted. Later in this section we will try other ways of computing estimates of response propensities.</p>
+<p>In order to do a logistic regression in R, we need to specify the dependent variable (response) and predictors (type, access, physa, littera and vandaa) in a formula. Then we input the formula and the dataset into the <em>‘glm’</em> function with a <em>‘family = binomial’</em> argument.</p>
+<p>The following output shows the first six estimated response propensities of our dataset.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">formula &lt;-<span class="st"> </span><span class="kw">as.formula</span>(<span class="st">&quot;response ~ type + access + physa + littera + vandaa&quot;</span>)
+
+<span class="kw">options</span>(<span class="dt">na.action =</span> <span class="st">&#39;na.pass&#39;</span>)
+
+x.matrix &lt;-<span class="st"> </span><span class="kw">model.matrix</span>(formula, <span class="dt">data =</span> data.nonresponse.model)[, -<span class="dv">1</span>]
+
+log.reg.m &lt;-<span class="st"> </span><span class="kw">glm</span>(formula,  
+  <span class="dt">data =</span> data.nonresponse.model,
+  <span class="dt">family =</span> <span class="st">&quot;binomial&quot;</span>)
+
+coef.response.log &lt;-<span class="st"> </span><span class="kw">coef</span>(log.reg.m)
+
+predicted.log &lt;-<span class="st"> </span>log.reg.m$fitted.values
+
+data.nonresponse.model$predicted.log &lt;-<span class="st"> </span>predicted.log
+
+predicted.log %&gt;%<span class="st"> </span><span class="kw">head</span>()</code></pre></div>
+<pre><code>##         1         2         3         4         5         6 
+## 0.4101303 0.4586384 0.4675598 0.5551654 0.4117369 0.5143249</code></pre>
+<p>As explained before, we are now computing our estimates from a subset of sampled units. This does not take into account many non-respondents which had missing values in all predictors of our non-response model. This means that the previous propensities are slightly overestimated. This is because the response rate in our full dataset is 40.4% and in our subset used for non-response adjustment is 44.1%. This is not entirely related to non-response weight adjustment so we will just compute the new estimates with modified intercept in the next chunk and skip the explanation on how to perform the trasformation. For an excellent description on how it’s done readers can check Stanford University’s online course on <a href="https://lagunita.stanford.edu/courses/HumanitiesSciences/StatLearning/Winter2016/info">SP Statistical Learning</a>.</p>
+<p>Below the next chunk of code you can see the first six transformed estimated response propensities of our dataset.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">resp.pop &lt;-<span class="st">  </span><span class="kw">mean</span>(data$response)
+  
+resp.subgroup &lt;-<span class="st"> </span><span class="kw">mean</span>(data.nonresponse.model$response)
+
+log.reg.m$coefficients[<span class="dv">1</span>] &lt;-<span class="st"> </span><span class="kw">coef</span>(log.reg.m)[[<span class="dv">1</span>]] +<span class="st"> </span><span class="kw">log</span>(resp.pop/(<span class="dv">1</span>-resp.pop) -<span class="st"> </span><span class="kw">log</span>(resp.subgroup/(<span class="dv">1</span>-resp.subgroup)) )
+
+<span class="kw">rm</span>(resp.pop, resp.subgroup)
+
+predicted.log.tr &lt;-<span class="st"> </span><span class="kw">predict</span>(log.reg.m, data.nonresponse.model, <span class="dt">type =</span> <span class="st">&quot;response&quot;</span>)
+
+data.nonresponse.model$predicted.log.tr &lt;-<span class="st"> </span>predicted.log.tr
+
+predicted.log.tr %&gt;%<span class="st"> </span><span class="kw">head</span>()</code></pre></div>
+<pre><code>##         1         2         3         4         5         6 
+## 0.3886949 0.4365441 0.4453892 0.5329992 0.3902731 0.4919858</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">rm</span>(coef.response.log, formula, i)</code></pre></div>
+</div>
+<div id="creating-non-response-adjustment-classes" class="section level2">
+<h2><span class="header-section-number">4.3</span> Creating non-response adjustment classes</h2>
+<p>Here we will follow the procedure for creating classes explained in pag. 329 of Valliant et al.(2013). From their text it is not so clear how many classes should be created.</p>
+<p>Looking at the distribution of estimated probabilities of response, we observe a large majority of values between 0.4 and 0.5. However, there are several outliers at both ends of the distribution.</p>
+<p>As there is not so much dispersion in values in the middle of the distribution, creating classess accoring to quintiles might not be the best way to account for differences in estimated response propensities. However, other methods might create classess which are too specific to outliers. This is kind of a bias-variance trade off. If we fit broad classes which encompass very different estimated probabilities within them, we will be adjusting less and so keeping more bias in our estiamtes. If we create tight classes capturing these outliers, then we will have large differences in weights and so more variance in our estimates.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">predicted.log.tr %&gt;%<span class="st"> </span><span class="kw">quantile</span>(<span class="dt">probs =</span> <span class="kw">seq</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="fl">0.05</span>)) %&gt;%<span class="st"> </span><span class="kw">round</span>(<span class="dv">4</span>)</code></pre></div>
+<pre><code>##     0%     5%    10%    15%    20%    25%    30%    35%    40%    45% 
+## 0.0124 0.2878 0.3457 0.3638 0.3887 0.3903 0.4022 0.4038 0.4211 0.4227 
+##    50%    55%    60%    65%    70%    75%    80%    85%    90%    95% 
+## 0.4227 0.4365 0.4365 0.4365 0.4370 0.4370 0.4626 0.5061 0.5065 0.5065 
+##   100% 
+## 0.7526</code></pre>
+<p>These are the 5 classes created using 20th, 40th, 60th and 80th quintiles.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data.nonresponse.model$predicted.class &lt;-<span class="st"> </span><span class="kw">cut</span>(<span class="dt">x =</span> data.nonresponse.model$predicted.log.tr, <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="dv">0</span>,<span class="kw">quantile</span>(predicted.log.tr, <span class="dt">probs =</span> <span class="kw">seq</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="fl">0.2</span>))[-<span class="dv">1</span>] ))
+
+data.nonresponse.model$predicted.class %&gt;%<span class="st"> </span><span class="kw">levels</span>()</code></pre></div>
+<pre><code>## [1] &quot;(0,0.389]&quot;     &quot;(0.389,0.421]&quot; &quot;(0.421,0.437]&quot; &quot;(0.437,0.463]&quot;
+## [5] &quot;(0.463,0.753]&quot;</code></pre>
+<p>Below there is a summary of the estimated propensities included in each of them (in boxplots). We can see that the first and last groups have more dispersion in propensities. The middle three groups have very little dispersion and are similar between them. In this case they are so similar that we could even consider merging them into one single group.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(data.nonresponse.model, <span class="kw">aes</span>(<span class="dt">x =</span> predicted.class, <span class="dt">y =</span> predicted.log.tr)) +
+<span class="st">  </span><span class="kw">geom_boxplot</span>()</code></pre></div>
+<p><img src="_main_files/figure-html/unnamed-chunk-29-1.png" width="672" /></p>
+<p>To compute the non-response weights, we can use the mean estimated probability of response in each class.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data.nonresponse.model %&gt;%
+<span class="st">  </span><span class="kw">group_by</span>(predicted.class) %&gt;%
+<span class="st">  </span><span class="kw">summarise</span>(<span class="dt">mean.prob =</span> <span class="kw">mean</span>(predicted.log.tr) %&gt;%<span class="st"> </span><span class="kw">round</span>(<span class="dv">4</span>))</code></pre></div>
+<pre><code>## # A tibble: 5 x 2
+##   predicted.class mean.prob
+##            &lt;fctr&gt;     &lt;dbl&gt;
+## 1       (0,0.389]    0.3283
+## 2   (0.389,0.421]    0.4016
+## 3   (0.421,0.437]    0.4310
+## 4   (0.437,0.463]    0.4387
+## 5   (0.463,0.753]    0.5145</code></pre>
+<p>And then we can compute the non-response weight as the inverse of the mean probabilities in each class.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data.nonresponse.model %&lt;&gt;%<span class="st"> </span><span class="kw">left_join</span>(
+data.nonresponse.model %&gt;%
+<span class="st">  </span><span class="kw">group_by</span>(predicted.class) %&gt;%
+<span class="st">  </span><span class="kw">summarise</span>(<span class="dt">mean.prob =</span> <span class="kw">mean</span>(predicted.log.tr) ), <span class="dt">by =</span> <span class="st">&quot;predicted.class&quot;</span>)
+
+data.nonresponse.model %&lt;&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">nonresp.weight =</span> <span class="kw">round</span>(<span class="dv">1</span>/mean.prob, <span class="dv">4</span>) )
+
+data.nonresponse.model$nonresp.weight %&gt;%<span class="st"> </span>unique %&gt;%<span class="st"> </span>sort</code></pre></div>
+<pre><code>## [1] 1.9435 2.2793 2.3201 2.4900 3.0463</code></pre>
+</div>
+<div id="testing-non-response-adjustment-classes" class="section level2">
+<h2><span class="header-section-number">4.4</span> Testing non-response adjustment classes</h2>
+<p>After creating the classes, a good practice would be to check for covariate balance. This procedure is explained in pag. 330 of Valliant et al.(2013). Units in the same class should have similar values in covariates. At the same time, we would ideally find differencess between classes. In other words, here we would check if classes are made of homogeneous units (within-class check) and if they really distinguish different profiles of these (between-class check). For the within-group check, we are especially interested in checking if profiles of respondents and non-respondents within each class are similar.</p>
+<p>The best way of doing this analysis might be fitting two different regressions for each covariate<a href="#fn3" class="footnoteRef" id="fnref3"><sup>3</sup></a>. As an example we will do the balance analysis for the ordinal covariate <em>physa</em>. In a real analysis this should be repeated for all covariates.</p>
+<p>For the between-class check, we can fit a model only with class predictors. This should show if classes explain differences in covariate variables. As we have an ordinal covariate (<em>physa</em>) with four categories (<em>‘Very bad’</em>, <em>‘Bad’</em>, <em>‘Satisfactory’</em>, <em>‘Good’</em>, <em>‘Very good’</em>), we will use an ordered logistic regression. An alternative would be to treat the covariate as a continous varaible and use an OLS regression.</p>
+<p>The variable <em>physa</em> compares the ‘Overall physical condition building/house’. The variable is negativelly coded so larger values mean worse physical condition. The coefficients of the ordered logistic regression show that the larger the estimated propensity, the smaller the probability of being in bad physical conditions. Therefore, people in houses with worse physical conditions would have smaller response propensity and so be underrepresented in our sample. From the coefficients below we see that the classes we have created for non-response adjustment somehow explain differences in our analysed covariate. However, ideally we would have a more clear effect of classes on our covariate. We see that the second adjustment class created (that for estimated propensities between 0.41 and 0.443) actually has larger probabilities of having worse physical conditions than the base category (0 to 0.41). At the same time, the third and fourth categories (0.443 to 0.459) and (0.459 to 0.485) have very similar coefficients, which might indicate that they do not really distinguish different classes of sampled units.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">formula. &lt;-<span class="st"> </span><span class="kw">as.formula</span>(<span class="st">&quot;physa ~ predicted.class&quot;</span>)
+
+test.between.model &lt;-<span class="st"> </span><span class="kw">polr</span>(<span class="dt">formula =</span> formula., <span class="dt">data =</span> data.nonresponse.model, <span class="dt">method =</span> <span class="st">&quot;logistic&quot;</span>)
+
+ctable.between &lt;-<span class="st"> </span><span class="kw">coef</span>(<span class="kw">summary</span>(test.between.model))
+
+p &lt;-<span class="st"> </span><span class="kw">pnorm</span>(<span class="kw">abs</span>(ctable.between[, <span class="st">&quot;t value&quot;</span>]), <span class="dt">lower.tail =</span> <span class="ot">FALSE</span>) %&gt;%<span class="st"> </span><span class="kw">round</span>(<span class="dv">4</span>)
+
+ctable.between &lt;-<span class="st"> </span><span class="kw">cbind</span>(ctable.between, <span class="st">&quot;p value&quot;</span> =<span class="st"> </span>p)
+
+ctable.between</code></pre></div>
+<pre><code>##                                   Value Std. Error    t value p value
+## predicted.class(0.389,0.421]  0.4616699 0.08909791   5.181602       0
+## predicted.class(0.421,0.437] -3.0018358 0.10543331 -28.471419       0
+## predicted.class(0.437,0.463] -2.8379051 0.12184972 -23.290207       0
+## predicted.class(0.463,0.753] -7.1107000 0.14993912 -47.423915       0
+## Very good|Good               -5.1316957 0.11232331 -45.686826       0
+## Good|Satisfactory            -0.6246051 0.06405379  -9.751260       0
+## Satisfactory|Bad              2.5006755 0.08826855  28.330310       0
+## Bad|Very bad                  4.6467655 0.20292616  22.898799       0</code></pre>
+<p>For the within-class check, we can extend our model to include interactions between class and response. This will check if, within a non-response class, there are differences between respondents and non-respondents in our covariate <em>physa</em> (ideally they wouldn’t be and we would not find them).</p>
+<p>In this second test (see coefficients below) we see that one of the interactions has a significant coefficient at 5% confidence level. Ideally, all interaction terms would be non-significant, meaning that we do not observe within-group differences between respondents and non-respondents in our covariates. A way of dealing with this situation with one significant coefficient would be to explore other ways of spliting units into classes. However, as explained before, these other categorisations would have drawbacks in terms of inflated variance. Moreover, if we have a large number of classes and covariates, we would expect to find significant coefficients just by chance. Therefore, as long as these unbalances do not occur for most classes and covariates, reporting these unbalances should be enough. In this example, we see that the differences in the physical condition of their houses we observe within each computed class respondents and non-respondents are so small that might be due to sampling error<a href="#fn4" class="footnoteRef" id="fnref4"><sup>4</sup></a>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">formula. &lt;-<span class="st"> </span><span class="kw">as.formula</span>(<span class="st">&quot;physa ~ response + predicted.class + response * predicted.class&quot;</span>)
+
+test.within.model &lt;-<span class="st"> </span><span class="kw">polr</span>(<span class="dt">formula =</span> formula., <span class="dt">data =</span> data.nonresponse.model, <span class="dt">method =</span> <span class="st">&quot;logistic&quot;</span>)
+
+ctable.within &lt;-<span class="st"> </span><span class="kw">coef</span>(<span class="kw">summary</span>(test.within.model))
+
+p &lt;-<span class="st"> </span><span class="kw">pnorm</span>(<span class="kw">abs</span>(ctable.within[, <span class="st">&quot;t value&quot;</span>]), <span class="dt">lower.tail =</span> <span class="ot">FALSE</span>) %&gt;%<span class="st"> </span><span class="kw">round</span>(<span class="dv">4</span>)
+
+ctable.within &lt;-<span class="st"> </span><span class="kw">cbind</span>(ctable.within, <span class="st">&quot;p value&quot;</span> =<span class="st"> </span>p)
+
+ctable.within</code></pre></div>
+<pre><code>##                                             Value Std. Error      t value
+## response                               0.16629093 0.12952169   1.28388484
+## predicted.class(0.389,0.421]           0.59606463 0.11503347   5.18166279
+## predicted.class(0.421,0.437]          -2.93757529 0.12899719 -22.77239763
+## predicted.class(0.437,0.463]          -2.70924911 0.15584853 -17.38386062
+## predicted.class(0.463,0.753]          -7.13945161 0.19426167 -36.75172547
+## response:predicted.class(0.389,0.421] -0.34119548 0.18198801  -1.87482398
+## response:predicted.class(0.421,0.437] -0.18968461 0.18651462  -1.01699595
+## response:predicted.class(0.437,0.463] -0.32814861 0.22822726  -1.43781515
+## response:predicted.class(0.463,0.753] -0.02271575 0.23907967  -0.09501331
+## Very good|Good                        -5.07916071 0.12147163 -41.81355457
+## Good|Satisfactory                     -0.56711343 0.07902913  -7.17600521
+## Satisfactory|Bad                       2.56185632 0.10036301  25.52590104
+## Bad|Very bad                           4.70784119 0.20850649  22.57887082
+##                                       p value
+## response                               0.0996
+## predicted.class(0.389,0.421]           0.0000
+## predicted.class(0.421,0.437]           0.0000
+## predicted.class(0.437,0.463]           0.0000
+## predicted.class(0.463,0.753]           0.0000
+## response:predicted.class(0.389,0.421]  0.0304
+## response:predicted.class(0.421,0.437]  0.1546
+## response:predicted.class(0.437,0.463]  0.0752
+## response:predicted.class(0.463,0.753]  0.4622
+## Very good|Good                         0.0000
+## Good|Satisfactory                      0.0000
+## Satisfactory|Bad                       0.0000
+## Bad|Very bad                           0.0000</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">rm</span>(formula., test.within.model, p, indep.vars.nonresponse, i, test.between.model,
+   ctable.between, ctable.within)</code></pre></div>
+</div>
+<div id="propensity_adjustment" class="section level2">
+<h2><span class="header-section-number">4.5</span> Propensity adjustment (alternative to adjustment classes)</h2>
+<p>An alternative to computing class adjustments is to directly use the inverse of the estimated probabilities of response. Adjustment classes act are a way of ‘smoothing’ predictions, avoiding extreme values and overfit. Therefore, they are based on some kind of ‘mistrust’ of statistical models. Even if they are a standard procedure in survey methodology and backed by solid literature, they might look a bit naive to researchers coming from other areas (e.g. econometrics, genomics, etc.). Adjusting directly with propensity scores relies more on statistical/modelling skills of researchers. Here we will show a couple of alternative methods. As previously explained, these need to avoid being too specific to our data. Instead, they should try to give information on the distribution that generated this data.</p>
+<div id="estimating-response-propensities-using-cross-validated-lasso-regression" class="section level3">
+<h3><span class="header-section-number">4.5.1</span> Estimating response propensities using Cross-validated LASSO Regression</h3>
+<p>The first method we will try is a penalised regression, more specifically a LASSO regression. Penalised regressions are very similar to a logistic regression but have the particularity of having ‘shrinked’ coefficients. This reduces the influence of predictors to avoid overfit. It does this by producing a model which would be better to predict ‘unseen’ data and is less specific to our data. In other words, it tries to avoid noise from our data set into the model. This is done by tunning the penalty parameters with cross-validation (a resampling method).</p>
+<p>The first six estimated propensities are the output of the next code chunk.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">formula. &lt;-<span class="st"> </span><span class="kw">as.formula</span>(<span class="st">&quot;response ~ type + access + physa + littera + vandaa&quot;</span>)
+
+<span class="kw">options</span>(<span class="dt">na.action =</span> <span class="st">&#39;na.pass&#39;</span>)
+
+x.matrix &lt;-<span class="st"> </span><span class="kw">model.matrix</span>(formula., <span class="dt">data =</span> data.nonresponse.model)[, -<span class="dv">1</span>]
+
+glm.cv.model &lt;-<span class="st"> </span><span class="kw">cv.glmnet</span>(x.matrix, data.nonresponse.model$response, <span class="dt">alpha =</span> <span class="dv">1</span>, <span class="dt">family=</span><span class="st">&quot;binomial&quot;</span>)
+
+predicted.lasso &lt;-<span class="st"> </span><span class="kw">predict</span>(glm.cv.model, x.matrix, <span class="dt">s =</span> <span class="st">&quot;lambda.min&quot;</span>, <span class="dt">type =</span> <span class="st">&quot;response&quot;</span>)[,<span class="dv">1</span>]
+
+data.nonresponse.model$predicted.lasso &lt;-<span class="st"> </span>predicted.lasso
+
+<span class="kw">head</span>(predicted.lasso)</code></pre></div>
+<pre><code>##         1         2         3         4         5         6 
+## 0.4087345 0.4611603 0.4523603 0.4758645 0.4198371 0.5135011</code></pre>
+<p>Comparing the predictions obtained with these two methods (logistic regression and cross-validated lasso) we observe that they all give relatively similar values. They are all centered around the same mean, which is the proportion of respondents in our subset. Lasso regression is the more ‘rigid’ with a smaller standard deviation in its predictions. Logistic regression is almost always slightly more distant of the mean than the lasso regression. It is important to note that our logistic and lasso regressions included only linear parameters (i.e. no squared coefficients nor interactions). Therefore, these were both rather ‘rigid’ methods. Below we will see that our prediction of response probabilities is relatively poor. This is most probably because our covariates are far from excellent predictors of response propensities<a href="#fn5" class="footnoteRef" id="fnref5"><sup>5</sup></a>. Therefore, it might not be worth the time to try more ‘flexible’ models.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">mean</span>(data.nonresponse.model$response)</code></pre></div>
+<pre><code>## [1] 0.4414344</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">list.comparison &lt;-<span class="st"> </span><span class="kw">list</span>()
+
+list.comparison$head.predicted.vals &lt;-<span class="st"> </span><span class="kw">cbind</span>(predicted.log, predicted.lasso) %&gt;%<span class="st"> </span><span class="kw">head</span>(<span class="dv">10</span>)
+
+list.comparison$means &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dt">mean.log.reg =</span> <span class="kw">mean</span>(predicted.log), 
+                               <span class="dt">mean.lasso =</span> <span class="kw">mean</span>(predicted.lasso)) 
+
+list.comparison$sd &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dt">sd.log.reg =</span> <span class="kw">sd</span>(predicted.log), 
+                               <span class="dt">sd.lasso =</span> <span class="kw">sd</span>(predicted.lasso)) 
+
+list.comparison</code></pre></div>
+<pre><code>## $head.predicted.vals
+##    predicted.log predicted.lasso
+## 1      0.4101303       0.4087345
+## 2      0.4586384       0.4611603
+## 3      0.4675598       0.4523603
+## 4      0.5551654       0.4758645
+## 5      0.4117369       0.4198371
+## 6      0.5143249       0.5135011
+## 7      0.4259045       0.4268628
+## 8      0.4446954       0.4540173
+## 9      0.3908374       0.4105130
+## 10     0.4254382       0.4268628
+## 
+## $means
+## mean.log.reg   mean.lasso 
+##    0.4414344    0.4414344 
+## 
+## $sd
+## sd.log.reg   sd.lasso 
+## 0.07217839 0.05818359</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">rm</span>(list.comparison)</code></pre></div>
+<p>Comparing the fit of both models (below the next chunk), we see that the logistic regression fits a bit better to the whole sample, with 57.6% of success in classifying sample units as respondents vs non-respondents. However, the difference is almost negligible. Moreover, a 58% success in classifying is a rather poor model (by chance we would already expect to correctly classify 50%).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data.nonresponse.model %&lt;&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">predicted.category.log.reg =</span> (predicted.log &gt;<span class="st"> </span><span class="fl">0.5</span>) %&gt;%<span class="st"> </span>as.numeric,
+         <span class="dt">predicted.category.lasso =</span> (predicted.lasso &gt;<span class="st"> </span><span class="fl">0.5</span>) %&gt;%<span class="st"> </span>as.numeric)
+
+train.correct.logreg &lt;-<span class="st"> </span><span class="kw">table</span>(data.nonresponse.model$response, data.nonresponse.model$predicted.category.log.reg) %&gt;%<span class="st"> </span><span class="kw">diag</span>() %&gt;%<span class="st"> </span><span class="kw">sum</span>()/<span class="kw">nrow</span>(data.nonresponse.model)
+
+train.correct.lasso &lt;-<span class="st"> </span><span class="kw">table</span>(data.nonresponse.model$response, data.nonresponse.model$predicted.category.lasso) %&gt;%<span class="st"> </span><span class="kw">diag</span>() %&gt;%<span class="st"> </span><span class="kw">sum</span>()/<span class="kw">nrow</span>(data.nonresponse.model)
+
+<span class="kw">c</span>(<span class="dt">train.correct.logreg =</span> train.correct.logreg, <span class="dt">train.correct.lasso =</span> train.correct.lasso)</code></pre></div>
+<pre><code>## train.correct.logreg  train.correct.lasso 
+##            0.5755213            0.5737673</code></pre>
+<p>The two chunks below compute the cross-validated ratio of correctly classified units. We would expect these to be lower than the successfuly classified units for the whole sample. This is because cross-validation is a resampling method. We use it to get an idea of how our estimates (e.g. ratio of correctly classified units) would fit the whole statistical population which includes ‘unseen’ observations (i.e. not only the sample at hand).</p>
+<p>Cross-validated ratio of correctly classified units would vary each time we run the procedure. This will not happen here because we set a seed for random procedures at the beginning or the script. We observe that, for both methods, the cross-validated ratio of correctly classified units is slightly lower than the estimate for our sample. Also, both methods have a very similar predictive capacity.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">folds &lt;-<span class="st"> </span><span class="kw">createFolds</span>(data.nonresponse.model$response, <span class="dt">k =</span> <span class="dv">10</span>, <span class="dt">list =</span> <span class="ot">TRUE</span>, <span class="dt">returnTrain =</span> <span class="ot">FALSE</span>)
+
+formula. &lt;-<span class="st"> </span><span class="kw">as.formula</span>(<span class="st">&quot;response ~ type + access + physa + littera + vandaa&quot;</span>)
+
+  success.rate.logreg &lt;-<span class="st"> </span><span class="kw">vector</span>()
+
+for(i in <span class="dv">1</span>:<span class="kw">length</span>(folds)){
+  
+  t &lt;-<span class="st"> </span>i
+  
+  train.folds &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span>:<span class="dv">10</span>)[-t]
+  
+  temp.train.data &lt;-<span class="st"> </span>data.nonresponse.model[folds[train.folds] %&gt;%<span class="st"> </span><span class="kw">unlist</span>(),]
+  
+  temp.test.data &lt;-<span class="st"> </span>data.nonresponse.model[folds[t] %&gt;%<span class="st"> </span><span class="kw">unlist</span>(),]
+  
+  temp.log.reg.m &lt;-<span class="st"> </span><span class="kw">glm</span>(formula., <span class="dt">data =</span> temp.train.data, <span class="dt">family =</span> <span class="st">&quot;binomial&quot;</span>)
+  
+  temp.predicted &lt;-<span class="st"> </span><span class="kw">predict</span>(temp.log.reg.m, temp.test.data, <span class="dt">type =</span> <span class="st">&quot;response&quot;</span>)
+  
+  temp.predicted &lt;-<span class="st"> </span><span class="kw">ifelse</span>(temp.predicted &gt;<span class="st"> </span><span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">0</span>)
+  
+  success.rate.logreg &lt;-<span class="st"> </span><span class="kw">c</span>(success.rate.logreg, <span class="kw">table</span>(temp.predicted, temp.test.data$response) %&gt;%<span class="st"> </span><span class="kw">diag</span>() %&gt;%<span class="st"> </span><span class="kw">sum</span>()/<span class="kw">nrow</span>(temp.test.data) )
+  
+  
+}
+
+  cv.success.log.reg &lt;-<span class="st"> </span>success.rate.logreg %&gt;%<span class="st"> </span><span class="kw">sum</span>()/<span class="kw">length</span>(success.rate.logreg)
+
+  <span class="kw">rm</span>(train.folds, temp.train.data, temp.test.data, temp.log.reg.m, temp.predicted)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  success.rate.glmnet &lt;-<span class="st"> </span><span class="kw">vector</span>()
+
+for(i in <span class="dv">1</span>:<span class="kw">length</span>(folds)){
+  
+  t &lt;-<span class="st"> </span>i
+  
+  train.folds &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span>:<span class="dv">10</span>)[-t]
+  
+  temp.train.data &lt;-<span class="st"> </span>x.matrix[folds[train.folds] %&gt;%<span class="st"> </span><span class="kw">unlist</span>(),]
+  
+  temp.train.y  &lt;-<span class="st"> </span>data.nonresponse.model[folds[train.folds] %&gt;%<span class="st"> </span><span class="kw">unlist</span>(),<span class="st">&quot;response&quot;</span>]
+
+  temp.test.data &lt;-<span class="st"> </span>x.matrix[folds[t] %&gt;%<span class="st"> </span><span class="kw">unlist</span>(),]
+  
+  temp.test.y &lt;-<span class="st"> </span>data.nonresponse.model[folds[t] %&gt;%<span class="st"> </span><span class="kw">unlist</span>(),<span class="st">&quot;response&quot;</span>]
+
+  temp.glmnet.m &lt;-<span class="st"> </span><span class="kw">glmnet</span>(<span class="dt">x =</span> temp.train.data, <span class="dt">y =</span> temp.train.y, <span class="dt">family =</span> <span class="st">&quot;binomial&quot;</span>)
+  
+  temp.predicted &lt;-<span class="st"> </span><span class="kw">predict</span>(temp.glmnet.m, temp.test.data, <span class="dt">type =</span> <span class="st">&quot;response&quot;</span>, <span class="dt">s =</span> glm.cv.model$lambda.min)
+  
+  temp.predicted &lt;-<span class="st"> </span><span class="kw">ifelse</span>(temp.predicted &gt;<span class="st"> </span><span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">0</span>)
+  
+  success.rate.glmnet &lt;-<span class="st"> </span><span class="kw">c</span>(success.rate.glmnet, <span class="kw">table</span>(temp.predicted, temp.test.y) %&gt;%<span class="st"> </span><span class="kw">diag</span>() %&gt;%<span class="st"> </span><span class="kw">sum</span>()/<span class="kw">nrow</span>(temp.test.data) )
+  
+}
+
+  cv.success.glmnet &lt;-<span class="st"> </span>success.rate.glmnet %&gt;%<span class="st"> </span><span class="kw">sum</span>()/<span class="kw">length</span>(success.rate.glmnet)
+
+  <span class="kw">rm</span>(t, train.folds, temp.train.data, temp.train.y, temp.test.data,
+     tempt.test.y, temp.glmnet.m, temp.predicted)  
+  
+  <span class="kw">c</span>(<span class="dt">cv.success.log.reg =</span> cv.success.log.reg, <span class="dt">cv.success.glmnet =</span> cv.success.glmnet)</code></pre></div>
+<pre><code>## cv.success.log.reg  cv.success.glmnet 
+##          0.5718210          0.5690923</code></pre>
+<p>If we wanted to do an adjustment directly using the estimated propensity scores and without computing adjustment classes, we would just use the inverse of the estimated propensities as the non-response weights. It would be a good idea to use the Lasso predictions as these are less sparce than those from the logistic regression. Therefore, we might have less variance inflation with (virtually) the same expected reduction in bias.</p>
+<p>If we had no information about population estimates, we would end the weighting procedure here. The ‘final weight’ would be the multiplicaiton of both base scaled weight and the scaled non-response weight. Here we will call this new weights ‘final weights’ although we still have to perform adjustments to them and so will not really be ‘final’.</p>
+<p>Before going to the next step we will include the computed non-response weights using adjustment classes to the main <em>‘data’</em> dataframe object. Then we will drop all non-respondents as we are not going to use them any more in the next steps of our analysis. After that, we will scale the non-response weights to the sample of respondents and multiply the (scaled) design weights and the (scaled) non-response weights.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data %&lt;&gt;%
+<span class="st">  </span><span class="kw">left_join</span>(data.nonresponse.model %&gt;%<span class="st"> </span><span class="kw">select</span>(idno, nonresp.weight),
+            <span class="dt">by =</span> <span class="st">&quot;idno&quot;</span>)
+
+data %&lt;&gt;%
+<span class="st">  </span><span class="kw">filter</span>(response ==<span class="st"> </span><span class="dv">1</span>, !<span class="kw">is.na</span>(base.weight.scaled)) %&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">nonresp.weight.scaled =</span> nonresp.weight/<span class="kw">mean</span>(nonresp.weight),
+         <span class="dt">final.weight =</span> base.weight.scaled *<span class="st"> </span>nonresp.weight.scaled)
+
+<span class="kw">rm</span>(x.matrix, cv.success.glmnet, cv.success.log.reg, folds, formula.,
+   glm.cv.model, i, log.reg.m, predicted.lasso,predicted.log.tr, success.rate.glmnet, success.rate.logreg, train.correct.lasso, train.correct.logreg)</code></pre></div>
+
+</div>
+</div>
+</div>
+<div class="footnotes">
+<hr />
+<ol start="3">
+<li id="fn3"><p>This procedure slightly differs from that recommended in Valliant et al.(2013), where they suggest to fit only one regression per covariate. Interpreting the lower order coefficients from a regression with interactions between class predictors and a response indicator might not be interpreted as the authors from Valliant et al.(2013) argue.<a href="nonresponse-weights.html#fnref3">↩</a></p></li>
+<li id="fn4"><p>With the exception of differences in class (0.389,0.421], which seem too large to be caused just by sampling error.<a href="nonresponse-weights.html#fnref4">↩</a></p></li>
+<li id="fn5"><p>Although it could also be the case that we are missing to explore some important interaction between predictors<a href="nonresponse-weights.html#fnref5">↩</a></p></li>
+</ol>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="design-weights.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="calibration.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"google": false,
+"weibo": false,
+"instapper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:" && /^https?:/.test(script.src))
+      script.src  = script.src.replace(/^https?:/, '');
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>

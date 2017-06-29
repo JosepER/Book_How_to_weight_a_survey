@@ -1,0 +1,122 @@
+# Step 1: Design weights {#design_weights}
+
+The first step in weighing is taking into account the different probabilities of being sampled that respondents may have. The 7th ESS did not use a register of people in the UK (in other countries they did). They first selected postcode sectors from the Post Office’s small user postcode address file (PAF) merging smaller sectors. The probability of each PAF of being selected was proportional to the number of addresses it contained. Then, they selected 20 addresses inside of each sampled PAF and a dwelling for each address. For each dewlling they selected a household and then a person in each household. The full explanation of the sampling procedure is given in page 163 of The data documentation report ([Edition 3.1](http://www.europeansocialsurvey.org/docs/round7/survey/ESS7_data_documentation_report_e03_1.pdf)). 
+
+This sampling design is typical of survey frames where there is an available/public list of addresses but not a list of households or individuals. If we don't weight this survey, we would probably over-represent people in addresses that have smaller number of dwellings, dwellings that include smaller number of households and households that comprise smaller number of people (we will actually see this below).
+
+Fortunately for us, the probablity of each respondent of being sampled was computed by national experts and included in the 7th ESS dataset. In many projects, however, we would have to compute sampling probailities ourselves^[In 'real' projects where we do the sampling ourselves we would have the sampling probability of both respondents and non-respondents. This example shows us that it is enough to know the probablity of inclsion of respondents.]. A basic but important test that should be performed after computing the probabilities is **making sure that all probabilities are between 0 and 1**.
+
+We will perform this test in the next chunk of code, which should give us an error if any of the probabilities is not in the interval $[0,1]$.
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+probabilities <- data %>%
+  summarise(min.probability = min(prob, na.rm = T),
+            max.probability = max(prob, na.rm = T)) %>%
+  as.vector()
+
+print(probabilities)
+
+if(probabilities$min.probability < 0){stop("Minimum probability of being sampled is smaller than 0. Review sampling probabilities before computing base weights.")}else if(probabilities$max.probability > 1){stop("Maximum probability of being sampled is larger than 1. Review sampling probabilities before computing base weights.")}
+
+rm(probabilities)
+
+```
+
+We see that there are actually `r length(unique(data$prob))` unique sampling probabilities computed in the dataset. 
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+unique(sort(data$prob))
+
+```
+
+The vast majority of respondents had probability of `r as.numeric(names(table(data$prob))[which.max(table(data$prob))]) %>% round(9)` or 0.00020306 (i.e. one in `r round(1/as.numeric(names(table(data$prob))[which.max(table(data$prob))]),0)` and one in `r round(1/0.00020306164012234,0)`). We see a minority of around 15% of observations with smaller probabilities. These probabilities might seem very small. This is because the whole population is very large and the survey only sampled a small part of it. 
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+table(round(data$prob*100,6))
+```
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+ggplot(data, aes(x = prob)) +
+  geom_histogram()
+
+```
+
+The sampling probability of respondents seems to be related to the type of dwelling of respondents and the number of people in their household. We would have expected this as some types of dwellings might tend to be linked to a single address. For other (smaller) types there might usually be many dwellings sharing the same address^[As we explained before, this is relevant because sampling allocation inside Primary Sampling Units (postcode sectors) was proportional to the number of adresses in each of these. Therefore, if an address contains a large number of dwellings, each dwelling will have a smaller probability of being sampled than a dwelling that is the only one in an address.]. Something similar would happen for size of household. Individuals in large households would have smaller probabilities of being sampled than individuals who are the only person in the household. 
+
+These differences in sampling probabilities across dweling type and household size show that, without any kind of adjustment, our sample would over-represent people living in certain types of dweling (e.g. 'Multi-unit house, flat') and people living in small households. If respondents from living in different types of dwellings and household sizes had differences in our *'Y'* variables (e.g. smoked more or drank more alcohol) then our estimates from the survey sample would be biased.
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+data %>%
+  filter(!is.na(prob)) %>%
+  group_by(type) %>%
+  summarise(n = n(),
+    mean.prob.percentage = mean(prob, na.rm = T)*100) %>%
+      arrange(desc(mean.prob.percentage))
+
+```
+
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+data %<>%
+  mutate(hhmmb.factor = as.factor(hhmmb) %>% fct_recode(`+5` = "6",
+                                                        `+5` = "7",
+                                                        `+5` = "8"))
+
+data %>%
+  filter(!is.na(prob)) %>%
+  filter(!is.na(hhmmb.factor)) %>%
+  group_by(hhmmb.factor) %>%
+  summarise(n = n(),
+    mean.prob.percentage = mean(prob, na.rm = T)*100) %>%
+      arrange(desc(mean.prob.percentage))
+
+```
+
+To solve these differences in sampling probabilities we have to compute **design weights** (sometimes also called **base weights**. The design weights are equal to the inverse of the probability of inclusion to the sample. Therefore, the design weight (*d~0~*) of a respondent (*i*) will be equal to: $d_{0i} =  1/\pi_{i}$ where $pi_{i}$ is the probability of that unit of being included in the sampling.
+
+Here we compute the design weight from the probability given in the ESS database.   
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+data %<>%
+  mutate(base.weight = 1/prob)
+
+data %>%
+  select(prob, base.weight) %>% head(10)
+
+```
+
+A simple interpretation of design weights it 'the number of units in our population that each unit in our sample represents'. There is a simple but important test that we should perform after computing design weights. **The sum of all design weights should be equal to the total number of units in our population**. The ESS dataset for UK only included sampling probabilities for respondents (i.e. sampled units that responded to the survey!) but they did not include sampling probabilities of non-respondents. We can guess that this is because sampling probability depends on information that is obtained from the interview (i.e. number of people in household, number of households in dwelling, number of dwellings in adress, etc.). Not knowing the sampling probability for some sampled units is not an optimal situation. 
+
+The sum of our computed weights in the ESS dataset with `r table(data$interva)[["Complete and valid interview related to CF"]] %>% format(big.mark = ",", big.interval = 3)` respondents equals `r data %>%  summarise(sum.base.weights.ess.dataset = round(sum(base.weight, na.rm = T),0)) %>% .[["sum.base.weights.ess.dataset"]] %>% format(big.mark = ",", big.interval = 3)`. Doing a very simple Extrapolation to include the `r table(data$interva)[["No interview for other reason"]] %>% format(big.mark = ",", big.interval = 3)` non-respondents would give us a sum of weights equal to `r format(dplyr::summarise(data, sum.base.weights.ess.dataset = round(sum(base.weight, na.rm = T),0)) %>% .[["sum.base.weights.ess.dataset"]] * (nrow(data)/ table(data$interva)[["Complete and valid interview related to CF"]] ), big.mark = ",", big.interval = 3)`. This last figure would be much closer to the total UK population over 15. 
+
+It is a common practice for many researchers to scale the weights so that their sum equals the sample size (instead of the population size). Scaled weights would equally adjust for differences in sampling probabilities. 
+
+Here we compute our scaled design weights and we compare them with the ones given in the ESS dataset. We see that our weights scaled (*base.weigth.scaled*) are almost equal to those computed in the ESS dataset (*dweigth*). The small differences are probably due to rounding error.
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+data %>%
+  filter(!is.na(base.weight)) %>% 
+  select(idno, base.weight) %>%
+  mutate(base.weight.scaled = base.weight/sum(base.weight, na.rm = T)*nrow(data[!is.na(data$prob),])) %>%
+  left_join(original.weights %>% select(idno, dweight),
+            by = "idno") %>% head(10)
+
+data %<>%
+  mutate(base.weight.scaled = base.weight/sum(base.weight, na.rm = T)*nrow(data[!is.na(data$prob),]))
+
+```
+
+As we mentioned before, design weights should sum up to the entire population from which the sample is drawn or to the total number of respondents if scaled as they did in the ESS. In this example both sums should equal `r table(data$interva)[["Complete and valid interview related to CF"]] %>% format(big.mark = ",", big.interval = 3)`. 
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+data %>%
+  left_join(original.weights %>% select(idno, dweight),
+            by = "idno") %>%
+  summarise(sum.all.base.weights.scaled = sum(base.weight.scaled, na.rm = T) %>% round(0),
+            sum.all.design.weights.ess = sum(dweight, na.rm = T) %>% round(0))
+
+```

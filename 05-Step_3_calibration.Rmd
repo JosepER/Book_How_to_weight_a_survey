@@ -1,0 +1,270 @@
+# Step 3: Use of auxiliary data for weight calibration {#calibration}
+
+In certain cases we might have information about our statistical population (e.g. census counts or proportions from official statistics). We can then use these to 'correct' our weights. This adjustment is called calibration and consists on finding a new set of weights that are as near as possible the input (*'final'*) weights but reproduce the population information exactly. Valliant et al (2013) explain that using the previous *'final'* weights as input for the calibration step allows us to 'borrow' good estiamtion properties from those.
+
+An important difference between this step and the one on non-response adjustment is that non-response adjustment requieres having information for both sampled respondents and non-respondents. Calibration only requieres information for respondents and population in general. 
+
+Here we will calibrate weights using a 'raking' procedure (explained in Valliant el al 2013 page 358). Unlike other calibration methods, 'raking' does not requiere information on cross-classification categories but just marginal population counts. In other words, we do not need the information from crossing several variables (although we can use it if available). As explained by Lumley (2010, page 139), the process is very much iterative. It involves post-stratifying on each set of variables in turn, and repeating the process until the weights stop changing. 
+
+The 7th ESS used cross-classifications of age group and gender plus region (separately) to calibrate UK data. Here we will try to reproduce their calibration. For more information on ESS post-stratification weights see their document: [Documentation of ESS
+Post-Stratification Weights](http://www.europeansocialsurvey.org/docs/methodology/ESS_post_stratification_weights_documentation.pdf)
+
+## Preparing data for calibration
+
+First we will compute the interaction between gender and age with the categories used for calibration in the ESS. 
+
+```{r,  echo=TRUE, warning=FALSE, message=FALSE}
+
+data %<>%
+  mutate(agea_rec = cut(agea %>% as.numeric(), breaks = c(14, 34, 54, 99))) %>%
+         unite(col = gender_age_rec, gndr, agea_rec, remove = F) %>%
+  mutate(gender_age_rec = replace(x = gender_age_rec, 
+                                  list = gender_age_rec %in% c("Female_NA", "Male_NA"),
+                                  values = NA ))
+
+data %<>%
+  filter(!is.na(gender_age_rec), !is.na(region)) # see footnote in text below.
+
+```
+
+The total number of weighted units in each of the categories we will use for calibration can be seen in tables below^[There is a small problem with 20 respondents for which we do not have information about their age. In order to keep thing simple this example we will ignore this issue.].
+
+```{r,  echo=TRUE, warning=FALSE, message=FALSE}
+
+data %>%
+  group_by(gender_age_rec) %>%
+  summarise(total_n_sample = sum(final.weight))
+
+data %>%
+  group_by(region) %>%
+  summarise(total_n_sample = sum(final.weight))
+
+```
+
+Now we import Eurostat data^[Eurostat data corresponds to tables and which give information on population by age and gender (*'demo_pjangroup'*) and age and NUTS2 region (*'demo_r_d2jan'*) on the 1st of January of 2014. Last updated on the 29th of April 2017.] and recode it into ESS adjustment/post-stratification categories.
+
+The data used in this guide are hosted in the [author's github page](https://github.com/JosepER/PPMI_how_to_weight_a_survey/tree/master/data/Eurostat) and the raw version can be checked in the following links:
+
+* [Age and gender](https://raw.githubusercontent.com/JosepER/PPMI_how_to_weight_a_survey/master/data/Eurostat/Agebygender_demo_pjangroup.csv).
+
+* [Age by NUTS 2 regions](https://raw.githubusercontent.com/JosepER/PPMI_how_to_weight_a_survey/master/data/Eurostat/Agebygender_demo_pjangroup.csv).
+
+```{r,  echo=TRUE, warning=FALSE, message=FALSE}
+
+age.gender.eurostat <- read.csv(text=getURL("https://raw.githubusercontent.com/JosepER/PPMI_how_to_weight_a_survey/master/data/Eurostat/Agebygender_demo_pjangroup.csv"), header=T)
+
+age.gender.eurostat %<>%
+  spread(key = Age, value = Value)
+
+age.gender.eurostat %<>%
+  mutate(`15to34` = `From 15 to 19 years` + `From 20 to 24 years` +  `From 25 to 29 years` +
+           `From 30 to 34 years`,
+         `35to54` = `From 35 to 39 years` + `From 40 to 44 years` + `From 45 to 49 years` + 
+           `From 50 to 54 years`,
+         `55to99` =  `From 55 to 59 years` + `From 60 to 64 years` + `From 65 to 69 years` +
+           `From 70 to 74 years` + `75 years or over`) %>%
+  select(SEX, `15to34`:`55to99`)
+
+```
+
+
+```{r,  echo=TRUE, warning=FALSE, message=FALSE}
+
+region.eurostat <- read.csv(text=getURL("https://raw.githubusercontent.com/JosepER/PPMI_how_to_weight_a_survey/master/data/Eurostat/Nuts2byage.csv"), header=T, stringsAsFactors = F)
+  
+region.eurostat %<>%
+  gather(key = age, value = population, -Country) 
+
+region.eurostat %<>%
+  group_by(Country) %>%
+  summarise(pop_sum = sum(population) )
+  
+```
+
+We will now scale the Eurostat data to our sample size. The idea is to obtain the weights that make our sample proportions look like those in Eurostat. For these, we will calculate how many respondents in our sample should pertain to each category if we had Eurostat proportions. We will use our sample size based only on (weighted) completed responses in our post-stratification adjustment variables (age, gender and region).
+
+First we compute the total (weighted) observations in our sample of respondents.
+
+```{r,  echo=TRUE, warning=FALSE, message=FALSE}
+
+data.calibration <- data
+
+weighted.pop <- sum(data.calibration$final.weight)
+
+weighted.pop
+
+```
+
+In the next chunk of code we will scale Eurostat population by age an gender data to the size of our sample. We will do this by dividing Eurostat absolute population numbers by the sum of population in all categories and multiplying it by the previously computed sum of weighted respondents. This will provide us a dataframe (*'age.gender.eurostat'*) with the number of respondents our survey sample should have in each gender and age crossed category if it was to resemble the proportions found in reality (i.e. official statistics).
+
+```{r,  echo=TRUE, warning=FALSE, message=FALSE}
+
+age.gender.eurostat %<>%
+  gather(key = age, value = population, -SEX) %>%
+  unite(col = gender_age_rec, SEX, age) 
+
+total.population <- age.gender.eurostat$population %>% 
+  sum()
+
+age.gender.eurostat %<>%
+  mutate(Freq = round(population/total.population * weighted.pop, 0) ) %>%
+  select(-population)
+
+age.gender.eurostat$gender_age_rec <- c("Female_(14,34]", "Male_(14,34]",
+                                        "Female_(34,54]", "Male_(34,54]",
+                                        "Female_(54,99]", "Male_(54,99]")
+
+age.gender.eurostat
+
+rm(total.population)
+
+```
+
+Next we will do the same for Eurostat's population data on NUTS 2 regions.
+
+```{r,  echo=TRUE, warning=FALSE, message=FALSE}
+
+total.population <- region.eurostat$pop_sum %>%
+  sum()
+
+region.eurostat %<>%
+  mutate(Freq = round(pop_sum/total.population * weighted.pop, 0) ) %>%
+  select(-pop_sum)
+
+names(region.eurostat)[[1]] <- "region" 
+
+region.eurostat$region[region.eurostat$region == "East Midlands (UK)"] <- "East Midlands (England)"
+region.eurostat$region[region.eurostat$region == "North East (UK)"] <- "North East (England)"
+region.eurostat$region[region.eurostat$region == "North West (UK)"] <- "North West (England)"
+region.eurostat$region[region.eurostat$region == "Northern Ireland (UK)"] <- "Northern Ireland"
+region.eurostat$region[region.eurostat$region == "South East (UK)"] <- "South East (England)"
+region.eurostat$region[region.eurostat$region == "South West (UK)"] <- "South West (England)"
+region.eurostat$region[region.eurostat$region == "West Midlands (UK)"] <- "West Midlands (England)"
+region.eurostat$region[region.eurostat$region == "Yorkshire and The Humber"] <- "Yorkshire and the Humber"
+
+```
+
+Here we will briefly test that we have the same categories in calibration variables of both survey and Eurostat datasets.
+
+```{r,  echo=TRUE, warning=FALSE, message=FALSE}
+
+if( identical(region.eurostat$region %>% unique %>% sort, data.calibration$region %>% as.character() %>% unique %>% sort) != T) {
+    stop("Levels in region variable have to be the the same in the calibration and dataset used for population frequencies")
+}
+
+if( identical(age.gender.eurostat$gender_age_rec %>% unique %>% sort, data.calibration$gender_age_rec %>% as.character() %>% unique %>% sort) != T) {
+    stop("Levels in age by gender categories variable have to be the the same in the calibration and dataset used for population frequencies")
+}
+
+```
+
+## Implementing calibration
+
+Now we will use the R *'survey'* package (Lumley,T., 2010) to calibrate weights using the raking procedure. We will do this twice. First time we will compute the raked weighs using our *'final.weight'* as an input. These contain information from both the base weights and our adjustment for non-response. In the second computation we will repeat the ESS design and use (only) the design/base weights as an input (variable *'base.weight'*). This will allow us to compare our output weights with those computed by the experts behind the weighting procedure of the 7th ESS. 
+
+The R *'survey'* package works in a rather particular way^[It has its own requierements in terms of coding 'grammar'. This is may be because it was programmed in 2003, almost 15 years ago! Hopefully other packages such as *'srvyr'*, which at the time of writing this guide is still in version 0.2.1, will be able to take the content  of the *'survey'* package and adapt it to current scripting]. It first requieres to specify the design of the survey with the *'svydesign'* function. This creates an object of an adhoc class 'survey.design' that is passed to further procedures such as weights raking. 
+
+The *'svydesign'* function requieres an *'ids'* argument with cluster ids. For the specific case of the 7th ESS in the UK, this would be the postal codes, which are the Primary Sampling Units (PSU). The procedures of the *'survey'* package would then take into account these related responses when computing variances. However, here we will ignore this fact and pretend that all responses where independent of each other (we can do this by passing *~ 0* to the *'ids'* argument). This should not affect the raking procedure. Next, we neet to specify the input weights in the *'weights'* argument. Here we will pass the computed *final weights* and the *design/base* weights respectively to create both survey designs. Last, we need to specify the data with the survey respondses in the *'data'* argument.
+
+In this next chunk of code we will create these two objects which will correspond to the two explained computations of raked weights.
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+our.svydesign <- svydesign(ids = ~ 0, weights = ~final.weight, data = data.calibration)
+
+ess.svydesign <- svydesign(ids = ~ 0, weights = ~base.weight, data = data.calibration)
+
+```
+
+The raking procedure can be done with the *'rake'* function form the *'survey'* package. This function requieres to pass the previously computed survey design object as its first object (*'design'*). The second argument (*'sample.margins'*) is a list of formulas describing which variables are going to be used for calibration. Here we will pass a list with two formulas. The first one using the *'region'* variable and the second one the *'gender_age_rec'* variable which corresponds to the interaction/crosstabulation of gender and age categories. The third argument (*'population.margins'*) are the population counts for our calibration variables. Here we will pass our dataframes with the number of people that should be in each region/gender and age category if our sample followed population proportions.
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+our.raked <- rake(our.svydesign, sample.margins = list(~region, ~gender_age_rec), 
+     population = list(region.eurostat, age.gender.eurostat))
+
+ess.raked <- rake(ess.svydesign, sample.margins = list(~region, ~gender_age_rec), 
+     population = list(region.eurostat, age.gender.eurostat))
+
+```
+
+Then we collect the weights from the *'our.raked'* and *'ess.raked'* objects we just computed and we add them to our dataset for this section (the *'data.calibration'* dataframe).
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+raked.weight <- our.raked$postStrata[[1]][[1]] %>% attributes() %>% .[["weights"]]
+
+ess.raked.weight <- ess.raked$postStrata[[1]][[1]] %>% attributes() %>% .[["weights"]]
+
+data.calibration$ess.raked.weight <- ess.raked.weight
+
+data.calibration$raked.weight <- raked.weight
+
+rm(raked.weight, ess.raked.weight)
+
+```
+
+## Testing results from raked weights
+
+Next we compare the frequencies of weighted observations in our sample with those we would obtain if our dataset had the same shares of age, gender and region categories as official data (i.e. the data inputed to our calibration procedure). If our calibration is successful, the frequencies should be almost the same. Here we will do this test using our calibration procedure which included design and non-response weights as an input (i.e. calibration object *'raked.weight'*). The following chunk of code shows the results for age and gender categories.
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+left_join(
+data.calibration %>%
+  group_by(gender_age_rec) %>%
+  summarise(calibrated.sample.pop = sum(raked.weight) %>% round(1)),
+age.gender.eurostat)
+
+```
+
+Here we show the compared frequencies for regions. Both comparisons allow us to see that calibration performed as expected and weighted frequencies reflect population proportions from official statistics.
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+left_join(
+data.calibration %>%
+  group_by(region) %>%
+  summarise(calibrated.sample.pop = sum(raked.weight) %>% round(1)),
+region.eurostat)
+
+```
+
+Now we can compare our computed final calibrated weights with those computed by the experts in charge of the weighting procedure of the 7th ESS. We will first join the calibrated weights with our original dataset of respondents.   
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+data %<>%
+  left_join(data.calibration %>% select(idno, raked.weight, ess.raked.weight), by = "idno")
+
+rm(data.calibration, age.gender.eurostat, region.eurostat)
+
+```
+
+Here we compare our raked weight using the same methodology as they used in the 7th ESS (*'ess.raked.weight'*) and the weight included in the 7th ESS dataset (*'pspwght'*). Looking at the first 15 observations we see that they are, in most cases, very close. This means that we successfully reproduced the weights computed in the 7th ESS!
+
+For our estimations, we could also use the calibrated/raked weights we computed ourselves using the additional input of non-response weights (variable *'raked.weight'*). Using this input, our raking procedure would also 'borrow' good estimation properties from the non-response adjustment^[This idea of calibration weights 'borrowing' properties from input weights comes from Valliant et al. (2013, pag 231)].
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+left_join(
+data %>% select(idno, raked.weight, ess.raked.weight),
+original.weights %>% select(idno, pspwght)
+) %>% head(15)
+
+```
+
+Here we try to compute a mesure of distance of our computed raked weights to those included in the original 7th ESS datafile. We can do this by calculating the sum of squared differences. As we would expect, we find that those computed using the ESS methodology tend to fall much closer to the ESS original weights than the weights which also include input from non-response estimations. It is important to stress again that this does not mean that closer weights are better than those including properties from non-response estimations.
+
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+left_join(
+data %>% select(idno, raked.weight, ess.raked.weight),
+original.weights %>% select(idno, pspwght)
+) %>%
+  mutate(diff.myraked = pspwght-raked.weight,
+         diff.essraked = pspwght-ess.raked.weight) %>%
+  summarise(ssdiff.myraked = sum(diff.myraked ^ 2),
+            ssdiff.essraked = sum(diff.essraked ^ 2))
+
+```

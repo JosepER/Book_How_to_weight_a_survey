@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html >
+
+<head>
+
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>(Very) basic steps to weight a survey sample</title>
+  <meta name="description" content="(Very) basic steps to weight a survey sample">
+  <meta name="generator" content="bookdown 0.4 and GitBook 2.6.7">
+
+  <meta property="og:title" content="(Very) basic steps to weight a survey sample" />
+  <meta property="og:type" content="book" />
+  
+  
+  
+  
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="(Very) basic steps to weight a survey sample" />
+  
+  
+  
+
+<meta name="author" content="Josep Espasa Reig">
+
+
+<meta name="date" content="2017-06-29">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  
+  
+<link rel="prev" href="nonresponse-weights.html">
+<link rel="next" href="step-4-analysis-of-weight-variability.html">
+<script src="libs/jquery-2.2.3/jquery.min.js"></script>
+<link href="libs/gitbook-2.6.7/css/style.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-bookdown.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-highlight.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-search.css" rel="stylesheet" />
+<link href="libs/gitbook-2.6.7/css/plugin-fontsettings.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+<style type="text/css">
+div.sourceCode { overflow-x: auto; }
+table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+  margin: 0; padding: 0; vertical-align: baseline; border: none; }
+table.sourceCode { width: 100%; line-height: 100%; }
+td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; color: #aaaaaa; border-right: 1px solid #aaaaaa; }
+td.sourceCode { padding-left: 5px; }
+code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code > span.dt { color: #902000; } /* DataType */
+code > span.dv { color: #40a070; } /* DecVal */
+code > span.bn { color: #40a070; } /* BaseN */
+code > span.fl { color: #40a070; } /* Float */
+code > span.ch { color: #4070a0; } /* Char */
+code > span.st { color: #4070a0; } /* String */
+code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code > span.ot { color: #007020; } /* Other */
+code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code > span.fu { color: #06287e; } /* Function */
+code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+code > span.cn { color: #880000; } /* Constant */
+code > span.sc { color: #4070a0; } /* SpecialChar */
+code > span.vs { color: #4070a0; } /* VerbatimString */
+code > span.ss { color: #bb6688; } /* SpecialString */
+code > span.im { } /* Import */
+code > span.va { color: #19177c; } /* Variable */
+code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code > span.op { color: #666666; } /* Operator */
+code > span.bu { } /* BuiltIn */
+code > span.ex { } /* Extension */
+code > span.pp { color: #bc7a00; } /* Preprocessor */
+code > span.at { color: #7d9029; } /* Attribute */
+code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+</style>
+
+</head>
+
+<body>
+
+
+
+  <div class="book without-animation with-summary font-size-2 font-family-1" data-basepath=".">
+
+    <div class="book-summary">
+      <nav role="navigation">
+
+<ul class="summary">
+<li class="chapter" data-level="" data-path="index.html"><a href="index.html"><i class="fa fa-check"></i>Welcome to the introduction on how to weight a survey sample!</a></li>
+<li class="chapter" data-level="1" data-path="introduction.html"><a href="introduction.html"><i class="fa fa-check"></i><b>1</b> Introduction</a><ul>
+<li class="chapter" data-level="1.1" data-path="introduction.html"><a href="introduction.html#aim-of-this-guide-and-further-readings"><i class="fa fa-check"></i><b>1.1</b> Aim of this guide and further readings</a></li>
+<li class="chapter" data-level="1.2" data-path="introduction.html"><a href="introduction.html#basic_steps"><i class="fa fa-check"></i><b>1.2</b> Basic steps in weighting a survey</a></li>
+</ul></li>
+<li class="chapter" data-level="2" data-path="import-data-management.html"><a href="import-data-management.html"><i class="fa fa-check"></i><b>2</b> Import data and data management</a><ul>
+<li class="chapter" data-level="2.0.1" data-path="import-data-management.html"><a href="import-data-management.html#import-data"><i class="fa fa-check"></i><b>2.0.1</b> Import data</a></li>
+<li class="chapter" data-level="2.0.2" data-path="import-data-management.html"><a href="import-data-management.html#select-variables"><i class="fa fa-check"></i><b>2.0.2</b> Select variables</a></li>
+<li class="chapter" data-level="2.0.3" data-path="import-data-management.html"><a href="import-data-management.html#merging-datafiles"><i class="fa fa-check"></i><b>2.0.3</b> Merging datafiles</a></li>
+<li class="chapter" data-level="2.0.4" data-path="import-data-management.html"><a href="import-data-management.html#recoding"><i class="fa fa-check"></i><b>2.0.4</b> Recoding</a></li>
+<li class="chapter" data-level="2.1" data-path="import-data-management.html"><a href="import-data-management.html#exploring-and-presenting-the-dataset"><i class="fa fa-check"></i><b>2.1</b> Exploring and presenting the dataset</a><ul>
+<li class="chapter" data-level="2.1.1" data-path="import-data-management.html"><a href="import-data-management.html#paradata-variables"><i class="fa fa-check"></i><b>2.1.1</b> Paradata variables</a></li>
+<li class="chapter" data-level="2.1.2" data-path="import-data-management.html"><a href="import-data-management.html#survey-responses"><i class="fa fa-check"></i><b>2.1.2</b> Survey responses</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="3" data-path="design-weights.html"><a href="design-weights.html"><i class="fa fa-check"></i><b>3</b> Step 1: Design weights</a></li>
+<li class="chapter" data-level="4" data-path="nonresponse-weights.html"><a href="nonresponse-weights.html"><i class="fa fa-check"></i><b>4</b> Step 2: Non-response weights</a><ul>
+<li class="chapter" data-level="4.1" data-path="nonresponse-weights.html"><a href="nonresponse-weights.html#what-are-of-non-response-weights"><i class="fa fa-check"></i><b>4.1</b> What are of non-response weights?</a></li>
+<li class="chapter" data-level="4.2" data-path="nonresponse-weights.html"><a href="nonresponse-weights.html#estimating-response-propensities-using-logistic-regression"><i class="fa fa-check"></i><b>4.2</b> Estimating response propensities using logistic regression</a></li>
+<li class="chapter" data-level="4.3" data-path="nonresponse-weights.html"><a href="nonresponse-weights.html#creating-non-response-adjustment-classes"><i class="fa fa-check"></i><b>4.3</b> Creating non-response adjustment classes</a></li>
+<li class="chapter" data-level="4.4" data-path="nonresponse-weights.html"><a href="nonresponse-weights.html#testing-non-response-adjustment-classes"><i class="fa fa-check"></i><b>4.4</b> Testing non-response adjustment classes</a></li>
+<li class="chapter" data-level="4.5" data-path="nonresponse-weights.html"><a href="nonresponse-weights.html#propensity_adjustment"><i class="fa fa-check"></i><b>4.5</b> Propensity adjustment (alternative to adjustment classes)</a><ul>
+<li class="chapter" data-level="4.5.1" data-path="nonresponse-weights.html"><a href="nonresponse-weights.html#estimating-response-propensities-using-cross-validated-lasso-regression"><i class="fa fa-check"></i><b>4.5.1</b> Estimating response propensities using Cross-validated LASSO Regression</a></li>
+</ul></li>
+</ul></li>
+<li class="chapter" data-level="5" data-path="calibration.html"><a href="calibration.html"><i class="fa fa-check"></i><b>5</b> Step 3: Use of auxiliary data for weight calibration</a><ul>
+<li class="chapter" data-level="5.1" data-path="calibration.html"><a href="calibration.html#preparing-data-for-calibration"><i class="fa fa-check"></i><b>5.1</b> Preparing data for calibration</a></li>
+<li class="chapter" data-level="5.2" data-path="calibration.html"><a href="calibration.html#implementing-calibration"><i class="fa fa-check"></i><b>5.2</b> Implementing calibration</a></li>
+<li class="chapter" data-level="5.3" data-path="calibration.html"><a href="calibration.html#testing-results-from-raked-weights"><i class="fa fa-check"></i><b>5.3</b> Testing results from raked weights</a></li>
+</ul></li>
+<li class="chapter" data-level="6" data-path="step-4-analysis-of-weight-variability.html"><a href="step-4-analysis-of-weight-variability.html"><i class="fa fa-check"></i><b>6</b> Step 4: Analysis of weight variability</a></li>
+<li class="chapter" data-level="7" data-path="computing-weighted-estimates.html"><a href="computing-weighted-estimates.html"><i class="fa fa-check"></i><b>7</b> Computing weighted estimates</a></li>
+<li class="chapter" data-level="8" data-path="note-for-non-probability-samples.html"><a href="note-for-non-probability-samples.html"><i class="fa fa-check"></i><b>8</b> Note for non-probability samples</a></li>
+</ul>
+
+      </nav>
+    </div>
+
+    <div class="book-body">
+      <div class="body-inner">
+        <div class="book-header" role="navigation">
+          <h1>
+            <i class="fa fa-circle-o-notch fa-spin"></i><a href="./">(Very) basic steps to weight a survey sample</a>
+          </h1>
+        </div>
+
+        <div class="page-wrapper" tabindex="-1" role="main">
+          <div class="page-inner">
+
+            <section class="normal" id="section-">
+<div id="calibration" class="section level1">
+<h1><span class="header-section-number">5</span> Step 3: Use of auxiliary data for weight calibration</h1>
+<p>In certain cases we might have information about our statistical population (e.g. census counts or proportions from official statistics). We can then use these to ‘correct’ our weights. This adjustment is called calibration and consists on finding a new set of weights that are as near as possible the input (<em>‘final’</em>) weights but reproduce the population information exactly. Valliant et al (2013) explain that using the previous <em>‘final’</em> weights as input for the calibration step allows us to ‘borrow’ good estiamtion properties from those.</p>
+<p>An important difference between this step and the one on non-response adjustment is that non-response adjustment requieres having information for both sampled respondents and non-respondents. Calibration only requieres information for respondents and population in general.</p>
+<p>Here we will calibrate weights using a ‘raking’ procedure (explained in Valliant el al 2013 page 358). Unlike other calibration methods, ‘raking’ does not requiere information on cross-classification categories but just marginal population counts. In other words, we do not need the information from crossing several variables (although we can use it if available). As explained by Lumley (2010, page 139), the process is very much iterative. It involves post-stratifying on each set of variables in turn, and repeating the process until the weights stop changing.</p>
+<p>The 7th ESS used cross-classifications of age group and gender plus region (separately) to calibrate UK data. Here we will try to reproduce their calibration. For more information on ESS post-stratification weights see their document: <a href="http://www.europeansocialsurvey.org/docs/methodology/ESS_post_stratification_weights_documentation.pdf">Documentation of ESS Post-Stratification Weights</a></p>
+<div id="preparing-data-for-calibration" class="section level2">
+<h2><span class="header-section-number">5.1</span> Preparing data for calibration</h2>
+<p>First we will compute the interaction between gender and age with the categories used for calibration in the ESS.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data %&lt;&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">agea_rec =</span> <span class="kw">cut</span>(agea %&gt;%<span class="st"> </span><span class="kw">as.numeric</span>(), <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="dv">14</span>, <span class="dv">34</span>, <span class="dv">54</span>, <span class="dv">99</span>))) %&gt;%
+<span class="st">         </span><span class="kw">unite</span>(<span class="dt">col =</span> gender_age_rec, gndr, agea_rec, <span class="dt">remove =</span> F) %&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">gender_age_rec =</span> <span class="kw">replace</span>(<span class="dt">x =</span> gender_age_rec, 
+                                  <span class="dt">list =</span> gender_age_rec %in%<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Female_NA&quot;</span>, <span class="st">&quot;Male_NA&quot;</span>),
+                                  <span class="dt">values =</span> <span class="ot">NA</span> ))
+
+data %&lt;&gt;%
+<span class="st">  </span><span class="kw">filter</span>(!<span class="kw">is.na</span>(gender_age_rec), !<span class="kw">is.na</span>(region)) <span class="co"># see footnote in text below.</span></code></pre></div>
+<p>The total number of weighted units in each of the categories we will use for calibration can be seen in tables below<a href="#fn6" class="footnoteRef" id="fnref6"><sup>6</sup></a>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data %&gt;%
+<span class="st">  </span><span class="kw">group_by</span>(gender_age_rec) %&gt;%
+<span class="st">  </span><span class="kw">summarise</span>(<span class="dt">total_n_sample =</span> <span class="kw">sum</span>(final.weight))</code></pre></div>
+<pre><code>## # A tibble: 6 x 2
+##   gender_age_rec total_n_sample
+##            &lt;chr&gt;          &lt;dbl&gt;
+## 1 Female_(14,34]       278.3145
+## 2 Female_(34,54]       441.9940
+## 3 Female_(54,99]       465.4844
+## 4   Male_(14,34]       256.5388
+## 5   Male_(34,54]       357.8829
+## 6   Male_(54,99]       426.7719</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data %&gt;%
+<span class="st">  </span><span class="kw">group_by</span>(region) %&gt;%
+<span class="st">  </span><span class="kw">summarise</span>(<span class="dt">total_n_sample =</span> <span class="kw">sum</span>(final.weight))</code></pre></div>
+<pre><code>## # A tibble: 12 x 2
+##                      region total_n_sample
+##                      &lt;fctr&gt;          &lt;dbl&gt;
+##  1     North East (England)       108.7733
+##  2     North West (England)       255.8543
+##  3 Yorkshire and the Humber       165.7948
+##  4  East Midlands (England)       175.9855
+##  5  West Midlands (England)       177.8547
+##  6          East of England       182.0182
+##  7                   London       239.2660
+##  8     South East (England)       320.6673
+##  9     South West (England)       187.9519
+## 10                    Wales       127.3771
+## 11                 Scotland       222.2071
+## 12         Northern Ireland        63.2364</code></pre>
+<p>Now we import Eurostat data<a href="#fn7" class="footnoteRef" id="fnref7"><sup>7</sup></a> and recode it into ESS adjustment/post-stratification categories.</p>
+<p>The data used in this guide are hosted in the <a href="https://github.com/JosepER/PPMI_how_to_weight_a_survey/tree/master/data/Eurostat">author’s github page</a> and the raw version can be checked in the following links:</p>
+<ul>
+<li><p><a href="https://raw.githubusercontent.com/JosepER/PPMI_how_to_weight_a_survey/master/data/Eurostat/Agebygender_demo_pjangroup.csv">Age and gender</a>.</p></li>
+<li><p><a href="https://raw.githubusercontent.com/JosepER/PPMI_how_to_weight_a_survey/master/data/Eurostat/Agebygender_demo_pjangroup.csv">Age by NUTS 2 regions</a>.</p></li>
+</ul>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">age.gender.eurostat &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="dt">text=</span><span class="kw">getURL</span>(<span class="st">&quot;https://raw.githubusercontent.com/JosepER/PPMI_how_to_weight_a_survey/master/data/Eurostat/Agebygender_demo_pjangroup.csv&quot;</span>), <span class="dt">header=</span>T)
+
+age.gender.eurostat %&lt;&gt;%
+<span class="st">  </span><span class="kw">spread</span>(<span class="dt">key =</span> Age, <span class="dt">value =</span> Value)
+
+age.gender.eurostat %&lt;&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="st">`</span><span class="dt">15to34</span><span class="st">`</span> =<span class="st"> `</span><span class="dt">From 15 to 19 years</span><span class="st">`</span> +<span class="st"> `</span><span class="dt">From 20 to 24 years</span><span class="st">`</span> +<span class="st">  `</span><span class="dt">From 25 to 29 years</span><span class="st">`</span> +
+<span class="st">           `</span><span class="dt">From 30 to 34 years</span><span class="st">`</span>,
+         <span class="st">`</span><span class="dt">35to54</span><span class="st">`</span> =<span class="st"> `</span><span class="dt">From 35 to 39 years</span><span class="st">`</span> +<span class="st"> `</span><span class="dt">From 40 to 44 years</span><span class="st">`</span> +<span class="st"> `</span><span class="dt">From 45 to 49 years</span><span class="st">`</span> +<span class="st"> </span>
+<span class="st">           `</span><span class="dt">From 50 to 54 years</span><span class="st">`</span>,
+         <span class="st">`</span><span class="dt">55to99</span><span class="st">`</span> =<span class="st">  `</span><span class="dt">From 55 to 59 years</span><span class="st">`</span> +<span class="st"> `</span><span class="dt">From 60 to 64 years</span><span class="st">`</span> +<span class="st"> `</span><span class="dt">From 65 to 69 years</span><span class="st">`</span> +
+<span class="st">           `</span><span class="dt">From 70 to 74 years</span><span class="st">`</span> +<span class="st"> `</span><span class="dt">75 years or over</span><span class="st">`</span>) %&gt;%
+<span class="st">  </span><span class="kw">select</span>(SEX, <span class="st">`</span><span class="dt">15to34</span><span class="st">`</span>:<span class="st">`</span><span class="dt">55to99</span><span class="st">`</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">region.eurostat &lt;-<span class="st"> </span><span class="kw">read.csv</span>(<span class="dt">text=</span><span class="kw">getURL</span>(<span class="st">&quot;https://raw.githubusercontent.com/JosepER/PPMI_how_to_weight_a_survey/master/data/Eurostat/Nuts2byage.csv&quot;</span>), <span class="dt">header=</span>T, <span class="dt">stringsAsFactors =</span> F)
+  
+region.eurostat %&lt;&gt;%
+<span class="st">  </span><span class="kw">gather</span>(<span class="dt">key =</span> age, <span class="dt">value =</span> population, -Country) 
+
+region.eurostat %&lt;&gt;%
+<span class="st">  </span><span class="kw">group_by</span>(Country) %&gt;%
+<span class="st">  </span><span class="kw">summarise</span>(<span class="dt">pop_sum =</span> <span class="kw">sum</span>(population) )</code></pre></div>
+<p>We will now scale the Eurostat data to our sample size. The idea is to obtain the weights that make our sample proportions look like those in Eurostat. For these, we will calculate how many respondents in our sample should pertain to each category if we had Eurostat proportions. We will use our sample size based only on (weighted) completed responses in our post-stratification adjustment variables (age, gender and region).</p>
+<p>First we compute the total (weighted) observations in our sample of respondents.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data.calibration &lt;-<span class="st"> </span>data
+
+weighted.pop &lt;-<span class="st"> </span><span class="kw">sum</span>(data.calibration$final.weight)
+
+weighted.pop</code></pre></div>
+<pre><code>## [1] 2226.987</code></pre>
+<p>In the next chunk of code we will scale Eurostat population by age an gender data to the size of our sample. We will do this by dividing Eurostat absolute population numbers by the sum of population in all categories and multiplying it by the previously computed sum of weighted respondents. This will provide us a dataframe (<em>‘age.gender.eurostat’</em>) with the number of respondents our survey sample should have in each gender and age crossed category if it was to resemble the proportions found in reality (i.e. official statistics).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">age.gender.eurostat %&lt;&gt;%
+<span class="st">  </span><span class="kw">gather</span>(<span class="dt">key =</span> age, <span class="dt">value =</span> population, -SEX) %&gt;%
+<span class="st">  </span><span class="kw">unite</span>(<span class="dt">col =</span> gender_age_rec, SEX, age) 
+
+total.population &lt;-<span class="st"> </span>age.gender.eurostat$population %&gt;%<span class="st"> </span>
+<span class="st">  </span><span class="kw">sum</span>()
+
+age.gender.eurostat %&lt;&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Freq =</span> <span class="kw">round</span>(population/total.population *<span class="st"> </span>weighted.pop, <span class="dv">0</span>) ) %&gt;%
+<span class="st">  </span><span class="kw">select</span>(-population)
+
+age.gender.eurostat$gender_age_rec &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;Female_(14,34]&quot;</span>, <span class="st">&quot;Male_(14,34]&quot;</span>,
+                                        <span class="st">&quot;Female_(34,54]&quot;</span>, <span class="st">&quot;Male_(34,54]&quot;</span>,
+                                        <span class="st">&quot;Female_(54,99]&quot;</span>, <span class="st">&quot;Male_(54,99]&quot;</span>)
+
+age.gender.eurostat</code></pre></div>
+<pre><code>##   gender_age_rec Freq
+## 1 Female_(14,34]  352
+## 2   Male_(14,34]  358
+## 3 Female_(34,54]  372
+## 4   Male_(34,54]  364
+## 5 Female_(54,99]  417
+## 6   Male_(54,99]  364</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">rm</span>(total.population)</code></pre></div>
+<p>Next we will do the same for Eurostat’s population data on NUTS 2 regions.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">total.population &lt;-<span class="st"> </span>region.eurostat$pop_sum %&gt;%
+<span class="st">  </span><span class="kw">sum</span>()
+
+region.eurostat %&lt;&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">Freq =</span> <span class="kw">round</span>(pop_sum/total.population *<span class="st"> </span>weighted.pop, <span class="dv">0</span>) ) %&gt;%
+<span class="st">  </span><span class="kw">select</span>(-pop_sum)
+
+<span class="kw">names</span>(region.eurostat)[[<span class="dv">1</span>]] &lt;-<span class="st"> &quot;region&quot;</span> 
+
+region.eurostat$region[region.eurostat$region ==<span class="st"> &quot;East Midlands (UK)&quot;</span>] &lt;-<span class="st"> &quot;East Midlands (England)&quot;</span>
+region.eurostat$region[region.eurostat$region ==<span class="st"> &quot;North East (UK)&quot;</span>] &lt;-<span class="st"> &quot;North East (England)&quot;</span>
+region.eurostat$region[region.eurostat$region ==<span class="st"> &quot;North West (UK)&quot;</span>] &lt;-<span class="st"> &quot;North West (England)&quot;</span>
+region.eurostat$region[region.eurostat$region ==<span class="st"> &quot;Northern Ireland (UK)&quot;</span>] &lt;-<span class="st"> &quot;Northern Ireland&quot;</span>
+region.eurostat$region[region.eurostat$region ==<span class="st"> &quot;South East (UK)&quot;</span>] &lt;-<span class="st"> &quot;South East (England)&quot;</span>
+region.eurostat$region[region.eurostat$region ==<span class="st"> &quot;South West (UK)&quot;</span>] &lt;-<span class="st"> &quot;South West (England)&quot;</span>
+region.eurostat$region[region.eurostat$region ==<span class="st"> &quot;West Midlands (UK)&quot;</span>] &lt;-<span class="st"> &quot;West Midlands (England)&quot;</span>
+region.eurostat$region[region.eurostat$region ==<span class="st"> &quot;Yorkshire and The Humber&quot;</span>] &lt;-<span class="st"> &quot;Yorkshire and the Humber&quot;</span></code></pre></div>
+<p>Here we will briefly test that we have the same categories in calibration variables of both survey and Eurostat datasets.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">if( <span class="kw">identical</span>(region.eurostat$region %&gt;%<span class="st"> </span>unique %&gt;%<span class="st"> </span>sort, data.calibration$region %&gt;%<span class="st"> </span><span class="kw">as.character</span>() %&gt;%<span class="st"> </span>unique %&gt;%<span class="st"> </span>sort) !=<span class="st"> </span>T) {
+    <span class="kw">stop</span>(<span class="st">&quot;Levels in region variable have to be the the same in the calibration and dataset used for population frequencies&quot;</span>)
+}
+
+if( <span class="kw">identical</span>(age.gender.eurostat$gender_age_rec %&gt;%<span class="st"> </span>unique %&gt;%<span class="st"> </span>sort, data.calibration$gender_age_rec %&gt;%<span class="st"> </span><span class="kw">as.character</span>() %&gt;%<span class="st"> </span>unique %&gt;%<span class="st"> </span>sort) !=<span class="st"> </span>T) {
+    <span class="kw">stop</span>(<span class="st">&quot;Levels in age by gender categories variable have to be the the same in the calibration and dataset used for population frequencies&quot;</span>)
+}</code></pre></div>
+</div>
+<div id="implementing-calibration" class="section level2">
+<h2><span class="header-section-number">5.2</span> Implementing calibration</h2>
+<p>Now we will use the R <em>‘survey’</em> package (Lumley,T., 2010) to calibrate weights using the raking procedure. We will do this twice. First time we will compute the raked weighs using our <em>‘final.weight’</em> as an input. These contain information from both the base weights and our adjustment for non-response. In the second computation we will repeat the ESS design and use (only) the design/base weights as an input (variable <em>‘base.weight’</em>). This will allow us to compare our output weights with those computed by the experts behind the weighting procedure of the 7th ESS.</p>
+<p>The R <em>‘survey’</em> package works in a rather particular way<a href="#fn8" class="footnoteRef" id="fnref8"><sup>8</sup></a>. It first requieres to specify the design of the survey with the <em>‘svydesign’</em> function. This creates an object of an adhoc class ‘survey.design’ that is passed to further procedures such as weights raking.</p>
+<p>The <em>‘svydesign’</em> function requieres an <em>‘ids’</em> argument with cluster ids. For the specific case of the 7th ESS in the UK, this would be the postal codes, which are the Primary Sampling Units (PSU). The procedures of the <em>‘survey’</em> package would then take into account these related responses when computing variances. However, here we will ignore this fact and pretend that all responses where independent of each other (we can do this by passing <em>~ 0</em> to the <em>‘ids’</em> argument). This should not affect the raking procedure. Next, we neet to specify the input weights in the <em>‘weights’</em> argument. Here we will pass the computed <em>final weights</em> and the <em>design/base</em> weights respectively to create both survey designs. Last, we need to specify the data with the survey respondses in the <em>‘data’</em> argument.</p>
+<p>In this next chunk of code we will create these two objects which will correspond to the two explained computations of raked weights.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">our.svydesign &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> ~<span class="st"> </span><span class="dv">0</span>, <span class="dt">weights =</span> ~final.weight, <span class="dt">data =</span> data.calibration)
+
+ess.svydesign &lt;-<span class="st"> </span><span class="kw">svydesign</span>(<span class="dt">ids =</span> ~<span class="st"> </span><span class="dv">0</span>, <span class="dt">weights =</span> ~base.weight, <span class="dt">data =</span> data.calibration)</code></pre></div>
+<p>The raking procedure can be done with the <em>‘rake’</em> function form the <em>‘survey’</em> package. This function requieres to pass the previously computed survey design object as its first object (<em>‘design’</em>). The second argument (<em>‘sample.margins’</em>) is a list of formulas describing which variables are going to be used for calibration. Here we will pass a list with two formulas. The first one using the <em>‘region’</em> variable and the second one the <em>‘gender_age_rec’</em> variable which corresponds to the interaction/crosstabulation of gender and age categories. The third argument (<em>‘population.margins’</em>) are the population counts for our calibration variables. Here we will pass our dataframes with the number of people that should be in each region/gender and age category if our sample followed population proportions.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">our.raked &lt;-<span class="st"> </span><span class="kw">rake</span>(our.svydesign, <span class="dt">sample.margins =</span> <span class="kw">list</span>(~region, ~gender_age_rec), 
+     <span class="dt">population =</span> <span class="kw">list</span>(region.eurostat, age.gender.eurostat))
+
+ess.raked &lt;-<span class="st"> </span><span class="kw">rake</span>(ess.svydesign, <span class="dt">sample.margins =</span> <span class="kw">list</span>(~region, ~gender_age_rec), 
+     <span class="dt">population =</span> <span class="kw">list</span>(region.eurostat, age.gender.eurostat))</code></pre></div>
+<p>Then we collect the weights from the <em>‘our.raked’</em> and <em>‘ess.raked’</em> objects we just computed and we add them to our dataset for this section (the <em>‘data.calibration’</em> dataframe).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">raked.weight &lt;-<span class="st"> </span>our.raked$postStrata[[<span class="dv">1</span>]][[<span class="dv">1</span>]] %&gt;%<span class="st"> </span><span class="kw">attributes</span>() %&gt;%<span class="st"> </span>.[[<span class="st">&quot;weights&quot;</span>]]
+
+ess.raked.weight &lt;-<span class="st"> </span>ess.raked$postStrata[[<span class="dv">1</span>]][[<span class="dv">1</span>]] %&gt;%<span class="st"> </span><span class="kw">attributes</span>() %&gt;%<span class="st"> </span>.[[<span class="st">&quot;weights&quot;</span>]]
+
+data.calibration$ess.raked.weight &lt;-<span class="st"> </span>ess.raked.weight
+
+data.calibration$raked.weight &lt;-<span class="st"> </span>raked.weight
+
+<span class="kw">rm</span>(raked.weight, ess.raked.weight)</code></pre></div>
+</div>
+<div id="testing-results-from-raked-weights" class="section level2">
+<h2><span class="header-section-number">5.3</span> Testing results from raked weights</h2>
+<p>Next we compare the frequencies of weighted observations in our sample with those we would obtain if our dataset had the same shares of age, gender and region categories as official data (i.e. the data inputed to our calibration procedure). If our calibration is successful, the frequencies should be almost the same. Here we will do this test using our calibration procedure which included design and non-response weights as an input (i.e. calibration object <em>‘raked.weight’</em>). The following chunk of code shows the results for age and gender categories.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">left_join</span>(
+data.calibration %&gt;%
+<span class="st">  </span><span class="kw">group_by</span>(gender_age_rec) %&gt;%
+<span class="st">  </span><span class="kw">summarise</span>(<span class="dt">calibrated.sample.pop =</span> <span class="kw">sum</span>(raked.weight) %&gt;%<span class="st"> </span><span class="kw">round</span>(<span class="dv">1</span>)),
+age.gender.eurostat)</code></pre></div>
+<pre><code>## # A tibble: 6 x 3
+##   gender_age_rec calibrated.sample.pop  Freq
+##            &lt;chr&gt;                 &lt;dbl&gt; &lt;dbl&gt;
+## 1 Female_(14,34]                 351.7   352
+## 2 Female_(34,54]                 371.7   372
+## 3 Female_(54,99]                 416.6   417
+## 4   Male_(14,34]                 357.7   358
+## 5   Male_(34,54]                 363.7   364
+## 6   Male_(54,99]                 363.7   364</code></pre>
+<p>Here we show the compared frequencies for regions. Both comparisons allow us to see that calibration performed as expected and weighted frequencies reflect population proportions from official statistics.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">left_join</span>(
+data.calibration %&gt;%
+<span class="st">  </span><span class="kw">group_by</span>(region) %&gt;%
+<span class="st">  </span><span class="kw">summarise</span>(<span class="dt">calibrated.sample.pop =</span> <span class="kw">sum</span>(raked.weight) %&gt;%<span class="st"> </span><span class="kw">round</span>(<span class="dv">1</span>)),
+region.eurostat)</code></pre></div>
+<pre><code>## # A tibble: 12 x 3
+##                      region calibrated.sample.pop  Freq
+##                       &lt;chr&gt;                 &lt;dbl&gt; &lt;dbl&gt;
+##  1     North East (England)                    85    85
+##  2     North West (England)                   235   235
+##  3 Yorkshire and the Humber                   189   189
+##  4  East Midlands (England)                   169   169
+##  5  West Midlands (England)                   194   194
+##  6          East of England                   220   220
+##  7                   London                   286   286
+##  8     South East (England)                   312   312
+##  9     South West (England)                   183   183
+## 10                    Wales                   114   114
+## 11                 Scotland                   176   176
+## 12         Northern Ireland                    62    62</code></pre>
+<p>Now we can compare our computed final calibrated weights with those computed by the experts in charge of the weighting procedure of the 7th ESS. We will first join the calibrated weights with our original dataset of respondents.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data %&lt;&gt;%
+<span class="st">  </span><span class="kw">left_join</span>(data.calibration %&gt;%<span class="st"> </span><span class="kw">select</span>(idno, raked.weight, ess.raked.weight), <span class="dt">by =</span> <span class="st">&quot;idno&quot;</span>)
+
+<span class="kw">rm</span>(data.calibration, age.gender.eurostat, region.eurostat)</code></pre></div>
+<p>Here we compare our raked weight using the same methodology as they used in the 7th ESS (<em>‘ess.raked.weight’</em>) and the weight included in the 7th ESS dataset (<em>‘pspwght’</em>). Looking at the first 15 observations we see that they are, in most cases, very close. This means that we successfully reproduced the weights computed in the 7th ESS!</p>
+<p>For our estimations, we could also use the calibrated/raked weights we computed ourselves using the additional input of non-response weights (variable <em>‘raked.weight’</em>). Using this input, our raking procedure would also ‘borrow’ good estimation properties from the non-response adjustment<a href="#fn9" class="footnoteRef" id="fnref9"><sup>9</sup></a>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">left_join</span>(
+data %&gt;%<span class="st"> </span><span class="kw">select</span>(idno, raked.weight, ess.raked.weight),
+original.weights %&gt;%<span class="st"> </span><span class="kw">select</span>(idno, pspwght)
+) %&gt;%<span class="st"> </span><span class="kw">head</span>(<span class="dv">15</span>)</code></pre></div>
+<pre><code>##         idno raked.weight ess.raked.weight   pspwght
+## 1  100000003    0.6033962        0.4567495 0.4674183
+## 2  100000005    0.3324131        0.3403316 0.3895551
+## 3  100000008    0.4118283        0.4077717 0.4023832
+## 4  100000009    1.7442021        2.1873476 2.1463098
+## 5  100000010    1.0769384        1.0082670 1.0230092
+## 6  100000012    1.0538387        1.2975135 1.3370290
+## 7  100000015    1.5882982        1.6647140 1.6514970
+## 8  100000016    0.5202722        0.5131737 0.4886227
+## 9  100000017    2.0233932        1.5814927 1.5864217
+## 10 100000020    0.9267053        0.8367614 0.8877654
+## 11 100000022    0.8641030        1.0493359 1.0878961
+## 12 100000023    2.3115622        2.3722391 2.3796326
+## 13 100000025    0.5406270        0.4424130 0.4768728
+## 14 100000030    0.9304049        1.0735789 1.0272274
+## 15 100000031    1.2475568        0.9753477 0.9355472</code></pre>
+<p>Here we try to compute a mesure of distance of our computed raked weights to those included in the original 7th ESS datafile. We can do this by calculating the sum of squared differences. As we would expect, we find that those computed using the ESS methodology tend to fall much closer to the ESS original weights than the weights which also include input from non-response estimations. It is important to stress again that this does not mean that closer weights are better than those including properties from non-response estimations.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">left_join</span>(
+data %&gt;%<span class="st"> </span><span class="kw">select</span>(idno, raked.weight, ess.raked.weight),
+original.weights %&gt;%<span class="st"> </span><span class="kw">select</span>(idno, pspwght)
+) %&gt;%
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">diff.myraked =</span> pspwght-raked.weight,
+         <span class="dt">diff.essraked =</span> pspwght-ess.raked.weight) %&gt;%
+<span class="st">  </span><span class="kw">summarise</span>(<span class="dt">ssdiff.myraked =</span> <span class="kw">sum</span>(diff.myraked ^<span class="st"> </span><span class="dv">2</span>),
+            <span class="dt">ssdiff.essraked =</span> <span class="kw">sum</span>(diff.essraked ^<span class="st"> </span><span class="dv">2</span>))</code></pre></div>
+<pre><code>##   ssdiff.myraked ssdiff.essraked
+## 1        107.686        49.53199</code></pre>
+
+</div>
+</div>
+<div class="footnotes">
+<hr />
+<ol start="6">
+<li id="fn6"><p>There is a small problem with 20 respondents for which we do not have information about their age. In order to keep thing simple this example we will ignore this issue.<a href="calibration.html#fnref6">↩</a></p></li>
+<li id="fn7"><p>Eurostat data corresponds to tables and which give information on population by age and gender (<em>‘demo_pjangroup’</em>) and age and NUTS2 region (<em>‘demo_r_d2jan’</em>) on the 1st of January of 2014. Last updated on the 29th of April 2017.<a href="calibration.html#fnref7">↩</a></p></li>
+<li id="fn8"><p>It has its own requierements in terms of coding ‘grammar’. This is may be because it was programmed in 2003, almost 15 years ago! Hopefully other packages such as <em>‘srvyr’</em>, which at the time of writing this guide is still in version 0.2.1, will be able to take the content of the <em>‘survey’</em> package and adapt it to current scripting<a href="calibration.html#fnref8">↩</a></p></li>
+<li id="fn9"><p>This idea of calibration weights ‘borrowing’ properties from input weights comes from Valliant et al. (2013, pag 231)<a href="calibration.html#fnref9">↩</a></p></li>
+</ol>
+</div>
+            </section>
+
+          </div>
+        </div>
+      </div>
+<a href="nonresponse-weights.html" class="navigation navigation-prev " aria-label="Previous page"><i class="fa fa-angle-left"></i></a>
+<a href="step-4-analysis-of-weight-variability.html" class="navigation navigation-next " aria-label="Next page"><i class="fa fa-angle-right"></i></a>
+    </div>
+  </div>
+<script src="libs/gitbook-2.6.7/js/app.min.js"></script>
+<script src="libs/gitbook-2.6.7/js/lunr.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-search.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-sharing.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-fontsettings.js"></script>
+<script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
+<script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
+<script>
+require(["gitbook"], function(gitbook) {
+gitbook.start({
+"sharing": {
+"github": false,
+"facebook": true,
+"twitter": true,
+"google": false,
+"weibo": false,
+"instapper": false,
+"vk": false,
+"all": ["facebook", "google", "twitter", "weibo", "instapaper"]
+},
+"fontsettings": {
+"theme": "white",
+"family": "sans",
+"size": 2
+},
+"edit": {
+"link": null,
+"text": null
+},
+"download": null,
+"toc": {
+"collapse": "subsection"
+}
+});
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:" && /^https?:/.test(script.src))
+      script.src  = script.src.replace(/^https?:/, '');
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+</body>
+
+</html>
