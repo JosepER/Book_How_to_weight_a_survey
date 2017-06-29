@@ -1,0 +1,602 @@
+,.
+name,Title of dataset
+essround,ESS round
+edition,Edition
+proddate,Production date
+idno,Respondent's identification number
+cntry,Country
+tvtot,"TV watching, total time on average weekday"
+tvpol,"TV watching, news/politics/current affairs on average weekday"
+ppltrst,Most people can be trusted or you can't be too careful
+pplfair,"Most people try to take advantage of you, or try to be fair"
+pplhlp,Most of the time people helpful or mostly looking out for themselves
+polintr,How interested in politics
+psppsgv,Political system allows people to have a say in what government does
+actrolg,Able to take active role in political group
+psppipl,Political system allows people to have influence on politics
+cptppol,Confident in own ability to participate in politics
+ptcpplt,Politicians care what people think
+etapapl,Easy to take part in politics
+trstprl,Trust in country's parliament
+trstlgl,Trust in the legal system
+trstplc,Trust in the police
+trstplt,Trust in politicians
+trstprt,Trust in political parties
+trstep,Trust in the European Parliament
+trstun,Trust in the United Nations
+vote,Voted last national election
+prtvtbat,"Party voted for in last national election, Austria"
+prtvtcbe,"Party voted for in last national election, Belgium"
+prtvtech,"Party voted for in last national election, Switzerland"
+prtvtdcz,"Party voted for in last national election, Czech Republic"
+prtvede1,"Party voted for in last national election 1, Germany"
+prtvede2,"Party voted for in last national election 2, Germany"
+prtvtcdk,"Party voted for in last national election, Denmark"
+prtvteee,"Party voted for in last national election, Estonia"
+prtvtces,"Party voted for in last national election, Spain"
+prtvtcfi,"Party voted for in last national election, Finland"
+prtvtcfr,"Party voted for in last national election, France (ballot 1)"
+prtvtbgb,"Party voted for in last national election, United Kingdom"
+prtvtehu,"Party voted for in last national election, Hungary"
+prtvtaie,"Party voted for in last national election, Ireland"
+prtvtcil,"Party voted for in last national election, Israel"
+prtvalt1,"Party voted for in last national election 1, Lithuania (first vote, party)"
+prtvalt2,"Party voted for in last national election 2, Lithuania (second vote, party)"
+prtvalt3,"Party voted for in last national election 3, Lithuania (third vote, party)"
+prtvtfnl,"Party voted for in last national election, Netherlands"
+prtvtbno,"Party voted for in last national election, Norway"
+prtvtcpl,"Party voted for in last national election, Poland"
+prtvtbpt,"Party voted for in last national election, Portugal"
+prtvtbse,"Party voted for in last national election, Sweden"
+prtvtesi,"Party voted for in last national election, Slovenia"
+contplt,Contacted politician or government official last 12 months
+wrkprty,Worked in political party or action group last 12 months
+wrkorg,Worked in another organisation or association last 12 months
+badge,Worn or displayed campaign badge/sticker last 12 months
+sgnptit,Signed petition last 12 months
+pbldmn,Taken part in lawful public demonstration last 12 months
+bctprd,Boycotted certain products last 12 months
+clsprty,Feel closer to a particular party than all other parties
+prtclcat,"Which party feel closer to, Austria"
+prtclcbe,"Which party feel closer to, Belgium"
+prtclech,"Which party feel closer to, Switzerland"
+prtcldcz,"Which party feel closer to, Czech Republic"
+prtclede,"Which party feel closer to, Germany"
+prtclcdk,"Which party feel closer to, Denmark"
+prtcleee,"Which party feel closer to, Estonia"
+prtcldes,"Which party feel closer to, Spain"
+prtclcfi,"Which party feel closer to, Finland"
+prtclcfr,"Which party feel closer to, France"
+prtclbgb,"Which party feel closer to, United Kingdom"
+prtclehu,"Which party feel closer to, Hungary"
+prtclaie,"Which party feel closer to, Ireland"
+prtcldil,"Which party feel closer to, Israel"
+prtclalt,"Which party feel closer to, Lithuania"
+prtclenl,"Which party feel closer to, Netherlands"
+prtclbno,"Which party feel closer to, Norway"
+prtclfpl,"Which party feel closer to, Poland"
+prtcldpt,"Which party feel closer to, Portugal"
+prtclbse,"Which party feel closer to, Sweden"
+prtclesi,"Which party feel closer to, Slovenia"
+prtdgcl,How close to party
+lrscale,Placement on left right scale
+stflife,How satisfied with life as a whole
+stfeco,How satisfied with present state of economy in country
+stfgov,How satisfied with the national government
+stfdem,How satisfied with the way democracy works in country
+stfedu,State of education in country nowadays
+stfhlth,State of health services in country nowadays
+gincdif,Government should reduce differences in income levels
+freehms,Gays and lesbians free to live life as they wish
+euftf,European Union: European unification go further or gone too far
+imsmetn,Allow many/few immigrants of same race/ethnic group as majority
+imdfetn,Allow many/few immigrants of different race/ethnic group from majority
+eimpcnt,Allow many/few immigrants from poorer countries in Europe
+impcntr,Allow many/few immigrants from poorer countries outside Europe
+imbgeco,Immigration bad or good for country's economy
+imueclt,Country's cultural life undermined or enriched by immigrants
+imwbcnt,Immigrants make country worse or better place to live
+happy,How happy are you
+sclmeet,"How often socially meet with friends, relatives or colleagues"
+inprdsc,How many people with whom you can discuss intimate and personal matters
+sclact,Take part in social activities compared to others of same age
+crmvct,Respondent or household member victim of burglary/assault last 5 years
+aesfdrk,Feeling of safety of walking alone in local area after dark
+health,Subjective general health
+hlthhmp,Hampered in daily activities by illness/disability/infirmity/mental problem
+rlgblg,Belonging to particular religion or denomination
+rlgdnm,Religion or denomination belonging to at present
+rlgdnbat,"Religion or denomination belonging to at present, Austria"
+rlgdnbe,"Religion or denomination belonging to at present, Belgium"
+rlgdnach,"Religion or denomination belonging to at present, Switzerland"
+rlgdnade,"Religion or denomination belonging to at present, Germany"
+rlgdnafi,"Religion or denomination belonging to at present, Finland"
+rlgdngb,"Religion or denomination belonging to at present, United Kingdom"
+rlgdnhu,"Religion or denomination belonging to at present, Hungary"
+rlgdnie,"Religion or denomination belonging to at present, Ireland"
+rlgdnil,"Religion or denomination belonging to at present, Israel"
+rlgdnlt,"Religion or denomination belonging to at present, Lithuania"
+rlgdnnl,"Religion or denomination belonging to at present, Netherlands"
+rlgdnno,"Religion or denomination belonging to at present, Norway"
+rlgdnapl,"Religion or denomination belonging to at present, Poland"
+rlgdnase,"Religion or denomination belonging to at present, Sweden"
+rlgdnsi,"Religion or denomination belonging to at present, Slovenia"
+rlgblge,Ever belonging to particular religion or denomination
+rlgdnme,Religion or denomination belonging to in the past
+rlgdebat,"Religion or denomination belonging to in the past, Austria"
+rlgdebe,"Religion or denomination belonging to in the past, Belgium"
+rlgdeach,"Religion or denomination belonging to in the past, Switzerland"
+rlgdeade,"Religion or denomination belonging to in the past, Germany"
+rlgdeafi,"Religion or denomination belonging to in the past, Finland"
+rlgdegb,"Religion or denomination belonging to in the past, United Kingdom"
+rlgdehu,"Religion or denomination belonging to in the past, Hungary"
+rlgdeie,"Religion or denomination belonging to in the past, Ireland"
+rlgdeil,"Religion or denomination belonging to in the past, Israel"
+rlgdelt,"Religion or denomination belonging to in the past, Lithuania"
+rlgdenl,"Religion or denomination belonging to in the past, Netherlands"
+rlgdeno,"Religion or denomination belonging to in the past, Norway"
+rlgdeapl,"Religion or denomination belonging to in the past, Poland"
+rlgdease,"Religion or denomination belonging to in the past, Sweden"
+rlgdesi,"Religion or denomination belonging to in the past, Slovenia"
+rlgdgr,How religious are you
+rlgatnd,How often attend religious services apart from special occasions
+pray,How often pray apart from at religious services
+dscrgrp,Member of a group discriminated against in this country
+dscrrce,Discrimination of respondent's group: colour or race
+dscrntn,Discrimination of respondent's group: nationality
+dscrrlg,Discrimination of respondent's group: religion
+dscrlng,Discrimination of respondent's group: language
+dscretn,Discrimination of respondent's group: ethnic group
+dscrage,Discrimination of respondent's group: age
+dscrgnd,Discrimination of respondent's group: gender
+dscrsex,Discrimination of respondent's group: sexuality
+dscrdsb,Discrimination of respondent's group: disability
+dscroth,Discrimination of respondent's group: other grounds
+dscrdk,Discrimination of respondent's group: don't know
+dscrref,Discrimination of respondent's group: refusal
+dscrnap,Discrimination of respondent's group: not applicable
+dscrna,Discrimination of respondent's group: no answer
+ctzcntr,Citizen of country
+ctzshipc,Citizenship
+brncntr,Born in country
+cntbrthc,Country of birth
+livecnta,What year you first came to live in country
+lnghom1,Language most often spoken at home: first mentioned
+lnghom2,Language most often spoken at home: second mentioned
+blgetmg,Belong to minority ethnic group in country
+facntr,Father born in country
+fbrncntb,"Country of birth, father"
+mocntr,Mother born in country
+mbrncntb,"Country of birth, mother"
+mmbrn,Month of birth
+qfimedu,Qualification for immigration: good educational qualifications
+qfimlng,Qualification for immigration: speak country's official language
+qfimchr,Qualification for immigration: Christian background
+qfimwht,Qualification for immigration: be white
+qfimwsk,Qualification for immigration: work skills needed in country
+qfimcmt,Qualification for immigration: committed to way of life in country
+imtcjob,Immigrants take jobs away in country or create new jobs
+imbleco,Taxes and services: immigrants take out more than they put in or less
+imwbcrm,Immigrants make country's crime problems worse or better
+imdetbs,Immigrant different race/ethnic group majority: your boss
+imdetmr,Immigrant different race/ethnic group majority: married close relative
+acetalv,People of minority race/ethnic group in current living area
+pplstrd,Better for a country if almost everyone shares customs and traditions
+lwdscwp,Law against ethnic discrimination in workplace good/bad for a country
+gvrfgap,Government should be generous judging applications for refugee status
+noimbro,Of every 100 people in country how many born outside country
+icbrnct,"Interviewer code, born in country"
+gvtrimg,Compared to yourself government treats new immigrants better or worse
+rlgueim,Religious beliefs and practices undermined or enriched by immigrants
+dfegcf,Different race or ethnic group: have any close friends
+dfegcon,"Different race or ethnic group: contact, how often"
+dfeghbg,"Different race or ethnic group: contact, how bad or good"
+fclcntr,Feel close to country
+smegbli,Some races or ethnic groups: born less intelligent
+smegbhw,Some races or ethnic groups: born harder working
+smctmbe,Some cultures: much better or all equal
+aljewlv,Allow many or few Jewish people to come and live in country
+almuslv,Allow many or few Muslims to come and live in country
+algyplv,Allow many or few Gypsies to come and live in country
+admaimg,Administration of attitudes to migrants
+alpfpe,Allow professionals from [poor European country providing largest number of migrants]
+alpfpne,Allow professionals from [poor non-European country providing largest number of migrants]
+allbpe,Allow unskilled labourers from [poor European country providing largest number of migrants]
+allbpne,Allow unskilled labourers from [poor non-European country providing largest number of migrants]
+etfruit,"How often eat fruit, excluding drinking juice"
+eatveg,"How often eat vegetables or salad, excluding potatoes"
+dosprt,"Do sports or other physical activity, how many of last 7 days"
+cgtsmke,Cigarettes smoking behaviour
+cgtsday,How many cigarettes smoke on typical day
+alcfreq,How often drink alcohol
+alcwkdy,"Grams alcohol, last time drinking on a weekday, Monday to Thursday"
+alcwknd,"Grams alcohol, last time drinking on a weekend day, Friday to Sunday"
+icgndra,"Interviewer code, gender of respondent"
+alcbnge,"Frequency of binge drinking for men and women, last 12 months"
+height,Height of respondent (cm)
+weight,Weight of respondent (kg)
+dshltgp,"Discussed health, last 12 months: general practitioner"
+dshltms,"Discussed health, last 12 months: medical specialist"
+dshltnt,"Discussed health, last 12 months: none of these"
+dshltref,"Discussed health, last 12 months: refusal"
+dshltdk,"Discussed health, last 12 months: don't know"
+dshltna,"Discussed health, last 12 months: no answer"
+medtrun,"Unable to get medical consultation or treatment, last 12 months"
+medtrnp,"No medical consultation or treatment, reason: could not pay"
+medtrnt,"No medical consultation or treatment, reason: could not take time off work"
+medtroc,"No medical consultation or treatment, reason: other commitments"
+medtrnl,"No medical consultation or treatment, reason: not available where you live"
+medtrwl,"No medical consultation or treatment, reason: waiting list too long"
+medtrnaa,"No medical consultation or treatment, reason: no appointments available"
+medtroth,"No medical consultation or treatment, reason: other"
+medtrnap,"No medical consultation or treatment, reason: not applicable"
+medtrref,"No medical consultation or treatment, reason: refusal"
+medtrdk,"No medical consultation or treatment, reason: don't know"
+medtrna,"No medical consultation or treatment, reason: no answer"
+medtrnu,"Never unable to get medical consultation or treatment, reason, last 12 months"
+hlpfmly,"Looking after or helping family members, friends, neighbours or others"
+hlpfmhr,"Hours a week looking after or helping family members, friends, neighbours or others"
+trhltacu,"Treatments used for own health, last 12 months: acupuncture"
+trhltacp,"Treatments used for own health, last 12 months: acupressure"
+trhltcm,"Treatments used for own health, last 12 months: chinese medicine"
+trhltch,"Treatments used for own health, last 12 months: chiropractics"
+trhltos,"Treatments used for own health, last 12 months: osteopathy"
+trhltho,"Treatments used for own health, last 12 months: homeopathy"
+trhltht,"Treatments used for own health, last 12 months: herbal treatment"
+trhlthy,"Treatments used for own health, last 12 months: hypnotherapy"
+trhltmt,"Treatments used for own health, last 12 months: massage therapy"
+trhltpt,"Treatments used for own health, last 12 months: physiotherapy"
+trhltre,"Treatments used for own health, last 12 months: reflexology"
+trhltsh,"Treatments used for own health, last 12 months: spiritual healing"
+trhltnt,"Treatments used for own health, last 12 months: none of these"
+trhltref,"Treatments used for own health, last 12 months: refusal"
+trhltdk,"Treatments used for own health, last 12 months: don't know"
+trhltna,"Treatments used for own health, last 12 months: no answer"
+fltdpr,"Felt depressed, how often past week"
+flteeff,"Felt everything did as effort, how often past week"
+slprl,"Sleep was restless, how often past week"
+wrhpp,"Were happy, how often past week"
+fltlnl,"Felt lonely, how often past week"
+enjlf,"Enjoyed life, how often past week"
+fltsd,"Felt sad, how often past week"
+cldgng,"Could not get going, how often past week"
+hltprhc,"Health problems, last 12 months: heart or circulation problem"
+hltprhb,"Health problems, last 12 months: high blood pressure"
+hltprbp,"Health problems, last 12 months: breathing problems"
+hltpral,"Health problems, last 12 months: allergies"
+hltprbn,"Health problems, last 12 months: back or neck pain"
+hltprpa,"Health problems, last 12 months: muscular or joint pain in hand or arm"
+hltprpf,"Health problems, last 12 months: muscular or joint pain in foot or leg"
+hltprsd,"Health problems, last 12 months: stomach or digestion related"
+hltprsc,"Health problems, last 12 months: skin condition related"
+hltprsh,"Health problems, last 12 months: severe headaches"
+hltprdi,"Health problems, last 12 months: diabetes"
+hltprnt,"Health problems, last 12 months: none of these"
+hltprref,"Health problems, last 12 months: refusal"
+hltprdk,"Health problems, last 12 months: don't know"
+hltprna,"Health problems, last 12 months: no answer"
+hltphhc,"Health problems, hampered, last 12 month: heart or circulation problem"
+hltphhb,"Health problems, hampered, last 12 month: high blood pressure"
+hltphbp,"Health problems, hampered, last 12 month: breathing problems"
+hltphal,"Health problems, hampered, last 12 month: allergies"
+hltphbn,"Health problems, hampered, last 12 month: back or neck pain"
+hltphpa,"Health problems, hampered, last 12 month: muscular or joint pain in hand or arm"
+hltphpf,"Health problems, hampered, last 12 month: muscular or joint pain in foot or leg"
+hltphsd,"Health problems, hampered, last 12 month: stomach or digestion related"
+hltphsc,"Health problems, hampered, last 12 month: skin condition related"
+hltphsh,"Health problems, hampered, last 12 month: severe headaches"
+hltphdi,"Health problems, hampered, last 12 month: diabetes"
+hltphnt,"Health problems, hampered, last 12 month: none of these"
+hltphnap,"Health problems, hampered, last 12 month: not applicable"
+hltphref,"Health problems, hampered, last 12 month: refusal"
+hltphdk,"Health problems, hampered, last 12 month: don't know"
+hltphna,"Health problems, hampered, last 12 month: no answer"
+hltprca,Have or had any health problems listed on showcard (cancer)
+cnfpplh,"Serious conflict between people in household when growing up, how often"
+fnsdfml,"Severe financial difficulties in family when growing up, how often"
+hhmmb,Number of people living regularly as member of household
+gndr,Gender
+gndr2,Gender of second person in household
+gndr3,Gender of third person in household
+gndr4,Gender of fourth person in household
+gndr5,Gender of fifth person in household
+gndr6,Gender of sixth person in household
+gndr7,Gender of seventh person in household
+gndr8,Gender of eighth person in household
+gndr9,Gender of ninth person in household
+gndr10,Gender of tenth person in household
+gndr11,Gender of eleventh person in household
+gndr12,Gender of twelfth person in household
+gndr13,Gender of thirteenth person in household
+gndr14,Gender of fourteenth person in household
+agea,"Age of respondent, calculated"
+yrbrn,Year of birth
+yrbrn2,Year of birth of second person in household
+yrbrn3,Year of birth of third person in household
+yrbrn4,Year of birth of fourth person in household
+yrbrn5,Year of birth of fifth person in household
+yrbrn6,Year of birth of sixth person in household
+yrbrn7,Year of birth of seventh person in household
+yrbrn8,Year of birth of eighth person in household
+yrbrn9,Year of birth of ninth person in household
+yrbrn10,Year of birth of tenth person in household
+yrbrn11,Year of birth of eleventh person in household
+yrbrn12,Year of birth of twelfth person in household
+yrbrn13,Year of birth of thirteenth person in household
+yrbrn14,Year of birth of fourteenth person in household
+rshipa2,Second person in household: relationship to respondent
+rshipa3,Third person in household: relationship to respondent
+rshipa4,Fourth person in household: relationship to respondent
+rshipa5,Fifth person in household: relationship to respondent
+rshipa6,Sixth person in household: relationship to respondent
+rshipa7,Seventh person in household: relationship to respondent
+rshipa8,Eighth person in household: relationship to respondent
+rshipa9,Ninth person in household: relationship to respondent
+rshipa10,Tenth person in household: relationship to respondent
+rshipa11,Eleventh person in household: relationship to respondent
+rshipa12,Twelfth person in household: relationship to respondent
+rshipa13,Thirteenth person in household: relationship to respondent
+rshipa14,Fourteenth person in household: relationship to respondent
+icpart1,"Interviewer code, lives with husband/wife/partner"
+rshpsts,Relationship with husband/wife/partner currently living with
+rshpsfi,"Relationship with husband/wife/partner currently living with, Finland"
+lvgptnea,"Ever lived with a partner, without being married"
+dvrcdeva,Ever been divorced/had civil union dissolved
+icpart2,"Interviewer code, lives with husband/wife/partner"
+iccohbt,"Interviewer code, respondent cohabiting"
+marsts,Legal marital status
+maritalb,"Legal marital status, post coded"
+marstfi,"Legal marital status, Finland"
+marstie,"Legal marital status, Ireland"
+chldhm,Children living at home or not
+chldhhe,Ever had children living in household
+domicil,"Domicile, respondent's description"
+anypacc,Any problems with accommodation listed on showcard
+edulvlb,Highest level of education
+eisced,"Highest level of education, ES - ISCED"
+edlveat,"Highest level of education, Austria"
+edlvebe,"Highest level of education, Belgium"
+edlvdch,"Highest level of education, Switzerland"
+edlvdcz,"Highest level of education, Czech Republic"
+eduade1,"Highest level of education, Germany: höchster allgemeinbildender schulabschluss"
+edude2,"Highest level of education, Germany: höchster studienabschluss"
+edude3,"Highest level of education, Germany: höchster ausbildungsabschluss"
+edlvddk,"Highest level of education, Denmark"
+edlvdee,"Highest level of education, Estonia"
+edlvges,"Highest level of education, Spain"
+edlvdfi,"Highest level of education, Finland"
+edlvdfr,"Highest level of education, France"
+edubgb1,"Highest level of education, United Kingdom: Up to 2 or more A-levels or equivalent"
+eduagb2,"Highest level of education, United Kingdom: Up to Ph.D or equivalent"
+edagegb,"Age when completed full time education, United Kingdom"
+edlvdhu,"Highest level of education, Hungary"
+edlvdie,"Highest level of education, Ireland"
+eduail1,"Highest level of education, Israeli education, Israel"
+eduail2,"Highest level of education, Russian education, Israel"
+edlvdlt,"Highest level of education, Lithuania"
+edlvenl,"Highest level of education, Netherlands"
+edlvdno,"Highest level of education, Norway"
+edlvepl,"Highest level of education, Poland"
+edlvdpt,"Highest level of education, Portugal"
+edupl2,"Tertiary education: lower or higher/single tier, Poland"
+edlvdse,"Highest level of education, Sweden"
+edlvdsi,"Highest level of education, Slovenia"
+eduyrs,Years of full-time education completed
+pdwrk,Doing last 7 days: paid work
+edctn,Doing last 7 days: education
+uempla,"Doing last 7 days: unemployed, actively looking for job"
+uempli,"Doing last 7 days: unemployed, not actively looking for job"
+dsbld,Doing last 7 days: permanently sick or disabled
+rtrd,Doing last 7 days: retired
+cmsrv,Doing last 7 days: community or military service
+hswrk,"Doing last 7 days: housework, looking after children, others"
+dngoth,Doing last 7 days: other
+dngref,Doing last 7 days: refusal
+dngdk,Doing last 7 days: don't know
+dngna,Doing last 7 days: no answer
+icomdng,"Interviewer code, one/more than one doing last 7 days"
+mainact,Main activity last 7 days
+mnactic,"Main activity, last 7 days. All respondents. Post coded"
+icpdwrk,"Interviewer code, respondent in paid work"
+crpdwk,Control paid work last 7 days
+pdjobev,Ever had a paid job
+pdjobyr,Year last in paid job
+emplrel,Employment relation
+emplno,Number of employees respondent has/had
+wrkctra,Employment contract unlimited or limited duration
+estsz,Establishment size
+jbspv,Responsible for supervising other employees
+njbspv,Number of people responsible for in job
+wkdcorga,Allowed to decide how daily work is organised
+iorgact,Allowed to influence policy decisions about activities of organisation
+icwhct,Have a set 'basic' or contracted number of hours
+wkhct,Total contracted hours per week in main job overtime excluded
+wkhtot,Total hours normally worked per week in main job overtime included
+nacer2,"Industry, NACE rev.2"
+tporgwk,What type of organisation work/worked for
+isco08,"Occupation, ISCO08"
+wrkac6m,"Paid work in another country, period more than 6 months last 10 years"
+jbexpvi,"In any job, ever exposed to: vibrations from hand tools or machinery"
+jbexpti,"In any job, ever exposed to: tiring or painful positions"
+jbexpml,"In any job, ever exposed to: manually lifting or moving people"
+jbexpmc,"In any job, ever exposed to: manually carrying or moving heavy loads"
+jbexpnt,"In any job, ever exposed to: none of these"
+jbexpnap,"In any job, ever exposed to: not applicable"
+jbexpref,"In any job, ever exposed to: refusal"
+jbexpdk,"In any job, ever exposed to: don't know"
+jbexpna,"In any job, ever exposed to: no answer"
+jbexevl,"In any job, ever exposed to: very loud noise"
+jbexevh,"In any job, ever exposed to: very hot temperatures"
+jbexevc,"In any job, ever exposed to: very cold temperatures"
+jbexera,"In any job, ever exposed to: radiation such as X-rays"
+jbexecp,"In any job, ever exposed to: contact with chemical products, vapours, substances"
+jbexebs,"In any job, ever exposed to: breathing in other types of smoke, fumes, powder, dust"
+jbexent,"In any job, ever exposed to: none of these"
+jbexenap,"In any job, ever exposed to: not applicable"
+jbexeref,"In any job, ever exposed to: refusal"
+jbexedk,"In any job, ever exposed to: don't know"
+jbexena,"In any job, ever exposed to: no answer"
+uemp3m,Ever unemployed and seeking work for a period more than three months
+uemp12m,Any period of unemployment and work seeking lasted 12 months or more
+uemp5yr,Any period of unemployment and work seeking within last 5 years
+mbtru,Member of trade union or similar organisation
+hincsrca,Main source of household income
+hinctnta,"Household's total net income, all sources"
+hincfel,Feeling about household's income nowadays
+icpart3,"Interviewer code, lives with husband/wife/partner"
+edulvlpb,Partner's highest level of education
+eiscedp,"Partner's highest level of education, ES - ISCED"
+edlvpeat,"Partner's highest level of education, Austria"
+edlvpebe,"Partner's highest level of education, Belgium"
+edlvpdch,"Partner's highest level of education, Switzerland"
+edlvpdcz,"Partner's highest level of education, Czech Republic"
+edupade1,"Partner's highest level of education, Germany: höchster allgemeinbildender schulabschluss"
+edupde2,"Partner's highest level of education, Germany: höchster studienabschluss"
+edupde3,"Partner's highest level of education, Germany: höchster ausbildungsabschluss"
+edlvpddk,"Partner's highest level of education, Denmark"
+edlvpdee,"Partner's highest level of education, Estonia"
+edlvpfes,"Partner's highest level of education, Spain"
+edlvpdfi,"Partner's highest level of education, Finland"
+edlvpdfr,"Partner's highest level of education, France"
+edupbgb1,"Partner's highest level of education, United Kingdom: Up to 2 or more A-levels or equivalent"
+edupagb2,"Partner's highest level of education, United Kingdom: Up to Ph.D or equivalent"
+edagepgb,"Partner's age when completed full time education, United Kingdom"
+edlvphu,"Partner's highest level of education, Hungary"
+edlvpdie,"Partner's highest level of education, Ireland"
+edupail1,"Partner's highest level of education, Israeli education, Israel"
+edupail2,"Partner's highest level of education, Russian education, Israel"
+edlvpdlt,"Partner's highest level of education, Lithuania"
+edlvpenl,"Partner's highest level of education, Netherlands"
+edlvpdno,"Partner's highest level of education, Norway"
+edlvpepl,"Partner's highest level of education, Poland"
+edlvpdpt,"Partner's highest level of education, Portugal"
+eduppl2,"Partner's tertiary education: lower or higher/single tier, Poland"
+edlvpdse,"Partner's highest level of education, Sweden"
+edlvpdsi,"Partner's highest level of education, Slovenia"
+pdwrkp,Partner doing last 7 days: paid work
+edctnp,Partner doing last 7 days: education
+uemplap,"Partner doing last 7 days: unemployed, actively looking for job"
+uemplip,"Partner doing last 7 days: unemployed, not actively looking for job"
+dsbldp,Partner doing last 7 days: permanently sick or disabled
+rtrdp,Partner doing last 7 days: retired
+cmsrvp,Partner doing last 7 days: community or military service
+hswrkp,"Partner doing last 7 days: housework, looking after children, others"
+dngothp,Partner doing last 7 days: other
+dngdkp,Partner doing last 7 days: don't know
+dngnapp,Partner doing last 7 days: not applicable
+dngrefp,Partner doing last 7 days: refusal
+dngnap,Partner doing last 7 days: no answer
+icomdnp,"Interviewer code, one/more than one doing partner last 7 days"
+mnactp,Partner's main activity last 7 days
+icppdwk,"Interviewer code, Respondents partner in paid work"
+crpdwkp,"Partner, control paid work last 7 days"
+isco08p,"Occupation partner, ISCO08"
+emprelp,Partner's employment relation
+wkhtotp,"Hours normally worked a week in main job overtime included, partner"
+edulvlfb,Father's highest level of education
+eiscedf,"Father's highest level of education, ES - ISCED"
+edlvfeat,"Father's highest level of education, Austria"
+edlvfebe,"Father's highest level of education, Belgium"
+edlvfdch,"Father's highest level of education, Switzerland"
+edlvfdcz,"Father's highest level of education, Czech Republic"
+edlvfddk,"Father's highest level of education, Denmark"
+edufade1,"Father's highest level of education, Germany: höchster allgemeinbildender schulabschluss"
+edufde2,"Father's highest level of education, Germany: höchster studienabschluss"
+edufde3,"Father's highest level of education, Germany: höchster ausbildungsabschluss"
+edlvfdee,"Father's highest level of education, Estonia"
+edlvffes,"Father's highest level of education, Spain"
+edlvfdfi,"Father's highest level of education, Finland"
+edlvfdfr,"Father's highest level of education, France"
+edufbgb1,"Father's highest level of education, United Kingdom: Up to 2 or more A-levels or equivalent"
+edufagb2,"Father's highest level of education, United Kingdom: Up to Ph.D or equivalent"
+edagefgb,"Father's age when completed full time education, United Kingdom"
+edlvfhu,"Father's highest level of education, Hungary"
+edlvfdie,"Father's highest level of education, Ireland"
+edufail1,"Father's highest level of education, Israeli education, Israel"
+edufail2,"Father's highest level of education, Russian education, Israel"
+edlvfdlt,"Father's highest level of education, Lithuania"
+edlvfenl,"Father's highest level of education, Netherlands"
+edlvfdno,"Father's highest level of education, Norway"
+edlvfepl,"Father's highest level of education, Poland"
+edlvfdpt,"Father's highest level of education, Portugal"
+edlvfdse,"Father's highest level of education, Sweden"
+edlvfdsi,"Father's highest level of education, Slovenia"
+emprf14,Father's employment status when respondent 14
+occf14b,Father's occupation when respondent 14
+edulvlmb,Mother's highest level of education
+eiscedm,"Mother's highest level of education, ES - ISCED"
+edlvmeat,"Mother's highest level of education, Austria"
+edlvmebe,"Mother's highest level of education, Belgium"
+edlvmdch,"Mother's highest level of education, Switzerland"
+edlvmdcz,"Mother's highest level of education, Czech Republic"
+edumade1,"Mother's highest level of education, Germany: höchster allgemeinbildender schulabschluss"
+edumde2,"Mother's highest level of education, Germany: höchster studienabschluss"
+edumde3,"Mother's highest level of education, Germany: höchster ausbildungsabschluss"
+edlvmddk,"Mother's highest level of education, Denmark"
+edlvmdee,"Mother's highest level of education, Estonia"
+edlvmfes,"Mother's highest level of education, Spain"
+edlvmdfi,"Mother's highest level of education, Finland"
+edlvmdfr,"Mother's highest level of education, France"
+edumbgb1,"Mother's highest level of education, United Kingdom: Up to 2 or more A-levels or equivalent"
+edumagb2,"Mother's highest level of education, United Kingdom: Up to Ph.D or equivalent"
+edagemgb,"Mother's age when completed full time education, United Kingdom"
+edlvmhu,"Mother's highest level of education, Hungary"
+edlvmdie,"Mother's highest level of education, Ireland"
+edumail1,"Mother's highest level of education, Israeli education, Israel"
+edumail2,"Mother's highest level of education, Russian education, Israel"
+edlvmdlt,"Mother's highest level of education, Lithuania"
+edlvmenl,"Mother's highest level of education, Netherlands"
+edlvmdno,"Mother's highest level of education, Norway"
+edlvmepl,"Mother's highest level of education, Poland"
+edlvmdpt,"Mother's highest level of education, Portugal"
+edlvmdse,"Mother's highest level of education, Sweden"
+edlvmdsi,"Mother's highest level of education, Slovenia"
+emprm14,Mother's employment status when respondent 14
+occm14b,Mother's occupation when respondent 14
+atncrse,"Improve knowledge/skills: course/lecture/conference, last 12 months"
+anctry1,"First ancestry, European Standard Classification of Cultural and Ethnic Groups"
+anctry2,"Second ancestry, European Standard Classification of Cultural and Ethnic Groups"
+ipcrtiv,Important to think new ideas and being creative
+imprich,"Important to be rich, have money and expensive things"
+ipeqopt,Important that people are treated equally and have equal opportunities
+ipshabt,Important to show abilities and be admired
+impsafe,Important to live in secure and safe surroundings
+impdiff,Important to try new and different things in life
+ipfrule,Important to do what is told and follow rules
+ipudrst,Important to understand different people
+ipmodst,"Important to be humble and modest, not draw attention"
+ipgdtim,Important to have a good time
+impfree,Important to make own decisions and be free
+iphlppl,Important to help people and care for others well-being
+ipsuces,Important to be successful and that people recognize achievements
+ipstrgv,Important that government is strong and ensures safety
+ipadvnt,Important to seek adventures and have an exciting life
+ipbhprp,Important to behave properly
+iprspot,Important to get respect from others
+iplylfr,Important to be loyal to friends and devote to people close
+impenv,Important to care for nature and environment
+imptrad,Important to follow traditions and customs
+impfun,Important to seek fun and things that give pleasure
+region,Region
+regunit,Regional unit
+intewde,"Place of interview: East, West Germany"
+inwdds,"Start of interview, day of month"
+inwmms,"Start of interview, month"
+inwyys,"Start of interview, year"
+inwshh,"Start of interview, hour"
+inwsmm,"Start of interview, minute"
+inwdde,"End of interview, day of month"
+inwmme,"End of interview, month"
+inwyye,"End of interview, year"
+inwehh,"End of interview, hour"
+inwemm,"End of interview, minute"
+inwtm,"Interview length in minutes, main questionnaire"
+spltadmf,Administration of split ballot and mtmm
+supqad1,Administration of supplementary questionnaire 1
+supqad2,Administration of supplementary questionnaire 2
+supqdd,"Day of month, supplementary questionnaire"
+supqmm,"Month, supplementary questionnaire"
+supqyr,"Year, supplementary questionnaire"
+dweight,Design weight
+pspwght,Post-stratification weight including design weight
+pweight,Population size weight (must be combined with dweight or pspwght)

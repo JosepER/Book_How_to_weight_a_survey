@@ -1,8 +1,13 @@
 ---
 title: "(Very) basic steps to weight a survey sample"
 author: "Josep Espasa Reig"
+date: "`r Sys.Date()`"
+site: "bookdown::bookdown_site"
 subtitle: An explained example with R code - V0.3
 output: bookdown::gitbook
 documentclass: book
 ---
 
+# Welcome to the introduction on how to weight a survey sample! {-}
+
+This guide was written by [Josep Espasa](https://www.linkedin.com/in/josepespasareig/). You can visit the [GitHub repository for this site](https://github.com/JosepER/Book_How_to_weight_a_survey)

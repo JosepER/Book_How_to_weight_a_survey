@@ -8,7 +8,7 @@ there are many different ways of doing this. This guide intends to be a practica
 
 For questions, clarifications or suggestions feel free to contact him at *jespasareig at gmail.com*. It is relevant to say that this text intentionally avoids explaining complex or advanced methods. Instead, it aims at providing users with a standard way of weighting and a limited number of variations.
 
-Next sections will first give a very broad glimpse at all [main survey weighting steps](#basic steps in weighting a survey).The second section deals with importing data into R, data manipulation and briefly [presenting the dataset used for this guide](#exploring and presenting the dataset). Readers interested in a specific step, familiar with the 7th round of the European Social Survey or that want to jump directly into weighting procedures can skip this part of the guide. The three sections are the main components of this guide and show how to compute [design weights](#design_weights), [non-response weights](#nonresponse_weights) and [calibration weights](#calibration). Two more sections will be added to this survey in the future. These correspond to the analysis of weight variability and computing weighted estimates.
+Next sections will first give a very broad glimpse at all [main survey weighting steps](#basic_steps).The second section deals with importing data into R, data manipulation and briefly [presenting the dataset used for this guide](#exploring and presenting the dataset). Readers interested in a specific step, familiar with the 7th round of the European Social Survey or that want to jump directly into weighting procedures can skip this part of the guide. The three sections are the main components of this guide and show how to compute [design weights](#design_weights), [non-response weights](#nonresponse_weights) and [calibration weights](#calibration). Two more sections will be added to this survey in the future. These correspond to the analysis of weight variability and computing weighted estimates.
 
 For more information you can check the following introductory texts:
 
@@ -24,7 +24,7 @@ It might be also worth keeping an eye on the (still incipient) R package [*srvyr
 
 Note: This guide focuses on surveys based on 'probability sample'. These are surveys where all units in our statistical population have a chance of being selected and the probability of selection is known to the researcher. A brief note on how to weight non-probability samples is included at the end of the guide. 
 
-### Basic steps in weighting a survey
+### Basic steps in weighting a survey {#basic_steps}
 
 Weights are applied to reduce survey bias. In plain words, weighting consists on making our sample of survey respondents (more) representative of our statistical population. By statistical population we mean all those units for which we want to compute estimates.
 

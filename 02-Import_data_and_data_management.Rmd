@@ -1,0 +1,262 @@
+# Import data and data management {#import_data_management}
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+library(RCurl)
+library(MASS)
+library(glmnet)
+library(caret)
+library(survey)
+library(readxl)
+library(stringr)
+library(forcats)
+library(foreign)
+library(magrittr)
+library(tidyverse)
+options(scipen = 9999)
+options(dplyr.width = Inf)
+
+
+set.seed(456162)
+
+```
+
+We first need to import data into R. In this guide we will use UK data from the 7th round of the [European Social Survey](http://www.europeansocialsurvey.org/). The advantage of this data is that the European Social Survey (ESS) is a well documented and high quality probability survey. It allows us to understand how responses were collected and provides some useful information about non-respondents. At the same time, the 7th ESS was weighted by expert statisticians. The process of the two phases of weighting they applied is explained in their [website](http://www.europeansocialsurvey.org/methodology/ess_methodology/data_processing_archiving/weighting.html). This will allow us to compare our own weights and results with those already computed by their team of experts. Focusing on the UK sample will allow us to narrow down the analysis and fasten computation by reducing the amount of data used in each step. 
+
+For this guide we will use the following 7th ESS datafiles in SPSS ('.sav') format: 
+
+  * [sample data (SDDF), edition 1.1](http://www.europeansocialsurvey.org/download.html?file=ESS7SDDFe01_1&y=2014), which contains the  probability of being sampled for all respondents and non-respondents invited to the survey;  
+  * [the data from Contact forms, edition 2.1](http://www.europeansocialsurvey.org/download.html?file=ESS7CFe02_1&y=2014), which provides information about the process of data collection (e.g. number of times the person was approached for a response, ID of interviewer in each approach, conditions of the house/area where the potential respondent lived.). We will call this data the *'paradata'* of the survey;
+  * [the integrated interviewer data file, edition2.1](http://www.europeansocialsurvey.org/download.html?file=ESS7INTe02_1&y=2014). These are the responses to the survey. 
+
+The following sections explain data import, selection, merging and recoding. Readers who are not interested in technical details about datasets can skip them and jump directly into [exploration and presentation of the data](#exploring and presenting the dataset)
+
+#### Import data
+
+The following chunk of code loads the data sets from a *data* folder in the working directory. The sample data file is stored into the *sample.data* 'data_frame' object. The contact forms information is stored into the *paradata* folder. Survey responses from the integrated interviewer file are saved in the *responses* object. We also store the weight variables included in the integrated interviewer file in the *original.weights* data_frame.
+
+```{r echo=TRUE, warning=FALSE, message=FALSE, cache=TRUE}
+
+sample.data <- read.spss("data/ESS7SDDFe1_1.sav", to.data.frame = T)  %>%
+  filter(cntry == "United Kingdom")
+
+paradata <- read.spss("data/ess7CFe02_1.sav", to.data.frame = T) %>%
+  filter(cntry == "United Kingdom") 
+
+responses <- read.spss("data/ESS7e02_1.sav", to.data.frame = T) %>%
+  filter(cntry == "United Kingdom") 
+
+original.weights <- responses %>% select(idno ,dweight, pspwght, pweight)
+
+```
+
+#### Select variables
+
+Once the data has been read into R, we select the variables we are going to use in our analysis. Selecting variables is a good practice as the ESS files contain much more information that we need for this example. This will allow us to easily find and see the data that is important for us in this guide. Here we just write the names of the variables we intend to use and we will later explain the content of these in more substantial terms.
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+vars.sample.data <- c("idno", "psu", "prob")
+
+vars.paradata <- c("idno", "typesamp", "interva", "telnum", 
+                   "agea_1", "gendera1", "type", "access", 
+                   "physa", "littera", "vandaa")
+
+resp.id <- c("idno")
+
+resp.y <- c("cgtsmke", "cgtsday",
+         "alcfreq", "alcwkdy", "alcwknd")
+
+resp.x <- c("vote", "prtvtbgb",
+            "prtclbgb", "prtdgcl",
+            "ctzcntr", "ctzshipc",
+         "brncntr","cntbrthc",
+         "gndr", "agea", "hhmmb","eisced", "region",
+         "pdwrk", "edctn", "uempla", "uempli", "rtrd",
+         "wrkctra", "hinctnta")
+
+```
+
+We will also keep the variable labels from the SPSS (.sav) file, although these are not so common in R.
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+selected.labels.sample.data <- attributes(sample.data)$variable.labels[which(names(sample.data) %in% vars.sample.data)]
+
+selected.labels.paradata <- attributes(paradata)$variable.labels[which(names(paradata) %in% vars.paradata)]
+
+selected.labels.responses <- attributes(responses)$variable.labels[which(names(responses) %in% c(resp.y, resp.x))] 
+
+attributes(responses)$variable.labels %>% 
+  cbind(names(responses),.) %>% 
+  as_data_frame %>% 
+  write_csv("interim_output/variable_labels.csv")
+
+```
+
+Now we do the selection of variables from the three data sets using the names of the variables written a couple of code chunks ago. 
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+sample.data %<>% 
+  .[vars.sample.data]
+
+paradata %<>%
+  .[vars.paradata]
+
+responses %<>%
+  .[which(names(responses) %in% c(resp.id, resp.y, resp.x))]
+
+```
+
+
+#### Merging datafiles
+
+After selecting the variables for the analysis, we merge the 'paradata' file containing all sampled units (respondents and non-respondents) with the 'survey responses' file, containing interview responses (only for respondents). The resulting data_frame is the 'data' object. It contains the 'paradata' information for all sampled individuals and responses for those that were interviewed successfully. 
+
+In a real situation where we collect the data ourselves we would also have a 'survey frame'. This 'survey frame' would ideally include include all units from the population and characteristics of these such as stratification variables. A survey frame would include sampled units (respondents and non-respondents) as well as non-sampled units. 
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+data <- paradata %>%
+  left_join(sample.data, by = "idno") %>%
+  left_join(responses, by = "idno") %>%
+  arrange(interva) 
+
+rm(paradata,
+   sample.data,
+   responses)
+
+```
+
+Here we add the variable labels to the datasets with we kept before.
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+attributes(data)$variable.labels <- c(selected.labels.paradata, selected.labels.sample.data[!names(selected.labels.sample.data) %in% "idno"],
+                                      selected.labels.responses)
+```
+
+
+#### Recoding
+
+Here we will recode our two dependent variables: cigarette and alcohol consumption. All those respondents that don't smoke should have a 0 in the __cigarretes smoked per day__ variable. To calculate the __alcohol consumption__ of respondents, we first calculate the daily consumption of alcohol if they were to consume alcohol daily and then weight by their stated frequency of alcohol consumption.
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+data$cgtsday[data$cgtsmke %in% c("I have never smoked",
+                                 "I don't smoke now but I used to",
+                                 "I have only smoked a few times")] <- 0
+
+data$alcohol_day <- NA 
+data$alcohol_day <- (data$alcwkdy * 5 + data$alcwknd *2)/7 
+
+data$alcohol_day[which(data$alcfreq == "Several times a week")] <- data$alcohol_day / 2.5
+data$alcohol_day[which(data$alcfreq == "Once a week")] <- data$alcohol_day/7
+data$alcohol_day[which(data$alcfreq == "2-3 times a month")] <- data$alcohol_day/10
+data$alcohol_day[which(data$alcfreq == "Once a month")] <- data$alcohol_day/30
+data$alcohol_day[which(data$alcfreq == "Less than once a month")] <- data$alcohol_day/50
+data$alcohol_day[which(data$alcfreq == "Never")] <- 0
+
+resp.y <- c(resp.y, "alcohol_day")
+```
+
+
+### Exploring and presenting the dataset
+
+The merged data set contains sampled **respondents and non-respondents**. It contains a total of `r dim(data)[[1]]` units and `r dim(data)[[2]]` variables.
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+dim(data)
+```
+
+The data set contains information about `r nrow(data %>% dplyr::filter(interva == "Complete and valid interview related to CF"))` respondents and `r nrow(data %>% dplyr::filter(interva != "Complete and valid interview related to CF"))` non-respondents.
+
+And this is a list of the variables it contains (with their labels). **idno** is the individual identification variable.
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+
+data.variables <- cbind(names(data),attributes(data)$variable.labels) %>% 
+  as_data_frame()
+
+data.variables$V2 <- format(data.variables$V2 , justify = "left")
+
+data.variables %>%
+  print(n = 40)
+
+rm(data.variables)
+
+```
+
+The goal of this guide will be to to give UK population estimates for cigarette and alcohol consumption based on ESS respondents. These will be our *Y* variables or variables of interest. The idea is to give descriptives of the distribution of these two variables (such as quantiles and mean) and then a simple extrapolation and compute total cigarette and alcohol consumption for the whole UK.
+
+These are our *Y* variables:
+
+* __cgtsday__ : Number of cigarettes smoked on a typical day.
+* __alcohol_day__ : Grams of alcohol ingested on a daily basis. Computed in the [*Recoding*](#recoding) section from the amount of alcohol drank last time during weekdays and weekend.
+
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+data[resp.y] %>%
+  as_data_frame() %>%
+  print()
+```
+
+
+#### Paradata variables
+
+The 7th ESS survey contains variables which give information about the data collection process. First, we have some variables that come from the 'sample data (SDDF)' file. These contain info about the 'primary sampling unit' and the probability of each unit of being selected in the sample. These two variables are only available for respondents. In a real project we would most probably have to compute the probability of being sampled ourselves.   
+
+* __psu__: This variable includes information on the primary sampling unit (PSU). In the UK this refers to the 'postcode address file'.
+* __prob__: Probability of being included in the sample (i.e. approached for survey).
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+data[vars.sample.data] %>%
+  as_data_frame() %>%
+  print()
+```
+
+The 7th ESS also contains variables for all sampled units (i.e. respondents and non-respondents). These give information  about the events that occurred during the data collection process. We will use these variables as covariates during the computation of **Non-response weights** in [step two](#nonresponse weights).  
+
+* __typesamp__: Refers to the type of unit sampled. In the UK addresses were the final sampling units. In some other countries these were households and individual people.   
+* __interva__: Shows the final outcome of the contact. In the UK sample, only codes 'Complete ...' and 'No interview ...' were used for respondents and non-respondents respectively.
+* __telnum__: The interviewed person gave his/her mobile phone to the interviewer.
+* __agea_1__:  Interviewer estimation of age of respondent or household member who refuses to give the interview.
+* __gendera1__: Interviewer estimation of gender of respondent or household member who refuses to give the interview.
+* __type__: Type of house sampled unit lives in. 
+* __access__: Entry phone or locked gate/door before reaching respondent's individual door.
+* __physa__: Interviewer assessment overall physical condition building/house.
+* __littera__: Interviewer assessment of amount of litter and rubbish in the immediate vicinity.
+* __vandaa__: Interviewer assessment of amount of vandalism and graffiti in the immediate vicinity.
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+data[vars.paradata] %>%
+  head(6)
+```
+
+
+#### Survey responses
+
+Apart from the variables of interest (cigarette and alcohol consumption) our dataset has other variables obtained from survey responses. Obviously, these are only available for respondents. We will try to use some of these variables to calibrate the survey in [__Use of auxiliary data/calibration__ step](#calibration). Some of these variables are:
+
+* __vote__: Voted last national election (Yes/No)
+* __prtvtbgb__: Party voted for in last national election
+* __prtclbgb__: Which party feel closer to, United Kingdom
+* __prtdgcl__: How close does the repondent feel to the party party from 'prtclbgb'
+* __ctzcntr__: Has UK citizenship (Yes/No)
+* __ctzshipc__: Citizenship of respondent
+* __brncntr__:Respondent born in the UK
+* __cntbrthc__: Respondent country of birth
+* __gndr__: Gender of respondent
+* __agea__: Calculated age of respondent
+* __eisced__: Highest level of education of respondent
+* __pdwrk__: In paid work
+* __edctn__: In education
+* __uempla__: In unemployment, actively looking for a job
+* __uempli__: In unemployment, not actively looking for a job
+* __rtrd__: Retired
+* __wrkctra__: Employment contract unlimited or limited duration
+* __hinctnta__: Household's total net income, all sources
+
+```{r, echo=TRUE, warning=FALSE, message=FALSE}
+data[c(resp.id, resp.x)] %>%
+  head(6)
+```
