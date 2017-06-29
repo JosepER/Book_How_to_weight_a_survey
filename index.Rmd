@@ -1,0 +1,8 @@
+---
+title: "(Very) basic steps to weight a survey sample"
+author: "Josep Espasa Reig"
+subtitle: An explained example with R code - V0.3
+output: bookdown::gitbook
+documentclass: book
+---
+
