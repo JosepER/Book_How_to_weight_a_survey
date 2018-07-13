@@ -1,0 +1,8 @@
+Use exact calibration/raking procedure as used in ESS. Change NA procedure. They allocate/copy NAs in control proportion as well.
+
+From ESS post-stratification weighting document:
+
+"Missing value only in sample cell. Values in missing cells are copied to corresponding
+cells in control data table, taking the missing at random assumption (MAR). Next,
+other cells in the control data table are proportionally adjusted so that the total
+sum and the ratio between existing cells are preserved.""
