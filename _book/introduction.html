@@ -7,7 +7,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>(Very) basic steps to weight a survey sample</title>
   <meta name="description" content="(Very) basic steps to weight a survey sample">
-  <meta name="generator" content="bookdown 0.4 and GitBook 2.6.7">
+  <meta name="generator" content="bookdown 0.7 and GitBook 2.6.7">
 
   <meta property="og:title" content="(Very) basic steps to weight a survey sample" />
   <meta property="og:type" content="book" />
@@ -25,7 +25,7 @@
 <meta name="author" content="Josep Espasa Reig">
 
 
-<meta name="date" content="2017-06-29">
+<meta name="date" content="2018-08-08">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -153,25 +153,25 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <h1><span class="header-section-number">1</span> Introduction</h1>
 <div id="aim-of-this-guide-and-further-readings" class="section level2">
 <h2><span class="header-section-number">1.1</span> Aim of this guide and further readings</h2>
-<p>This is a short introductory guide that shows the basic procedures to weight a survey. Please keep in mind that there are many different ways of doing this. This guide intends to be a practical document and a step-by-step walkthrough for weighting a survey. It provides <a href="https://www.r-project.org/">R code</a> for all actions: from reading, manipulating and presenting data to modelling and callibration. This should allow readers to reproduce procerudes and results as well as to inspect objects at any given part of this guide. The source code in an ‘R notebook’ format can be found and publicly accessed from the <a href="https://github.com/JosepER/PPMI_how_to_weight_a_survey/01-_Basic_steps_on_how_to_weight_a_survey_sample.Rmd">author’s github page</a>. It is important to note that this is not an ‘R tutorial’. Thus, the guide does not provide a detailed comment on general functions used in this walk-through. Some intermediate ‘R’ skills might be requiered to follow all steps of the procedure. Readers with basic or no knowledge of ‘R’ can still benefit from this note as it explains the steps and principles behind weighting.</p>
-<p>For questions, clarifications or suggestions feel free to contact him at <em>jespasareig at gmail.com</em>. It is relevant to say that this text intentionally avoids explaining complex or advanced methods. Instead, it aims at providing users with a standard way of weighting and a limited number of variations.</p>
-<p>Next sections will first give a very broad glimpse at all <a href="introduction.html#basic_steps">main survey weighting steps</a>.The second section deals with importing data into R, data manipulation and briefly <a href="#exploring%20and%20presenting%20the%20dataset">presenting the dataset used for this guide</a>. Readers interested in a specific step, familiar with the 7th round of the European Social Survey or that want to jump directly into weighting procedures can skip this part of the guide. The three sections are the main components of this guide and show how to compute <a href="design-weights.html#design_weights">design weights</a>, <a href="nonresponse-weights.html#nonresponse_weights">non-response weights</a> and <a href="calibration.html#calibration">calibration weights</a>. Two more sections will be added to this survey in the future. These correspond to the analysis of weight variability and computing weighted estimates.</p>
+<p>This is a short introductory guide that shows the basic procedures to weight a survey. This guide intends to be a practical document and a step-by-step walkthrough for weighting a survey sample. It provides <a href="https://www.r-project.org/">R code</a> for all steps of the process: from reading, wrangling and presenting data to modelling and calibration. This should allow readers to reproduce procedures and results as well as to inspect objects at any given part of this guide. The source code in an ‘R Notebook’ format can be found and publicly accessed from the <a href="https://github.com/JosepER/PPMI_how_to_weight_a_survey/01-_Basic_steps_on_how_to_weight_a_survey_sample.Rmd">author’s Github page</a>. The guide does not provide a detailed comment on general functions used in this walk-through. Basic ‘R’ skills might be required to follow all steps explained in this guide. Readers with no knowledge of ‘R’ can still benefit from this note as it explains the steps and principles behind weighting.</p>
+<p>For questions, clarifications or suggestions feel free to contact him at <em>jespasareig at gmail.com</em>. This text intentionally avoids explaining complex or advanced methods. Instead, it aims at providing users with a standard way of weighting and a limited number of variations.</p>
+<p>The next sections will give a very broad glimpse at all <a href="introduction.html#basic_steps">main survey weighting steps</a>.The second section deals with importing data into R, data manipulation and briefly <a href="#exploring%20and%20presenting%20the%20dataset">presenting the dataset used for this guide</a>. Readers interested in a specific step, familiar with the 7th round of the European Social Survey or that want to jump directly into weighting procedures can skip this part of the guide. The next three sections are the main components of this guide and show how to compute <a href="design-weights.html#design_weights">design weights</a>, <a href="nonresponse-weights.html#nonresponse_weights">non-response weights</a> and <a href="calibration.html#calibration">calibration weights</a>. Two more sections will be added to this survey in the future. These correspond to the analysis of weight variability and computing weighted estimates.</p>
 <p>For more information you can check the following introductory texts:</p>
 <ul>
 <li>Valliant et al. (2013) <em>Practical Tools for Designing and Weighting Survey Samples</em>. New York: Springer Science Business Media.</li>
 <li>Lohr,S.L. (2009) <em>Sampling: Design and Analysis</em>. 2nd Edition. Boston: Books/Cole.</li>
 <li>Blair, E. &amp; Blair, J. (2015) <em>Applied Survey Sampling</em>. London: SAGE Publications Inc.</li>
 </ul>
-<p>And the book accompaining the R ‘survey’ package:</p>
+<p>And the book accompanying the R ‘survey’ package:</p>
 <ul>
 <li>Lumley,T. (2010) <em>Complex Surveys: A Guide to Analysis Using R</em>. New Jersey: John Wiley &amp; Sons Inc.</li>
 </ul>
-<p>It might be also worth keeping an eye on the (still incipient) R package <a href="https://cran.r-project.org/web/packages/srvyr/index.html"><em>srvyr</em></a>, developed and maintained by Greg Freedman Ellis.</p>
+<p>It might be also worth keeping an eye on the (still incipient) R package <a href="https://cran.r-project.org/web/packages/srvyr/index.html"><em>srvyr</em></a>, developed and maintained by Greg Freedman Ellis. This package should make the application of the techniques explained here more simple.</p>
 <p>Note: This guide focuses on surveys based on ‘probability sample’. These are surveys where all units in our statistical population have a chance of being selected and the probability of selection is known to the researcher. A brief note on how to weight non-probability samples is included at the end of the guide.</p>
 </div>
 <div id="basic_steps" class="section level2">
 <h2><span class="header-section-number">1.2</span> Basic steps in weighting a survey</h2>
-<p>Weights are applied to reduce survey bias. In plain words, weighting consists on making our sample of survey respondents (more) representative of our statistical population. By statistical population we mean all those units for which we want to compute estimates.</p>
+<p>Weights are applied to reduce survey bias. In plain words, weighting consists on making our sample of survey respondents (more) representative of our statistical population. By statistical population we mean all those units for which we want to infer the computed estimates.</p>
 <p>There are four basic steps in weighting. These are:</p>
 <ol style="list-style-type: decimal">
 <li><strong>Base/design weights</strong></li>
@@ -179,10 +179,10 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <li><strong>Use of auxiliary data/calibration</strong></li>
 <li><strong>Analysis of weight variability/trimming</strong></li>
 </ol>
-<p>The first step consists on computing weights to take into account the differences of units in the probability of being sampled. ‘Being sampled’ means being selected from the survey frame (i.e. the list of all units) to be approached for a survey response. This step can be skipped if all units in the survey frame have the same probability of being sampled. This happens, for example: * when all units in the survey frame are approached for the sample or; * with certain sampling designs (such as ‘simple random sampling without replacement’ or ‘stratified random sampling without replacement’ with distribution of sampled units across stratums proportional to the number of units in each stratum). These are usually called ‘self-weighted’ surveys.</p>
-<p>In the second step we need to adjust our responses by the differences in the probability of sampled units to reply to our survey. Our estimates would be biased if some profile of sampled units had higher propensity to reply than another and these profiles had differences in the dependent variables (i.e. our variables of interest). In this step, we need to estimate the probability of response using information available for both respondents and non-respondents. Non-response adjustment is not needed if all sampled units responded to the survey (i.e. in probability sampling surveys with 100% response rates).</p>
-<p>The third step consists on adjusting our weights using available information about total population estimates. Note that this requieres data that is different from that needed in non-response adjustment (second step). Here we need auxiliary data which tells us information (i.e. estimates such as proportions, means, sums, counts) about the statistical population. The same variables should be available from our respondents but here we don’t need information about non-respondents.</p>
-<p>The last step is to check the variablity in our computed weights. High variation in weights can lead to some observations having too much importance in our sample. Even if weights reduce bias, they might largely inflate variance of estimates. Therefore, some survey practitioners worry about dealing with highly unequal weights.</p>
+<p>The first step consists on computing weights to take into account the differences of units in the probability of being sampled. ‘Being sampled’ means being selected from the survey sampling frame (i.e. the list of all units from which the sample was obtained) to be approached for a survey response. This step can be skipped if all units in the survey frame have the same probability of being sampled. This happens, for example: * when all units in the survey frame are approached for the sample or; * with certain sampling designs (such as ‘simple random sampling without replacement’ or ‘stratified random sampling without replacement’ with distribution of sampled units across stratums proportional to the number of units in each stratum). These are usually called ‘self-weighted’ surveys.</p>
+<p>In the second step we need to adjust our responses by the differences in the probability of sampled units to reply to our survey. Our estimates would be biased if some profile of sampled units had higher propensity to reply than another and these profiles had differences in our survey variables of interest. In this step, we need to estimate the probability of response using information available for both respondents and non-respondents. Non-response adjustment is not needed if all sampled units responded to the survey (i.e. in probability sampling surveys with 100% response rates).</p>
+<p>The third step consists on adjusting our weights using available information about total population estimates. Note that this requires data that is different from that needed in non-response adjustment (second step). Here we need auxiliary data which tells us information (i.e. estimates such as proportions, means, sums, counts) about the statistical population. The same variables should be available from our respondents but here we don’t need information about non-respondents.</p>
+<p>The last step is to check the variability in our computed weights. High variation in weights can lead to some observations having too much importance in our sample. Even if weights reduce bias, they might largely inflate variance of estimates. Therefore, some survey practitioners worry about dealing with highly unequal weights.</p>
 
 </div>
 </div>
@@ -203,17 +203,18 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
 <script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
 <script>
-require(["gitbook"], function(gitbook) {
+gitbook.require(["gitbook"], function(gitbook) {
 gitbook.start({
 "sharing": {
 "github": false,
 "facebook": true,
 "twitter": true,
 "google": false,
+"linkedin": false,
 "weibo": false,
 "instapper": false,
 "vk": false,
-"all": ["facebook", "google", "twitter", "weibo", "instapaper"]
+"all": ["facebook", "google", "twitter", "linkedin", "weibo", "instapaper"]
 },
 "fontsettings": {
 "theme": "white",
@@ -237,9 +238,11 @@ gitbook.start({
   (function () {
     var script = document.createElement("script");
     script.type = "text/javascript";
-    script.src  = "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML";
-    if (location.protocol !== "file:" && /^https?:/.test(script.src))
-      script.src  = script.src.replace(/^https?:/, '');
+    var src = "";
+    if (src === "" || src === "true") src = "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:" && /^https?:/.test(src))
+      src = src.replace(/^https?:/, '');
+    script.src = src;
     document.getElementsByTagName("head")[0].appendChild(script);
   })();
 </script>

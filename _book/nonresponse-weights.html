@@ -7,7 +7,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>(Very) basic steps to weight a survey sample</title>
   <meta name="description" content="(Very) basic steps to weight a survey sample">
-  <meta name="generator" content="bookdown 0.4 and GitBook 2.6.7">
+  <meta name="generator" content="bookdown 0.7 and GitBook 2.6.7">
 
   <meta property="og:title" content="(Very) basic steps to weight a survey sample" />
   <meta property="og:type" content="book" />
@@ -25,7 +25,7 @@
 <meta name="author" content="Josep Espasa Reig">
 
 
-<meta name="date" content="2017-06-29">
+<meta name="date" content="2018-08-08">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -161,51 +161,51 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <p>This is not a guide on ‘predictive modelling’. However, it might be worth it to very briefly explain the basic principle behind it. We should try to build a model which is able to estimate the probability using only ‘relevant’ information and excluding ‘noise’ from the model. Therefore, a predictive model should be fitting the observed data well enough but at the same time not too specific to it.</p>
 <p>For this specific case of non-response weighting, we are especially interested in using propensity predictors which are related to both the response propensity and our dependent variables.</p>
 <p>Here we will use the paradata information to model the probability of response. The variables describing the type of house and the immediate vicinity around houses have a relatively small number of missing values (~ 8%) these missings seem to be related (i.e. all variables missing for certain units). Those sampled units that have missing values on all these paradata variables are always non-respondents. It would be useful to know why this pattern exists. We would guess that these are sampled units which interviewers could not reach for some reason. For this analysis, we will ignore this fact and not use these units with missing values in ALL paradata variables. This should only result in a linear transformation of the estimated probabilities of response. Moreover, we can later adjust our model to ‘undo’ this transformation.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data.nonresponse.model &lt;-<span class="st"> </span>data[vars.paradata] %&gt;%<span class="st"> </span><span class="kw">select</span>(idno, interva, type:vandaa)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data.nonresponse.model &lt;-<span class="st"> </span>data[vars.paradata] <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(idno, interva, type<span class="op">:</span>vandaa)
 
-data.nonresponse.model$all.missing &lt;-<span class="st"> </span><span class="ot">NA</span>
+data.nonresponse.model<span class="op">$</span>all.missing &lt;-<span class="st"> </span><span class="ot">NA</span>
 
-data.nonresponse.model$all.missing[<span class="kw">is.na</span>(data.nonresponse.model$type) &amp;
-<span class="st">                                     </span><span class="kw">is.na</span>(data.nonresponse.model$access) &amp;
-<span class="st">                                     </span><span class="kw">is.na</span>(data.nonresponse.model$physa) &amp;<span class="st"> </span>
-<span class="st">                                     </span><span class="kw">is.na</span>(data.nonresponse.model$littera) &amp;
-<span class="st">                                     </span><span class="kw">is.na</span>(data.nonresponse.model$vandaa)] &lt;-<span class="st"> </span><span class="dv">1</span>
+data.nonresponse.model<span class="op">$</span>all.missing[<span class="kw">is.na</span>(data.nonresponse.model<span class="op">$</span>type) <span class="op">&amp;</span>
+<span class="st">                                     </span><span class="kw">is.na</span>(data.nonresponse.model<span class="op">$</span>access) <span class="op">&amp;</span>
+<span class="st">                                     </span><span class="kw">is.na</span>(data.nonresponse.model<span class="op">$</span>physa) <span class="op">&amp;</span><span class="st"> </span>
+<span class="st">                                     </span><span class="kw">is.na</span>(data.nonresponse.model<span class="op">$</span>littera) <span class="op">&amp;</span>
+<span class="st">                                     </span><span class="kw">is.na</span>(data.nonresponse.model<span class="op">$</span>vandaa)] &lt;-<span class="st"> </span><span class="dv">1</span>
 
-data.nonresponse.model %&lt;&gt;%
-<span class="st">  </span><span class="kw">filter</span>(<span class="kw">is.na</span>(all.missing)) %&gt;%
-<span class="st">  </span><span class="kw">select</span>(-all.missing)
+data.nonresponse.model <span class="op">%&lt;&gt;%</span>
+<span class="st">  </span><span class="kw">filter</span>(<span class="kw">is.na</span>(all.missing)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>all.missing)
 
 indep.vars.nonresponse &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;type&quot;</span>, <span class="st">&quot;access&quot;</span>, <span class="st">&quot;physa&quot;</span>, <span class="st">&quot;littera&quot;</span>, <span class="st">&quot;vandaa&quot;</span>)
 
-data.nonresponse.model[,<span class="kw">c</span>(<span class="st">&quot;type&quot;</span>, <span class="st">&quot;access&quot;</span>)]  %&lt;&gt;%<span class="st"> </span><span class="kw">map</span>(function(x){<span class="kw">as.character</span>(x)})
+data.nonresponse.model[,<span class="kw">c</span>(<span class="st">&quot;type&quot;</span>, <span class="st">&quot;access&quot;</span>)]  <span class="op">%&lt;&gt;%</span><span class="st"> </span><span class="kw">map</span>(<span class="cf">function</span>(x){<span class="kw">as.character</span>(x)})
 
 <span class="co">#data.nonresponse.model %&gt;% map(function(x){sum(is.na(x))})</span>
 
 <span class="co"># Missing category for missings in multinomial variables.</span>
   
-for(i in <span class="kw">c</span>(<span class="st">&quot;type&quot;</span>, <span class="st">&quot;access&quot;</span>)) {
+<span class="cf">for</span>(i <span class="cf">in</span> <span class="kw">c</span>(<span class="st">&quot;type&quot;</span>, <span class="st">&quot;access&quot;</span>)) {
   data.nonresponse.model[[i]][<span class="kw">is.na</span>(data.nonresponse.model[[i]])] &lt;-<span class="st"> &quot;Missing&quot;</span>
   
 }
 
 <span class="co"># Mean imputation for ordinal variables.</span>
 
-for(i in <span class="kw">c</span>(<span class="st">&quot;physa&quot;</span>, <span class="st">&quot;littera&quot;</span>, <span class="st">&quot;vandaa&quot;</span>)) {
-  data.nonresponse.model[[i]][<span class="kw">is.na</span>(data.nonresponse.model[[i]])] &lt;-<span class="st"> </span><span class="kw">levels</span>(data.nonresponse.model[[i]])[<span class="kw">median</span>(data.nonresponse.model[[i]] %&gt;%<span class="st"> </span><span class="kw">as.numeric</span>(), <span class="dt">na.rm =</span> T) ] 
+<span class="cf">for</span>(i <span class="cf">in</span> <span class="kw">c</span>(<span class="st">&quot;physa&quot;</span>, <span class="st">&quot;littera&quot;</span>, <span class="st">&quot;vandaa&quot;</span>)) {
+  data.nonresponse.model[[i]][<span class="kw">is.na</span>(data.nonresponse.model[[i]])] &lt;-<span class="st"> </span><span class="kw">levels</span>(data.nonresponse.model[[i]])[<span class="kw">median</span>(data.nonresponse.model[[i]] <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">as.numeric</span>(), <span class="dt">na.rm =</span> T) ] 
   
 }
 
-for(i in <span class="kw">c</span>(<span class="st">&quot;physa&quot;</span>, <span class="st">&quot;littera&quot;</span>, <span class="st">&quot;vandaa&quot;</span>)) {
+<span class="cf">for</span>(i <span class="cf">in</span> <span class="kw">c</span>(<span class="st">&quot;physa&quot;</span>, <span class="st">&quot;littera&quot;</span>, <span class="st">&quot;vandaa&quot;</span>)) {
   data.nonresponse.model[[i]] &lt;-<span class="st"> </span><span class="kw">as.ordered</span>(data.nonresponse.model[[i]])
 
   
 }
 
-data.nonresponse.model %&lt;&gt;%
-<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">response =</span> <span class="kw">as.numeric</span>(<span class="kw">as.numeric</span>(interva) ==<span class="st"> </span><span class="dv">1</span>))
+data.nonresponse.model <span class="op">%&lt;&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">response =</span> <span class="kw">as.numeric</span>(<span class="kw">as.numeric</span>(interva) <span class="op">==</span><span class="st"> </span><span class="dv">1</span>))
 
-data %&lt;&gt;%
-<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">response =</span> <span class="kw">as.numeric</span>(<span class="kw">as.numeric</span>(interva) ==<span class="st"> </span><span class="dv">1</span>))</code></pre></div>
+data <span class="op">%&lt;&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">response =</span> <span class="kw">as.numeric</span>(<span class="kw">as.numeric</span>(interva) <span class="op">==</span><span class="st"> </span><span class="dv">1</span>))</code></pre></div>
 </div>
 <div id="estimating-response-propensities-using-logistic-regression" class="section level2">
 <h2><span class="header-section-number">4.2</span> Estimating response propensities using logistic regression</h2>
@@ -216,7 +216,7 @@ data %&lt;&gt;%
 
 <span class="kw">options</span>(<span class="dt">na.action =</span> <span class="st">&#39;na.pass&#39;</span>)
 
-x.matrix &lt;-<span class="st"> </span><span class="kw">model.matrix</span>(formula, <span class="dt">data =</span> data.nonresponse.model)[, -<span class="dv">1</span>]
+x.matrix &lt;-<span class="st"> </span><span class="kw">model.matrix</span>(formula, <span class="dt">data =</span> data.nonresponse.model)[, <span class="op">-</span><span class="dv">1</span>]
 
 log.reg.m &lt;-<span class="st"> </span><span class="kw">glm</span>(formula,  
   <span class="dt">data =</span> data.nonresponse.model,
@@ -224,28 +224,28 @@ log.reg.m &lt;-<span class="st"> </span><span class="kw">glm</span>(formula,
 
 coef.response.log &lt;-<span class="st"> </span><span class="kw">coef</span>(log.reg.m)
 
-predicted.log &lt;-<span class="st"> </span>log.reg.m$fitted.values
+predicted.log &lt;-<span class="st"> </span>log.reg.m<span class="op">$</span>fitted.values
 
-data.nonresponse.model$predicted.log &lt;-<span class="st"> </span>predicted.log
+data.nonresponse.model<span class="op">$</span>predicted.log &lt;-<span class="st"> </span>predicted.log
 
-predicted.log %&gt;%<span class="st"> </span><span class="kw">head</span>()</code></pre></div>
+predicted.log <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">head</span>()</code></pre></div>
 <pre><code>##         1         2         3         4         5         6 
 ## 0.4101303 0.4586384 0.4675598 0.5551654 0.4117369 0.5143249</code></pre>
 <p>As explained before, we are now computing our estimates from a subset of sampled units. This does not take into account many non-respondents which had missing values in all predictors of our non-response model. This means that the previous propensities are slightly overestimated. This is because the response rate in our full dataset is 40.4% and in our subset used for non-response adjustment is 44.1%. This is not entirely related to non-response weight adjustment so we will just compute the new estimates with modified intercept in the next chunk and skip the explanation on how to perform the trasformation. For an excellent description on how it’s done readers can check Stanford University’s online course on <a href="https://lagunita.stanford.edu/courses/HumanitiesSciences/StatLearning/Winter2016/info">SP Statistical Learning</a>.</p>
 <p>Below the next chunk of code you can see the first six transformed estimated response propensities of our dataset.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">resp.pop &lt;-<span class="st">  </span><span class="kw">mean</span>(data$response)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">resp.pop &lt;-<span class="st">  </span><span class="kw">mean</span>(data<span class="op">$</span>response)
   
-resp.subgroup &lt;-<span class="st"> </span><span class="kw">mean</span>(data.nonresponse.model$response)
+resp.subgroup &lt;-<span class="st"> </span><span class="kw">mean</span>(data.nonresponse.model<span class="op">$</span>response)
 
-log.reg.m$coefficients[<span class="dv">1</span>] &lt;-<span class="st"> </span><span class="kw">coef</span>(log.reg.m)[[<span class="dv">1</span>]] +<span class="st"> </span><span class="kw">log</span>(resp.pop/(<span class="dv">1</span>-resp.pop) -<span class="st"> </span><span class="kw">log</span>(resp.subgroup/(<span class="dv">1</span>-resp.subgroup)) )
+log.reg.m<span class="op">$</span>coefficients[<span class="dv">1</span>] &lt;-<span class="st"> </span><span class="kw">coef</span>(log.reg.m)[[<span class="dv">1</span>]] <span class="op">+</span><span class="st"> </span><span class="kw">log</span>(resp.pop<span class="op">/</span>(<span class="dv">1</span><span class="op">-</span>resp.pop) <span class="op">-</span><span class="st"> </span><span class="kw">log</span>(resp.subgroup<span class="op">/</span>(<span class="dv">1</span><span class="op">-</span>resp.subgroup)) )
 
 <span class="kw">rm</span>(resp.pop, resp.subgroup)
 
 predicted.log.tr &lt;-<span class="st"> </span><span class="kw">predict</span>(log.reg.m, data.nonresponse.model, <span class="dt">type =</span> <span class="st">&quot;response&quot;</span>)
 
-data.nonresponse.model$predicted.log.tr &lt;-<span class="st"> </span>predicted.log.tr
+data.nonresponse.model<span class="op">$</span>predicted.log.tr &lt;-<span class="st"> </span>predicted.log.tr
 
-predicted.log.tr %&gt;%<span class="st"> </span><span class="kw">head</span>()</code></pre></div>
+predicted.log.tr <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">head</span>()</code></pre></div>
 <pre><code>##         1         2         3         4         5         6 
 ## 0.3886949 0.4365441 0.4453892 0.5329992 0.3902731 0.4919858</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">rm</span>(coef.response.log, formula, i)</code></pre></div>
@@ -255,7 +255,7 @@ predicted.log.tr %&gt;%<span class="st"> </span><span class="kw">head</span>()</
 <p>Here we will follow the procedure for creating classes explained in pag. 329 of Valliant et al.(2013). From their text it is not so clear how many classes should be created.</p>
 <p>Looking at the distribution of estimated probabilities of response, we observe a large majority of values between 0.4 and 0.5. However, there are several outliers at both ends of the distribution.</p>
 <p>As there is not so much dispersion in values in the middle of the distribution, creating classess accoring to quintiles might not be the best way to account for differences in estimated response propensities. However, other methods might create classess which are too specific to outliers. This is kind of a bias-variance trade off. If we fit broad classes which encompass very different estimated probabilities within them, we will be adjusting less and so keeping more bias in our estiamtes. If we create tight classes capturing these outliers, then we will have large differences in weights and so more variance in our estimates.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">predicted.log.tr %&gt;%<span class="st"> </span><span class="kw">quantile</span>(<span class="dt">probs =</span> <span class="kw">seq</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="fl">0.05</span>)) %&gt;%<span class="st"> </span><span class="kw">round</span>(<span class="dv">4</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">predicted.log.tr <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">quantile</span>(<span class="dt">probs =</span> <span class="kw">seq</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="fl">0.05</span>)) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">round</span>(<span class="dv">4</span>)</code></pre></div>
 <pre><code>##     0%     5%    10%    15%    20%    25%    30%    35%    40%    45% 
 ## 0.0124 0.2878 0.3457 0.3638 0.3887 0.3903 0.4022 0.4038 0.4211 0.4227 
 ##    50%    55%    60%    65%    70%    75%    80%    85%    90%    95% 
@@ -263,37 +263,37 @@ predicted.log.tr %&gt;%<span class="st"> </span><span class="kw">head</span>()</
 ##   100% 
 ## 0.7526</code></pre>
 <p>These are the 5 classes created using 20th, 40th, 60th and 80th quintiles.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data.nonresponse.model$predicted.class &lt;-<span class="st"> </span><span class="kw">cut</span>(<span class="dt">x =</span> data.nonresponse.model$predicted.log.tr, <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="dv">0</span>,<span class="kw">quantile</span>(predicted.log.tr, <span class="dt">probs =</span> <span class="kw">seq</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="fl">0.2</span>))[-<span class="dv">1</span>] ))
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data.nonresponse.model<span class="op">$</span>predicted.class &lt;-<span class="st"> </span><span class="kw">cut</span>(<span class="dt">x =</span> data.nonresponse.model<span class="op">$</span>predicted.log.tr, <span class="dt">breaks =</span> <span class="kw">c</span>(<span class="dv">0</span>,<span class="kw">quantile</span>(predicted.log.tr, <span class="dt">probs =</span> <span class="kw">seq</span>(<span class="dv">0</span>,<span class="dv">1</span>,<span class="fl">0.2</span>))[<span class="op">-</span><span class="dv">1</span>] ))
 
-data.nonresponse.model$predicted.class %&gt;%<span class="st"> </span><span class="kw">levels</span>()</code></pre></div>
+data.nonresponse.model<span class="op">$</span>predicted.class <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">levels</span>()</code></pre></div>
 <pre><code>## [1] &quot;(0,0.389]&quot;     &quot;(0.389,0.421]&quot; &quot;(0.421,0.437]&quot; &quot;(0.437,0.463]&quot;
 ## [5] &quot;(0.463,0.753]&quot;</code></pre>
 <p>Below there is a summary of the estimated propensities included in each of them (in boxplots). We can see that the first and last groups have more dispersion in propensities. The middle three groups have very little dispersion and are similar between them. In this case they are so similar that we could even consider merging them into one single group.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(data.nonresponse.model, <span class="kw">aes</span>(<span class="dt">x =</span> predicted.class, <span class="dt">y =</span> predicted.log.tr)) +
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(data.nonresponse.model, <span class="kw">aes</span>(<span class="dt">x =</span> predicted.class, <span class="dt">y =</span> predicted.log.tr)) <span class="op">+</span>
 <span class="st">  </span><span class="kw">geom_boxplot</span>()</code></pre></div>
 <p><img src="_main_files/figure-html/unnamed-chunk-29-1.png" width="672" /></p>
 <p>To compute the non-response weights, we can use the mean estimated probability of response in each class.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data.nonresponse.model %&gt;%
-<span class="st">  </span><span class="kw">group_by</span>(predicted.class) %&gt;%
-<span class="st">  </span><span class="kw">summarise</span>(<span class="dt">mean.prob =</span> <span class="kw">mean</span>(predicted.log.tr) %&gt;%<span class="st"> </span><span class="kw">round</span>(<span class="dv">4</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data.nonresponse.model <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">group_by</span>(predicted.class) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">summarise</span>(<span class="dt">mean.prob =</span> <span class="kw">mean</span>(predicted.log.tr) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">round</span>(<span class="dv">4</span>))</code></pre></div>
 <pre><code>## # A tibble: 5 x 2
 ##   predicted.class mean.prob
-##            &lt;fctr&gt;     &lt;dbl&gt;
-## 1       (0,0.389]    0.3283
-## 2   (0.389,0.421]    0.4016
-## 3   (0.421,0.437]    0.4310
-## 4   (0.437,0.463]    0.4387
-## 5   (0.463,0.753]    0.5145</code></pre>
+##   &lt;fct&gt;               &lt;dbl&gt;
+## 1 (0,0.389]           0.328
+## 2 (0.389,0.421]       0.402
+## 3 (0.421,0.437]       0.431
+## 4 (0.437,0.463]       0.439
+## 5 (0.463,0.753]       0.514</code></pre>
 <p>And then we can compute the non-response weight as the inverse of the mean probabilities in each class.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data.nonresponse.model %&lt;&gt;%<span class="st"> </span><span class="kw">left_join</span>(
-data.nonresponse.model %&gt;%
-<span class="st">  </span><span class="kw">group_by</span>(predicted.class) %&gt;%
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data.nonresponse.model <span class="op">%&lt;&gt;%</span><span class="st"> </span><span class="kw">left_join</span>(
+data.nonresponse.model <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">group_by</span>(predicted.class) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">summarise</span>(<span class="dt">mean.prob =</span> <span class="kw">mean</span>(predicted.log.tr) ), <span class="dt">by =</span> <span class="st">&quot;predicted.class&quot;</span>)
 
-data.nonresponse.model %&lt;&gt;%
-<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">nonresp.weight =</span> <span class="kw">round</span>(<span class="dv">1</span>/mean.prob, <span class="dv">4</span>) )
+data.nonresponse.model <span class="op">%&lt;&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">nonresp.weight =</span> <span class="kw">round</span>(<span class="dv">1</span><span class="op">/</span>mean.prob, <span class="dv">4</span>) )
 
-data.nonresponse.model$nonresp.weight %&gt;%<span class="st"> </span>unique %&gt;%<span class="st"> </span>sort</code></pre></div>
+data.nonresponse.model<span class="op">$</span>nonresp.weight <span class="op">%&gt;%</span><span class="st"> </span>unique <span class="op">%&gt;%</span><span class="st"> </span>sort</code></pre></div>
 <pre><code>## [1] 1.9435 2.2793 2.3201 2.4900 3.0463</code></pre>
 </div>
 <div id="testing-non-response-adjustment-classes" class="section level2">
@@ -308,7 +308,7 @@ test.between.model &lt;-<span class="st"> </span><span class="kw">polr</span>(<s
 
 ctable.between &lt;-<span class="st"> </span><span class="kw">coef</span>(<span class="kw">summary</span>(test.between.model))
 
-p &lt;-<span class="st"> </span><span class="kw">pnorm</span>(<span class="kw">abs</span>(ctable.between[, <span class="st">&quot;t value&quot;</span>]), <span class="dt">lower.tail =</span> <span class="ot">FALSE</span>) %&gt;%<span class="st"> </span><span class="kw">round</span>(<span class="dv">4</span>)
+p &lt;-<span class="st"> </span><span class="kw">pnorm</span>(<span class="kw">abs</span>(ctable.between[, <span class="st">&quot;t value&quot;</span>]), <span class="dt">lower.tail =</span> <span class="ot">FALSE</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">round</span>(<span class="dv">4</span>)
 
 ctable.between &lt;-<span class="st"> </span><span class="kw">cbind</span>(ctable.between, <span class="st">&quot;p value&quot;</span> =<span class="st"> </span>p)
 
@@ -330,7 +330,7 @@ test.within.model &lt;-<span class="st"> </span><span class="kw">polr</span>(<sp
 
 ctable.within &lt;-<span class="st"> </span><span class="kw">coef</span>(<span class="kw">summary</span>(test.within.model))
 
-p &lt;-<span class="st"> </span><span class="kw">pnorm</span>(<span class="kw">abs</span>(ctable.within[, <span class="st">&quot;t value&quot;</span>]), <span class="dt">lower.tail =</span> <span class="ot">FALSE</span>) %&gt;%<span class="st"> </span><span class="kw">round</span>(<span class="dv">4</span>)
+p &lt;-<span class="st"> </span><span class="kw">pnorm</span>(<span class="kw">abs</span>(ctable.within[, <span class="st">&quot;t value&quot;</span>]), <span class="dt">lower.tail =</span> <span class="ot">FALSE</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">round</span>(<span class="dv">4</span>)
 
 ctable.within &lt;-<span class="st"> </span><span class="kw">cbind</span>(ctable.within, <span class="st">&quot;p value&quot;</span> =<span class="st"> </span>p)
 
@@ -377,28 +377,28 @@ ctable.within</code></pre></div>
 
 <span class="kw">options</span>(<span class="dt">na.action =</span> <span class="st">&#39;na.pass&#39;</span>)
 
-x.matrix &lt;-<span class="st"> </span><span class="kw">model.matrix</span>(formula., <span class="dt">data =</span> data.nonresponse.model)[, -<span class="dv">1</span>]
+x.matrix &lt;-<span class="st"> </span><span class="kw">model.matrix</span>(formula., <span class="dt">data =</span> data.nonresponse.model)[, <span class="op">-</span><span class="dv">1</span>]
 
-glm.cv.model &lt;-<span class="st"> </span><span class="kw">cv.glmnet</span>(x.matrix, data.nonresponse.model$response, <span class="dt">alpha =</span> <span class="dv">1</span>, <span class="dt">family=</span><span class="st">&quot;binomial&quot;</span>)
+glm.cv.model &lt;-<span class="st"> </span><span class="kw">cv.glmnet</span>(x.matrix, data.nonresponse.model<span class="op">$</span>response, <span class="dt">alpha =</span> <span class="dv">1</span>, <span class="dt">family=</span><span class="st">&quot;binomial&quot;</span>)
 
 predicted.lasso &lt;-<span class="st"> </span><span class="kw">predict</span>(glm.cv.model, x.matrix, <span class="dt">s =</span> <span class="st">&quot;lambda.min&quot;</span>, <span class="dt">type =</span> <span class="st">&quot;response&quot;</span>)[,<span class="dv">1</span>]
 
-data.nonresponse.model$predicted.lasso &lt;-<span class="st"> </span>predicted.lasso
+data.nonresponse.model<span class="op">$</span>predicted.lasso &lt;-<span class="st"> </span>predicted.lasso
 
 <span class="kw">head</span>(predicted.lasso)</code></pre></div>
 <pre><code>##         1         2         3         4         5         6 
 ## 0.4087345 0.4611603 0.4523603 0.4758645 0.4198371 0.5135011</code></pre>
 <p>Comparing the predictions obtained with these two methods (logistic regression and cross-validated lasso) we observe that they all give relatively similar values. They are all centered around the same mean, which is the proportion of respondents in our subset. Lasso regression is the more ‘rigid’ with a smaller standard deviation in its predictions. Logistic regression is almost always slightly more distant of the mean than the lasso regression. It is important to note that our logistic and lasso regressions included only linear parameters (i.e. no squared coefficients nor interactions). Therefore, these were both rather ‘rigid’ methods. Below we will see that our prediction of response probabilities is relatively poor. This is most probably because our covariates are far from excellent predictors of response propensities<a href="#fn5" class="footnoteRef" id="fnref5"><sup>5</sup></a>. Therefore, it might not be worth the time to try more ‘flexible’ models.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">mean</span>(data.nonresponse.model$response)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">mean</span>(data.nonresponse.model<span class="op">$</span>response)</code></pre></div>
 <pre><code>## [1] 0.4414344</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">list.comparison &lt;-<span class="st"> </span><span class="kw">list</span>()
 
-list.comparison$head.predicted.vals &lt;-<span class="st"> </span><span class="kw">cbind</span>(predicted.log, predicted.lasso) %&gt;%<span class="st"> </span><span class="kw">head</span>(<span class="dv">10</span>)
+list.comparison<span class="op">$</span>head.predicted.vals &lt;-<span class="st"> </span><span class="kw">cbind</span>(predicted.log, predicted.lasso) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">head</span>(<span class="dv">10</span>)
 
-list.comparison$means &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dt">mean.log.reg =</span> <span class="kw">mean</span>(predicted.log), 
+list.comparison<span class="op">$</span>means &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dt">mean.log.reg =</span> <span class="kw">mean</span>(predicted.log), 
                                <span class="dt">mean.lasso =</span> <span class="kw">mean</span>(predicted.lasso)) 
 
-list.comparison$sd &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dt">sd.log.reg =</span> <span class="kw">sd</span>(predicted.log), 
+list.comparison<span class="op">$</span>sd &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dt">sd.log.reg =</span> <span class="kw">sd</span>(predicted.log), 
                                <span class="dt">sd.lasso =</span> <span class="kw">sd</span>(predicted.lasso)) 
 
 list.comparison</code></pre></div>
@@ -424,76 +424,76 @@ list.comparison</code></pre></div>
 ## 0.07217839 0.05818359</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">rm</span>(list.comparison)</code></pre></div>
 <p>Comparing the fit of both models (below the next chunk), we see that the logistic regression fits a bit better to the whole sample, with 57.6% of success in classifying sample units as respondents vs non-respondents. However, the difference is almost negligible. Moreover, a 58% success in classifying is a rather poor model (by chance we would already expect to correctly classify 50%).</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data.nonresponse.model %&lt;&gt;%
-<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">predicted.category.log.reg =</span> (predicted.log &gt;<span class="st"> </span><span class="fl">0.5</span>) %&gt;%<span class="st"> </span>as.numeric,
-         <span class="dt">predicted.category.lasso =</span> (predicted.lasso &gt;<span class="st"> </span><span class="fl">0.5</span>) %&gt;%<span class="st"> </span>as.numeric)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data.nonresponse.model <span class="op">%&lt;&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">predicted.category.log.reg =</span> (predicted.log <span class="op">&gt;</span><span class="st"> </span><span class="fl">0.5</span>) <span class="op">%&gt;%</span><span class="st"> </span>as.numeric,
+         <span class="dt">predicted.category.lasso =</span> (predicted.lasso <span class="op">&gt;</span><span class="st"> </span><span class="fl">0.5</span>) <span class="op">%&gt;%</span><span class="st"> </span>as.numeric)
 
-train.correct.logreg &lt;-<span class="st"> </span><span class="kw">table</span>(data.nonresponse.model$response, data.nonresponse.model$predicted.category.log.reg) %&gt;%<span class="st"> </span><span class="kw">diag</span>() %&gt;%<span class="st"> </span><span class="kw">sum</span>()/<span class="kw">nrow</span>(data.nonresponse.model)
+train.correct.logreg &lt;-<span class="st"> </span><span class="kw">table</span>(data.nonresponse.model<span class="op">$</span>response, data.nonresponse.model<span class="op">$</span>predicted.category.log.reg) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">diag</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">sum</span>()<span class="op">/</span><span class="kw">nrow</span>(data.nonresponse.model)
 
-train.correct.lasso &lt;-<span class="st"> </span><span class="kw">table</span>(data.nonresponse.model$response, data.nonresponse.model$predicted.category.lasso) %&gt;%<span class="st"> </span><span class="kw">diag</span>() %&gt;%<span class="st"> </span><span class="kw">sum</span>()/<span class="kw">nrow</span>(data.nonresponse.model)
+train.correct.lasso &lt;-<span class="st"> </span><span class="kw">table</span>(data.nonresponse.model<span class="op">$</span>response, data.nonresponse.model<span class="op">$</span>predicted.category.lasso) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">diag</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">sum</span>()<span class="op">/</span><span class="kw">nrow</span>(data.nonresponse.model)
 
 <span class="kw">c</span>(<span class="dt">train.correct.logreg =</span> train.correct.logreg, <span class="dt">train.correct.lasso =</span> train.correct.lasso)</code></pre></div>
 <pre><code>## train.correct.logreg  train.correct.lasso 
 ##            0.5755213            0.5737673</code></pre>
 <p>The two chunks below compute the cross-validated ratio of correctly classified units. We would expect these to be lower than the successfuly classified units for the whole sample. This is because cross-validation is a resampling method. We use it to get an idea of how our estimates (e.g. ratio of correctly classified units) would fit the whole statistical population which includes ‘unseen’ observations (i.e. not only the sample at hand).</p>
 <p>Cross-validated ratio of correctly classified units would vary each time we run the procedure. This will not happen here because we set a seed for random procedures at the beginning or the script. We observe that, for both methods, the cross-validated ratio of correctly classified units is slightly lower than the estimate for our sample. Also, both methods have a very similar predictive capacity.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">folds &lt;-<span class="st"> </span><span class="kw">createFolds</span>(data.nonresponse.model$response, <span class="dt">k =</span> <span class="dv">10</span>, <span class="dt">list =</span> <span class="ot">TRUE</span>, <span class="dt">returnTrain =</span> <span class="ot">FALSE</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">folds &lt;-<span class="st"> </span><span class="kw">createFolds</span>(data.nonresponse.model<span class="op">$</span>response, <span class="dt">k =</span> <span class="dv">10</span>, <span class="dt">list =</span> <span class="ot">TRUE</span>, <span class="dt">returnTrain =</span> <span class="ot">FALSE</span>)
 
 formula. &lt;-<span class="st"> </span><span class="kw">as.formula</span>(<span class="st">&quot;response ~ type + access + physa + littera + vandaa&quot;</span>)
 
   success.rate.logreg &lt;-<span class="st"> </span><span class="kw">vector</span>()
 
-for(i in <span class="dv">1</span>:<span class="kw">length</span>(folds)){
+<span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(folds)){
   
   t &lt;-<span class="st"> </span>i
   
-  train.folds &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span>:<span class="dv">10</span>)[-t]
+  train.folds &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>)[<span class="op">-</span>t]
   
-  temp.train.data &lt;-<span class="st"> </span>data.nonresponse.model[folds[train.folds] %&gt;%<span class="st"> </span><span class="kw">unlist</span>(),]
+  temp.train.data &lt;-<span class="st"> </span>data.nonresponse.model[folds[train.folds] <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">unlist</span>(),]
   
-  temp.test.data &lt;-<span class="st"> </span>data.nonresponse.model[folds[t] %&gt;%<span class="st"> </span><span class="kw">unlist</span>(),]
+  temp.test.data &lt;-<span class="st"> </span>data.nonresponse.model[folds[t] <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">unlist</span>(),]
   
   temp.log.reg.m &lt;-<span class="st"> </span><span class="kw">glm</span>(formula., <span class="dt">data =</span> temp.train.data, <span class="dt">family =</span> <span class="st">&quot;binomial&quot;</span>)
   
   temp.predicted &lt;-<span class="st"> </span><span class="kw">predict</span>(temp.log.reg.m, temp.test.data, <span class="dt">type =</span> <span class="st">&quot;response&quot;</span>)
   
-  temp.predicted &lt;-<span class="st"> </span><span class="kw">ifelse</span>(temp.predicted &gt;<span class="st"> </span><span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">0</span>)
+  temp.predicted &lt;-<span class="st"> </span><span class="kw">ifelse</span>(temp.predicted <span class="op">&gt;</span><span class="st"> </span><span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">0</span>)
   
-  success.rate.logreg &lt;-<span class="st"> </span><span class="kw">c</span>(success.rate.logreg, <span class="kw">table</span>(temp.predicted, temp.test.data$response) %&gt;%<span class="st"> </span><span class="kw">diag</span>() %&gt;%<span class="st"> </span><span class="kw">sum</span>()/<span class="kw">nrow</span>(temp.test.data) )
+  success.rate.logreg &lt;-<span class="st"> </span><span class="kw">c</span>(success.rate.logreg, <span class="kw">table</span>(temp.predicted, temp.test.data<span class="op">$</span>response) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">diag</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">sum</span>()<span class="op">/</span><span class="kw">nrow</span>(temp.test.data) )
   
   
 }
 
-  cv.success.log.reg &lt;-<span class="st"> </span>success.rate.logreg %&gt;%<span class="st"> </span><span class="kw">sum</span>()/<span class="kw">length</span>(success.rate.logreg)
+  cv.success.log.reg &lt;-<span class="st"> </span>success.rate.logreg <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">sum</span>()<span class="op">/</span><span class="kw">length</span>(success.rate.logreg)
 
   <span class="kw">rm</span>(train.folds, temp.train.data, temp.test.data, temp.log.reg.m, temp.predicted)</code></pre></div>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">  success.rate.glmnet &lt;-<span class="st"> </span><span class="kw">vector</span>()
 
-for(i in <span class="dv">1</span>:<span class="kw">length</span>(folds)){
+<span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(folds)){
   
   t &lt;-<span class="st"> </span>i
   
-  train.folds &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span>:<span class="dv">10</span>)[-t]
+  train.folds &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>)[<span class="op">-</span>t]
   
-  temp.train.data &lt;-<span class="st"> </span>x.matrix[folds[train.folds] %&gt;%<span class="st"> </span><span class="kw">unlist</span>(),]
+  temp.train.data &lt;-<span class="st"> </span>x.matrix[folds[train.folds] <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">unlist</span>(),]
   
-  temp.train.y  &lt;-<span class="st"> </span>data.nonresponse.model[folds[train.folds] %&gt;%<span class="st"> </span><span class="kw">unlist</span>(),<span class="st">&quot;response&quot;</span>]
+  temp.train.y  &lt;-<span class="st"> </span>data.nonresponse.model[folds[train.folds] <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">unlist</span>(),<span class="st">&quot;response&quot;</span>]
 
-  temp.test.data &lt;-<span class="st"> </span>x.matrix[folds[t] %&gt;%<span class="st"> </span><span class="kw">unlist</span>(),]
+  temp.test.data &lt;-<span class="st"> </span>x.matrix[folds[t] <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">unlist</span>(),]
   
-  temp.test.y &lt;-<span class="st"> </span>data.nonresponse.model[folds[t] %&gt;%<span class="st"> </span><span class="kw">unlist</span>(),<span class="st">&quot;response&quot;</span>]
+  temp.test.y &lt;-<span class="st"> </span>data.nonresponse.model[folds[t] <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">unlist</span>(),<span class="st">&quot;response&quot;</span>]
 
   temp.glmnet.m &lt;-<span class="st"> </span><span class="kw">glmnet</span>(<span class="dt">x =</span> temp.train.data, <span class="dt">y =</span> temp.train.y, <span class="dt">family =</span> <span class="st">&quot;binomial&quot;</span>)
   
-  temp.predicted &lt;-<span class="st"> </span><span class="kw">predict</span>(temp.glmnet.m, temp.test.data, <span class="dt">type =</span> <span class="st">&quot;response&quot;</span>, <span class="dt">s =</span> glm.cv.model$lambda.min)
+  temp.predicted &lt;-<span class="st"> </span><span class="kw">predict</span>(temp.glmnet.m, temp.test.data, <span class="dt">type =</span> <span class="st">&quot;response&quot;</span>, <span class="dt">s =</span> glm.cv.model<span class="op">$</span>lambda.min)
   
-  temp.predicted &lt;-<span class="st"> </span><span class="kw">ifelse</span>(temp.predicted &gt;<span class="st"> </span><span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">0</span>)
+  temp.predicted &lt;-<span class="st"> </span><span class="kw">ifelse</span>(temp.predicted <span class="op">&gt;</span><span class="st"> </span><span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">0</span>)
   
-  success.rate.glmnet &lt;-<span class="st"> </span><span class="kw">c</span>(success.rate.glmnet, <span class="kw">table</span>(temp.predicted, temp.test.y) %&gt;%<span class="st"> </span><span class="kw">diag</span>() %&gt;%<span class="st"> </span><span class="kw">sum</span>()/<span class="kw">nrow</span>(temp.test.data) )
+  success.rate.glmnet &lt;-<span class="st"> </span><span class="kw">c</span>(success.rate.glmnet, <span class="kw">table</span>(temp.predicted, temp.test.y) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">diag</span>() <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">sum</span>()<span class="op">/</span><span class="kw">nrow</span>(temp.test.data) )
   
 }
 
-  cv.success.glmnet &lt;-<span class="st"> </span>success.rate.glmnet %&gt;%<span class="st"> </span><span class="kw">sum</span>()/<span class="kw">length</span>(success.rate.glmnet)
+  cv.success.glmnet &lt;-<span class="st"> </span>success.rate.glmnet <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">sum</span>()<span class="op">/</span><span class="kw">length</span>(success.rate.glmnet)
 
   <span class="kw">rm</span>(t, train.folds, temp.train.data, temp.train.y, temp.test.data,
      tempt.test.y, temp.glmnet.m, temp.predicted)  
@@ -504,14 +504,14 @@ for(i in <span class="dv">1</span>:<span class="kw">length</span>(folds)){
 <p>If we wanted to do an adjustment directly using the estimated propensity scores and without computing adjustment classes, we would just use the inverse of the estimated propensities as the non-response weights. It would be a good idea to use the Lasso predictions as these are less sparce than those from the logistic regression. Therefore, we might have less variance inflation with (virtually) the same expected reduction in bias.</p>
 <p>If we had no information about population estimates, we would end the weighting procedure here. The ‘final weight’ would be the multiplicaiton of both base scaled weight and the scaled non-response weight. Here we will call this new weights ‘final weights’ although we still have to perform adjustments to them and so will not really be ‘final’.</p>
 <p>Before going to the next step we will include the computed non-response weights using adjustment classes to the main <em>‘data’</em> dataframe object. Then we will drop all non-respondents as we are not going to use them any more in the next steps of our analysis. After that, we will scale the non-response weights to the sample of respondents and multiply the (scaled) design weights and the (scaled) non-response weights.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data %&lt;&gt;%
-<span class="st">  </span><span class="kw">left_join</span>(data.nonresponse.model %&gt;%<span class="st"> </span><span class="kw">select</span>(idno, nonresp.weight),
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data <span class="op">%&lt;&gt;%</span>
+<span class="st">  </span><span class="kw">left_join</span>(data.nonresponse.model <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(idno, nonresp.weight),
             <span class="dt">by =</span> <span class="st">&quot;idno&quot;</span>)
 
-data %&lt;&gt;%
-<span class="st">  </span><span class="kw">filter</span>(response ==<span class="st"> </span><span class="dv">1</span>, !<span class="kw">is.na</span>(base.weight.scaled)) %&gt;%
-<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">nonresp.weight.scaled =</span> nonresp.weight/<span class="kw">mean</span>(nonresp.weight),
-         <span class="dt">final.weight =</span> base.weight.scaled *<span class="st"> </span>nonresp.weight.scaled)
+data <span class="op">%&lt;&gt;%</span>
+<span class="st">  </span><span class="kw">filter</span>(response <span class="op">==</span><span class="st"> </span><span class="dv">1</span>, <span class="op">!</span><span class="kw">is.na</span>(base.weight.scaled)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">nonresp.weight.scaled =</span> nonresp.weight<span class="op">/</span><span class="kw">mean</span>(nonresp.weight),
+         <span class="dt">final.weight =</span> base.weight.scaled <span class="op">*</span><span class="st"> </span>nonresp.weight.scaled)
 
 <span class="kw">rm</span>(x.matrix, cv.success.glmnet, cv.success.log.reg, folds, formula.,
    glm.cv.model, i, log.reg.m, predicted.lasso,predicted.log.tr, success.rate.glmnet, success.rate.logreg, train.correct.lasso, train.correct.logreg)</code></pre></div>
@@ -544,17 +544,18 @@ data %&lt;&gt;%
 <script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
 <script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
 <script>
-require(["gitbook"], function(gitbook) {
+gitbook.require(["gitbook"], function(gitbook) {
 gitbook.start({
 "sharing": {
 "github": false,
 "facebook": true,
 "twitter": true,
 "google": false,
+"linkedin": false,
 "weibo": false,
 "instapper": false,
 "vk": false,
-"all": ["facebook", "google", "twitter", "weibo", "instapaper"]
+"all": ["facebook", "google", "twitter", "linkedin", "weibo", "instapaper"]
 },
 "fontsettings": {
 "theme": "white",
@@ -578,9 +579,11 @@ gitbook.start({
   (function () {
     var script = document.createElement("script");
     script.type = "text/javascript";
-    script.src  = "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML";
-    if (location.protocol !== "file:" && /^https?:/.test(script.src))
-      script.src  = script.src.replace(/^https?:/, '');
+    var src = "";
+    if (src === "" || src === "true") src = "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:" && /^https?:/.test(src))
+      src = src.replace(/^https?:/, '');
+    script.src = src;
     document.getElementsByTagName("head")[0].appendChild(script);
   })();
 </script>

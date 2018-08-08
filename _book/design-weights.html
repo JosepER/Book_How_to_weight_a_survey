@@ -7,7 +7,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>(Very) basic steps to weight a survey sample</title>
   <meta name="description" content="(Very) basic steps to weight a survey sample">
-  <meta name="generator" content="bookdown 0.4 and GitBook 2.6.7">
+  <meta name="generator" content="bookdown 0.7 and GitBook 2.6.7">
 
   <meta property="og:title" content="(Very) basic steps to weight a survey sample" />
   <meta property="og:type" content="book" />
@@ -25,7 +25,7 @@
 <meta name="author" content="Josep Espasa Reig">
 
 
-<meta name="date" content="2017-06-29">
+<meta name="date" content="2018-08-08">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -155,82 +155,95 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <p>This sampling design is typical of survey frames where there is an available/public list of addresses but not a list of households or individuals. If we don’t weight this survey, we would probably over-represent people in addresses that have smaller number of dwellings, dwellings that include smaller number of households and households that comprise smaller number of people (we will actually see this below).</p>
 <p>Fortunately for us, the probablity of each respondent of being sampled was computed by national experts and included in the 7th ESS dataset. In many projects, however, we would have to compute sampling probailities ourselves<a href="#fn1" class="footnoteRef" id="fnref1"><sup>1</sup></a>. A basic but important test that should be performed after computing the probabilities is <strong>making sure that all probabilities are between 0 and 1</strong>.</p>
 <p>We will perform this test in the next chunk of code, which should give us an error if any of the probabilities is not in the interval <span class="math inline">\([0,1]\)</span>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">probabilities &lt;-<span class="st"> </span>data %&gt;%
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">probabilities &lt;-<span class="st"> </span>data <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">summarise</span>(<span class="dt">min.probability =</span> <span class="kw">min</span>(prob, <span class="dt">na.rm =</span> T),
-            <span class="dt">max.probability =</span> <span class="kw">max</span>(prob, <span class="dt">na.rm =</span> T)) %&gt;%
+            <span class="dt">max.probability =</span> <span class="kw">max</span>(prob, <span class="dt">na.rm =</span> T)) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">as.vector</span>()
 
 <span class="kw">print</span>(probabilities)</code></pre></div>
 <pre><code>##   min.probability max.probability
 ## 1   0.00001269135    0.0002030616</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">if(probabilities$min.probability &lt;<span class="st"> </span><span class="dv">0</span>){<span class="kw">stop</span>(<span class="st">&quot;Minimum probability of being sampled is smaller than 0. Review sampling probabilities before computing base weights.&quot;</span>)}else if(probabilities$max.probability &gt;<span class="st"> </span><span class="dv">1</span>){<span class="kw">stop</span>(<span class="st">&quot;Maximum probability of being sampled is larger than 1. Review sampling probabilities before computing base weights.&quot;</span>)}
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="cf">if</span>(probabilities<span class="op">$</span>min.probability <span class="op">&lt;</span><span class="st"> </span><span class="dv">0</span>){<span class="kw">stop</span>(<span class="st">&quot;Minimum probability of being sampled is smaller than 0. Review sampling probabilities before computing base weights.&quot;</span>)}<span class="cf">else</span> <span class="cf">if</span>(probabilities<span class="op">$</span>max.probability <span class="op">&gt;</span><span class="st"> </span><span class="dv">1</span>){<span class="kw">stop</span>(<span class="st">&quot;Maximum probability of being sampled is larger than 1. Review sampling probabilities before computing base weights.&quot;</span>)}
 
 <span class="kw">rm</span>(probabilities)</code></pre></div>
 <p>We see that there are actually 16 unique sampling probabilities computed in the dataset.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">unique</span>(<span class="kw">sort</span>(data$prob))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">unique</span>(<span class="kw">sort</span>(data<span class="op">$</span>prob))</code></pre></div>
 <pre><code>##  [1] 0.00001269135 0.00001682761 0.00001692180 0.00001846015 0.00002030616
 ##  [6] 0.00002256240 0.00002538271 0.00002900881 0.00003384361 0.00004061233
 ## [11] 0.00005076541 0.00006768721 0.00010153082 0.00013681033 0.00020306164</code></pre>
 <p>The vast majority of respondents had probability of 0.0001015 or 0.00020306 (i.e. one in 9849 and one in 4925). We see a minority of around 15% of observations with smaller probabilities. These probabilities might seem very small. This is because the whole population is very large and the survey only sampled a small part of it.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(<span class="kw">round</span>(data$prob*<span class="dv">100</span>,<span class="dv">6</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">table</span>(<span class="kw">round</span>(data<span class="op">$</span>prob<span class="op">*</span><span class="dv">100</span>,<span class="dv">6</span>))</code></pre></div>
 <pre><code>## 
 ## 0.001269 0.001683 0.001692 0.001846 0.002031 0.002256 0.002538 0.002901 
 ##        1        1        1        2        1        6        1        1 
 ## 0.003384 0.004061 0.005077 0.006769 0.010153 0.013681 0.020306 
 ##        6       22      101      188     1144        2      787</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(data, <span class="kw">aes</span>(<span class="dt">x =</span> prob)) +
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">ggplot</span>(data, <span class="kw">aes</span>(<span class="dt">x =</span> prob)) <span class="op">+</span>
 <span class="st">  </span><span class="kw">geom_histogram</span>()</code></pre></div>
 <p><img src="_main_files/figure-html/unnamed-chunk-18-1.png" width="672" /></p>
 <p>The sampling probability of respondents seems to be related to the type of dwelling of respondents and the number of people in their household. We would have expected this as some types of dwellings might tend to be linked to a single address. For other (smaller) types there might usually be many dwellings sharing the same address<a href="#fn2" class="footnoteRef" id="fnref2"><sup>2</sup></a>. Something similar would happen for size of household. Individuals in large households would have smaller probabilities of being sampled than individuals who are the only person in the household.</p>
 <p>These differences in sampling probabilities across dweling type and household size show that, without any kind of adjustment, our sample would over-represent people living in certain types of dweling (e.g. ‘Multi-unit house, flat’) and people living in small households. If respondents from living in different types of dwellings and household sizes had differences in our <em>‘Y’</em> variables (e.g. smoked more or drank more alcohol) then our estimates from the survey sample would be biased.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data %&gt;%
-<span class="st">  </span><span class="kw">filter</span>(!<span class="kw">is.na</span>(prob)) %&gt;%
-<span class="st">  </span><span class="kw">group_by</span>(type) %&gt;%
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">filter</span>(<span class="op">!</span><span class="kw">is.na</span>(prob)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">group_by</span>(type) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">summarise</span>(<span class="dt">n =</span> <span class="kw">n</span>(),
-    <span class="dt">mean.prob.percentage =</span> <span class="kw">mean</span>(prob, <span class="dt">na.rm =</span> T)*<span class="dv">100</span>) %&gt;%
+    <span class="dt">mean.prob.percentage =</span> <span class="kw">mean</span>(prob, <span class="dt">na.rm =</span> T)<span class="op">*</span><span class="dv">100</span>) <span class="op">%&gt;%</span>
 <span class="st">      </span><span class="kw">arrange</span>(<span class="kw">desc</span>(mean.prob.percentage))</code></pre></div>
 <pre><code>## # A tibble: 11 x 3
-##                                                type     n mean.prob.percentage
-##                                              &lt;fctr&gt; &lt;int&gt;                &lt;dbl&gt;
-##  1                                               NA     1           0.02030616
-##  2         Multi-unit: Sheltered/retirement housing    21           0.01869456
-##  3                           Multi-unit house, flat   346           0.01617988
-##  4                                            Other    15           0.01601931
-##  5                            House-trailer or boat     3           0.01353744
-##  6                      Single unit: Terraced house   591           0.01338198
-##  7 Only housing unit in building with other purpose     7           0.01305396
-##  8                 Single unit: Semi-detached house   670           0.01213712
-##  9                      Single unit: Detached house   582           0.01173768
-## 10                                             Farm    24           0.01149272
-## 11            Multi-unit: Student apartments, rooms     4           0.00412469</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data %&lt;&gt;%
-<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">hhmmb.factor =</span> <span class="kw">as.factor</span>(hhmmb) %&gt;%<span class="st"> </span><span class="kw">fct_recode</span>(<span class="st">`</span><span class="dt">+5</span><span class="st">`</span> =<span class="st"> &quot;6&quot;</span>,
+##    type                                                 n
+##    &lt;fct&gt;                                            &lt;int&gt;
+##  1 &lt;NA&gt;                                                 1
+##  2 Multi-unit: Sheltered/retirement housing            21
+##  3 Multi-unit house, flat                             346
+##  4 Other                                               15
+##  5 House-trailer or boat                                3
+##  6 Single unit: Terraced house                        591
+##  7 Only housing unit in building with other purpose     7
+##  8 Single unit: Semi-detached house                   670
+##  9 Single unit: Detached house                        582
+## 10 Farm                                                24
+## 11 Multi-unit: Student apartments, rooms                4
+##    mean.prob.percentage
+##                   &lt;dbl&gt;
+##  1              0.0203 
+##  2              0.0187 
+##  3              0.0162 
+##  4              0.0160 
+##  5              0.0135 
+##  6              0.0134 
+##  7              0.0131 
+##  8              0.0121 
+##  9              0.0117 
+## 10              0.0115 
+## 11              0.00412</code></pre>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data <span class="op">%&lt;&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">hhmmb.factor =</span> <span class="kw">as.factor</span>(hhmmb) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">fct_recode</span>(<span class="st">`</span><span class="dt">+5</span><span class="st">`</span> =<span class="st"> &quot;6&quot;</span>,
                                                         <span class="st">`</span><span class="dt">+5</span><span class="st">`</span> =<span class="st"> &quot;7&quot;</span>,
                                                         <span class="st">`</span><span class="dt">+5</span><span class="st">`</span> =<span class="st"> &quot;8&quot;</span>))
 
-data %&gt;%
-<span class="st">  </span><span class="kw">filter</span>(!<span class="kw">is.na</span>(prob)) %&gt;%
-<span class="st">  </span><span class="kw">filter</span>(!<span class="kw">is.na</span>(hhmmb.factor)) %&gt;%
-<span class="st">  </span><span class="kw">group_by</span>(hhmmb.factor) %&gt;%
+data <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">filter</span>(<span class="op">!</span><span class="kw">is.na</span>(prob)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">filter</span>(<span class="op">!</span><span class="kw">is.na</span>(hhmmb.factor)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">group_by</span>(hhmmb.factor) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">summarise</span>(<span class="dt">n =</span> <span class="kw">n</span>(),
-    <span class="dt">mean.prob.percentage =</span> <span class="kw">mean</span>(prob, <span class="dt">na.rm =</span> T)*<span class="dv">100</span>) %&gt;%
+    <span class="dt">mean.prob.percentage =</span> <span class="kw">mean</span>(prob, <span class="dt">na.rm =</span> T)<span class="op">*</span><span class="dv">100</span>) <span class="op">%&gt;%</span>
 <span class="st">      </span><span class="kw">arrange</span>(<span class="kw">desc</span>(mean.prob.percentage))</code></pre></div>
 <pre><code>## # A tibble: 6 x 3
 ##   hhmmb.factor     n mean.prob.percentage
-##         &lt;fctr&gt; &lt;int&gt;                &lt;dbl&gt;
-## 1            1   745          0.019260215
-## 2            2   764          0.010841915
-## 3            3   301          0.009803027
-## 4            4   303          0.009026823
-## 5            5   118          0.008328013
-## 6           +5    33          0.007486616</code></pre>
+##   &lt;fct&gt;        &lt;int&gt;                &lt;dbl&gt;
+## 1 1              745              0.0193 
+## 2 2              764              0.0108 
+## 3 3              301              0.00980
+## 4 4              303              0.00903
+## 5 5              118              0.00833
+## 6 +5              33              0.00749</code></pre>
 <p>To solve these differences in sampling probabilities we have to compute <strong>design weights</strong> (sometimes also called <strong>base weights</strong>. The design weights are equal to the inverse of the probability of inclusion to the sample. Therefore, the design weight (<em>d<sub>0</sub></em>) of a respondent (<em>i</em>) will be equal to: <span class="math inline">\(d_{0i} = 1/\pi_{i}\)</span> where <span class="math inline">\(pi_{i}\)</span> is the probability of that unit of being included in the sampling.</p>
 <p>Here we compute the design weight from the probability given in the ESS database.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data %&lt;&gt;%
-<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">base.weight =</span> <span class="dv">1</span>/prob)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data <span class="op">%&lt;&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">base.weight =</span> <span class="dv">1</span><span class="op">/</span>prob)
 
-data %&gt;%
-<span class="st">  </span><span class="kw">select</span>(prob, base.weight) %&gt;%<span class="st"> </span><span class="kw">head</span>(<span class="dv">10</span>)</code></pre></div>
+data <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">select</span>(prob, base.weight) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">head</span>(<span class="dv">10</span>)</code></pre></div>
 <pre><code>##             prob base.weight
 ## 1  0.00020306164    4924.613
 ## 2  0.00020306164    4924.613
@@ -246,12 +259,12 @@ data %&gt;%
 <p>The sum of our computed weights in the ESS dataset with 2,265 respondents equals 21,338,524. Doing a very simple Extrapolation to include the 3,335 non-respondents would give us a sum of weights equal to 52,757,499. This last figure would be much closer to the total UK population over 15.</p>
 <p>It is a common practice for many researchers to scale the weights so that their sum equals the sample size (instead of the population size). Scaled weights would equally adjust for differences in sampling probabilities.</p>
 <p>Here we compute our scaled design weights and we compare them with the ones given in the ESS dataset. We see that our weights scaled (<em>base.weigth.scaled</em>) are almost equal to those computed in the ESS dataset (<em>dweigth</em>). The small differences are probably due to rounding error.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data %&gt;%
-<span class="st">  </span><span class="kw">filter</span>(!<span class="kw">is.na</span>(base.weight)) %&gt;%<span class="st"> </span>
-<span class="st">  </span><span class="kw">select</span>(idno, base.weight) %&gt;%
-<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">base.weight.scaled =</span> base.weight/<span class="kw">sum</span>(base.weight, <span class="dt">na.rm =</span> T)*<span class="kw">nrow</span>(data[!<span class="kw">is.na</span>(data$prob),])) %&gt;%
-<span class="st">  </span><span class="kw">left_join</span>(original.weights %&gt;%<span class="st"> </span><span class="kw">select</span>(idno, dweight),
-            <span class="dt">by =</span> <span class="st">&quot;idno&quot;</span>) %&gt;%<span class="st"> </span><span class="kw">head</span>(<span class="dv">10</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">filter</span>(<span class="op">!</span><span class="kw">is.na</span>(base.weight)) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">select</span>(idno, base.weight) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">base.weight.scaled =</span> base.weight<span class="op">/</span><span class="kw">sum</span>(base.weight, <span class="dt">na.rm =</span> T)<span class="op">*</span><span class="kw">nrow</span>(data[<span class="op">!</span><span class="kw">is.na</span>(data<span class="op">$</span>prob),])) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">left_join</span>(original.weights <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(idno, dweight),
+            <span class="dt">by =</span> <span class="st">&quot;idno&quot;</span>) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">head</span>(<span class="dv">10</span>)</code></pre></div>
 <pre><code>##         idno base.weight base.weight.scaled  dweight
 ## 1  100000003    4924.613          0.5224974 0.526796
 ## 2  100000005    4924.613          0.5224974 0.526796
@@ -263,14 +276,14 @@ data %&gt;%
 ## 8  100000016    4924.613          0.5224974 0.526796
 ## 9  100000017    9849.226          1.0449949 1.053592
 ## 10 100000020    9849.226          1.0449949 1.053592</code></pre>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data %&lt;&gt;%
-<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">base.weight.scaled =</span> base.weight/<span class="kw">sum</span>(base.weight, <span class="dt">na.rm =</span> T)*<span class="kw">nrow</span>(data[!<span class="kw">is.na</span>(data$prob),]))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data <span class="op">%&lt;&gt;%</span>
+<span class="st">  </span><span class="kw">mutate</span>(<span class="dt">base.weight.scaled =</span> base.weight<span class="op">/</span><span class="kw">sum</span>(base.weight, <span class="dt">na.rm =</span> T)<span class="op">*</span><span class="kw">nrow</span>(data[<span class="op">!</span><span class="kw">is.na</span>(data<span class="op">$</span>prob),]))</code></pre></div>
 <p>As we mentioned before, design weights should sum up to the entire population from which the sample is drawn or to the total number of respondents if scaled as they did in the ESS. In this example both sums should equal 2,265.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data %&gt;%
-<span class="st">  </span><span class="kw">left_join</span>(original.weights %&gt;%<span class="st"> </span><span class="kw">select</span>(idno, dweight),
-            <span class="dt">by =</span> <span class="st">&quot;idno&quot;</span>) %&gt;%
-<span class="st">  </span><span class="kw">summarise</span>(<span class="dt">sum.all.base.weights.scaled =</span> <span class="kw">sum</span>(base.weight.scaled, <span class="dt">na.rm =</span> T) %&gt;%<span class="st"> </span><span class="kw">round</span>(<span class="dv">0</span>),
-            <span class="dt">sum.all.design.weights.ess =</span> <span class="kw">sum</span>(dweight, <span class="dt">na.rm =</span> T) %&gt;%<span class="st"> </span><span class="kw">round</span>(<span class="dv">0</span>))</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">left_join</span>(original.weights <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(idno, dweight),
+            <span class="dt">by =</span> <span class="st">&quot;idno&quot;</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">summarise</span>(<span class="dt">sum.all.base.weights.scaled =</span> <span class="kw">sum</span>(base.weight.scaled, <span class="dt">na.rm =</span> T) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">round</span>(<span class="dv">0</span>),
+            <span class="dt">sum.all.design.weights.ess =</span> <span class="kw">sum</span>(dweight, <span class="dt">na.rm =</span> T) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">round</span>(<span class="dv">0</span>))</code></pre></div>
 <pre><code>##   sum.all.base.weights.scaled sum.all.design.weights.ess
 ## 1                        2264                       2264</code></pre>
 
@@ -299,17 +312,18 @@ data %&gt;%
 <script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
 <script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
 <script>
-require(["gitbook"], function(gitbook) {
+gitbook.require(["gitbook"], function(gitbook) {
 gitbook.start({
 "sharing": {
 "github": false,
 "facebook": true,
 "twitter": true,
 "google": false,
+"linkedin": false,
 "weibo": false,
 "instapper": false,
 "vk": false,
-"all": ["facebook", "google", "twitter", "weibo", "instapaper"]
+"all": ["facebook", "google", "twitter", "linkedin", "weibo", "instapaper"]
 },
 "fontsettings": {
 "theme": "white",
@@ -333,9 +347,11 @@ gitbook.start({
   (function () {
     var script = document.createElement("script");
     script.type = "text/javascript";
-    script.src  = "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML";
-    if (location.protocol !== "file:" && /^https?:/.test(script.src))
-      script.src  = script.src.replace(/^https?:/, '');
+    var src = "";
+    if (src === "" || src === "true") src = "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:" && /^https?:/.test(src))
+      src = src.replace(/^https?:/, '');
+    script.src = src;
     document.getElementsByTagName("head")[0].appendChild(script);
   })();
 </script>

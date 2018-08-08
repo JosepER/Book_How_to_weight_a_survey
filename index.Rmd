@@ -12,4 +12,4 @@ github-repo: JosepER/Book_How_to_weight_a_survey
 
 # Welcome to the introduction on how to weight a survey sample! {-}
 
-This guide was written by [Josep Espasa](https://www.linkedin.com/in/josepespasareig/). You can visit the [GitHub repository for this site](https://github.com/JosepER/Book_How_to_weight_a_survey)
+This guide was written by [Josep Espasa](https://www.linkedin.com/in/josepespasareig/). All the code used for creating this book is available [on a GitHub repository](https://github.com/JosepER/Book_How_to_weight_a_survey)

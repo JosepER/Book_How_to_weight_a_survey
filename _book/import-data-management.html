@@ -7,7 +7,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>(Very) basic steps to weight a survey sample</title>
   <meta name="description" content="(Very) basic steps to weight a survey sample">
-  <meta name="generator" content="bookdown 0.4 and GitBook 2.6.7">
+  <meta name="generator" content="bookdown 0.7 and GitBook 2.6.7">
 
   <meta property="og:title" content="(Very) basic steps to weight a survey sample" />
   <meta property="og:type" content="book" />
@@ -25,7 +25,7 @@
 <meta name="author" content="Josep Espasa Reig">
 
 
-<meta name="date" content="2017-06-29">
+<meta name="date" content="2018-08-08">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -179,16 +179,16 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <div id="import-data" class="section level3">
 <h3><span class="header-section-number">2.0.1</span> Import data</h3>
 <p>The following chunk of code loads the data sets from a <em>data</em> folder in the working directory. The sample data file is stored into the <em>sample.data</em> ‘data_frame’ object. The contact forms information is stored into the <em>paradata</em> folder. Survey responses from the integrated interviewer file are saved in the <em>responses</em> object. We also store the weight variables included in the integrated interviewer file in the <em>original.weights</em> data_frame.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sample.data &lt;-<span class="st"> </span><span class="kw">read.spss</span>(<span class="st">&quot;data/ESS7SDDFe1_1.sav&quot;</span>, <span class="dt">to.data.frame =</span> T)  %&gt;%
-<span class="st">  </span><span class="kw">filter</span>(cntry ==<span class="st"> &quot;United Kingdom&quot;</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sample.data &lt;-<span class="st"> </span><span class="kw">read.spss</span>(<span class="st">&quot;data/ESS7SDDFe1_1.sav&quot;</span>, <span class="dt">to.data.frame =</span> T)  <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">filter</span>(cntry <span class="op">==</span><span class="st"> &quot;United Kingdom&quot;</span>)
 
-paradata &lt;-<span class="st"> </span><span class="kw">read.spss</span>(<span class="st">&quot;data/ess7CFe02_1.sav&quot;</span>, <span class="dt">to.data.frame =</span> T) %&gt;%
-<span class="st">  </span><span class="kw">filter</span>(cntry ==<span class="st"> &quot;United Kingdom&quot;</span>) 
+paradata &lt;-<span class="st"> </span><span class="kw">read.spss</span>(<span class="st">&quot;data/ess7CFe02_1.sav&quot;</span>, <span class="dt">to.data.frame =</span> T) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">filter</span>(cntry <span class="op">==</span><span class="st"> &quot;United Kingdom&quot;</span>) 
 
-responses &lt;-<span class="st"> </span><span class="kw">read.spss</span>(<span class="st">&quot;data/ESS7e02_1.sav&quot;</span>, <span class="dt">to.data.frame =</span> T) %&gt;%
-<span class="st">  </span><span class="kw">filter</span>(cntry ==<span class="st"> &quot;United Kingdom&quot;</span>) 
+responses &lt;-<span class="st"> </span><span class="kw">read.spss</span>(<span class="st">&quot;data/ESS7e02_1.sav&quot;</span>, <span class="dt">to.data.frame =</span> T) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">filter</span>(cntry <span class="op">==</span><span class="st"> &quot;United Kingdom&quot;</span>) 
 
-original.weights &lt;-<span class="st"> </span>responses %&gt;%<span class="st"> </span><span class="kw">select</span>(idno ,dweight, pspwght, pweight)</code></pre></div>
+original.weights &lt;-<span class="st"> </span>responses <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(idno ,dweight, pspwght, pweight)</code></pre></div>
 </div>
 <div id="select-variables" class="section level3">
 <h3><span class="header-section-number">2.0.2</span> Select variables</h3>
@@ -212,58 +212,58 @@ resp.x &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">
          <span class="st">&quot;pdwrk&quot;</span>, <span class="st">&quot;edctn&quot;</span>, <span class="st">&quot;uempla&quot;</span>, <span class="st">&quot;uempli&quot;</span>, <span class="st">&quot;rtrd&quot;</span>,
          <span class="st">&quot;wrkctra&quot;</span>, <span class="st">&quot;hinctnta&quot;</span>)</code></pre></div>
 <p>We will also keep the variable labels from the SPSS (.sav) file, although these are not so common in R.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">selected.labels.sample.data &lt;-<span class="st"> </span><span class="kw">attributes</span>(sample.data)$variable.labels[<span class="kw">which</span>(<span class="kw">names</span>(sample.data) %in%<span class="st"> </span>vars.sample.data)]
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">selected.labels.sample.data &lt;-<span class="st"> </span><span class="kw">attributes</span>(sample.data)<span class="op">$</span>variable.labels[<span class="kw">which</span>(<span class="kw">names</span>(sample.data) <span class="op">%in%</span><span class="st"> </span>vars.sample.data)]
 
-selected.labels.paradata &lt;-<span class="st"> </span><span class="kw">attributes</span>(paradata)$variable.labels[<span class="kw">which</span>(<span class="kw">names</span>(paradata) %in%<span class="st"> </span>vars.paradata)]
+selected.labels.paradata &lt;-<span class="st"> </span><span class="kw">attributes</span>(paradata)<span class="op">$</span>variable.labels[<span class="kw">which</span>(<span class="kw">names</span>(paradata) <span class="op">%in%</span><span class="st"> </span>vars.paradata)]
 
-selected.labels.responses &lt;-<span class="st"> </span><span class="kw">attributes</span>(responses)$variable.labels[<span class="kw">which</span>(<span class="kw">names</span>(responses) %in%<span class="st"> </span><span class="kw">c</span>(resp.y, resp.x))] 
+selected.labels.responses &lt;-<span class="st"> </span><span class="kw">attributes</span>(responses)<span class="op">$</span>variable.labels[<span class="kw">which</span>(<span class="kw">names</span>(responses) <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(resp.y, resp.x))] 
 
-<span class="kw">attributes</span>(responses)$variable.labels %&gt;%<span class="st"> </span>
-<span class="st">  </span><span class="kw">cbind</span>(<span class="kw">names</span>(responses),.) %&gt;%<span class="st"> </span>
-<span class="st">  </span>as_data_frame %&gt;%<span class="st"> </span>
+<span class="kw">attributes</span>(responses)<span class="op">$</span>variable.labels <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">cbind</span>(<span class="kw">names</span>(responses),.) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span>as_data_frame <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw">write_csv</span>(<span class="st">&quot;interim_output/variable_labels.csv&quot;</span>)</code></pre></div>
 <p>Now we do the selection of variables from the three data sets using the names of the variables written a couple of code chunks ago.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sample.data %&lt;&gt;%<span class="st"> </span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sample.data <span class="op">%&lt;&gt;%</span><span class="st"> </span>
 <span class="st">  </span>.[vars.sample.data]
 
-paradata %&lt;&gt;%
+paradata <span class="op">%&lt;&gt;%</span>
 <span class="st">  </span>.[vars.paradata]
 
-responses %&lt;&gt;%
-<span class="st">  </span>.[<span class="kw">which</span>(<span class="kw">names</span>(responses) %in%<span class="st"> </span><span class="kw">c</span>(resp.id, resp.y, resp.x))]</code></pre></div>
+responses <span class="op">%&lt;&gt;%</span>
+<span class="st">  </span>.[<span class="kw">which</span>(<span class="kw">names</span>(responses) <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(resp.id, resp.y, resp.x))]</code></pre></div>
 </div>
 <div id="merging-datafiles" class="section level3">
 <h3><span class="header-section-number">2.0.3</span> Merging datafiles</h3>
 <p>After selecting the variables for the analysis, we merge the ‘paradata’ file containing all sampled units (respondents and non-respondents) with the ‘survey responses’ file, containing interview responses (only for respondents). The resulting data_frame is the ‘data’ object. It contains the ‘paradata’ information for all sampled individuals and responses for those that were interviewed successfully.</p>
 <p>In a real situation where we collect the data ourselves we would also have a ‘survey frame’. This ‘survey frame’ would ideally include include all units from the population and characteristics of these such as stratification variables. A survey frame would include sampled units (respondents and non-respondents) as well as non-sampled units.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data &lt;-<span class="st"> </span>paradata %&gt;%
-<span class="st">  </span><span class="kw">left_join</span>(sample.data, <span class="dt">by =</span> <span class="st">&quot;idno&quot;</span>) %&gt;%
-<span class="st">  </span><span class="kw">left_join</span>(responses, <span class="dt">by =</span> <span class="st">&quot;idno&quot;</span>) %&gt;%
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data &lt;-<span class="st"> </span>paradata <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">left_join</span>(sample.data, <span class="dt">by =</span> <span class="st">&quot;idno&quot;</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">left_join</span>(responses, <span class="dt">by =</span> <span class="st">&quot;idno&quot;</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">arrange</span>(interva) 
 
 <span class="kw">rm</span>(paradata,
    sample.data,
    responses)</code></pre></div>
 <p>Here we add the variable labels to the datasets with we kept before.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">attributes</span>(data)$variable.labels &lt;-<span class="st"> </span><span class="kw">c</span>(selected.labels.paradata, selected.labels.sample.data[!<span class="kw">names</span>(selected.labels.sample.data) %in%<span class="st"> &quot;idno&quot;</span>],
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">attributes</span>(data)<span class="op">$</span>variable.labels &lt;-<span class="st"> </span><span class="kw">c</span>(selected.labels.paradata, selected.labels.sample.data[<span class="op">!</span><span class="kw">names</span>(selected.labels.sample.data) <span class="op">%in%</span><span class="st"> &quot;idno&quot;</span>],
                                       selected.labels.responses)</code></pre></div>
 </div>
 <div id="recoding" class="section level3">
 <h3><span class="header-section-number">2.0.4</span> Recoding</h3>
 <p>Here we will recode our two dependent variables: cigarette and alcohol consumption. All those respondents that don’t smoke should have a 0 in the <strong>cigarretes smoked per day</strong> variable. To calculate the <strong>alcohol consumption</strong> of respondents, we first calculate the daily consumption of alcohol if they were to consume alcohol daily and then weight by their stated frequency of alcohol consumption.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data$cgtsday[data$cgtsmke %in%<span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;I have never smoked&quot;</span>,
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data<span class="op">$</span>cgtsday[data<span class="op">$</span>cgtsmke <span class="op">%in%</span><span class="st"> </span><span class="kw">c</span>(<span class="st">&quot;I have never smoked&quot;</span>,
                                  <span class="st">&quot;I don&#39;t smoke now but I used to&quot;</span>,
                                  <span class="st">&quot;I have only smoked a few times&quot;</span>)] &lt;-<span class="st"> </span><span class="dv">0</span>
 
-data$alcohol_day &lt;-<span class="st"> </span><span class="ot">NA</span> 
-data$alcohol_day &lt;-<span class="st"> </span>(data$alcwkdy *<span class="st"> </span><span class="dv">5</span> +<span class="st"> </span>data$alcwknd *<span class="dv">2</span>)/<span class="dv">7</span> 
+data<span class="op">$</span>alcohol_day &lt;-<span class="st"> </span><span class="ot">NA</span> 
+data<span class="op">$</span>alcohol_day &lt;-<span class="st"> </span>(data<span class="op">$</span>alcwkdy <span class="op">*</span><span class="st"> </span><span class="dv">5</span> <span class="op">+</span><span class="st"> </span>data<span class="op">$</span>alcwknd <span class="op">*</span><span class="dv">2</span>)<span class="op">/</span><span class="dv">7</span> 
 
-data$alcohol_day[<span class="kw">which</span>(data$alcfreq ==<span class="st"> &quot;Several times a week&quot;</span>)] &lt;-<span class="st"> </span>data$alcohol_day /<span class="st"> </span><span class="fl">2.5</span>
-data$alcohol_day[<span class="kw">which</span>(data$alcfreq ==<span class="st"> &quot;Once a week&quot;</span>)] &lt;-<span class="st"> </span>data$alcohol_day/<span class="dv">7</span>
-data$alcohol_day[<span class="kw">which</span>(data$alcfreq ==<span class="st"> &quot;2-3 times a month&quot;</span>)] &lt;-<span class="st"> </span>data$alcohol_day/<span class="dv">10</span>
-data$alcohol_day[<span class="kw">which</span>(data$alcfreq ==<span class="st"> &quot;Once a month&quot;</span>)] &lt;-<span class="st"> </span>data$alcohol_day/<span class="dv">30</span>
-data$alcohol_day[<span class="kw">which</span>(data$alcfreq ==<span class="st"> &quot;Less than once a month&quot;</span>)] &lt;-<span class="st"> </span>data$alcohol_day/<span class="dv">50</span>
-data$alcohol_day[<span class="kw">which</span>(data$alcfreq ==<span class="st"> &quot;Never&quot;</span>)] &lt;-<span class="st"> </span><span class="dv">0</span>
+data<span class="op">$</span>alcohol_day[<span class="kw">which</span>(data<span class="op">$</span>alcfreq <span class="op">==</span><span class="st"> &quot;Several times a week&quot;</span>)] &lt;-<span class="st"> </span>data<span class="op">$</span>alcohol_day <span class="op">/</span><span class="st"> </span><span class="fl">2.5</span>
+data<span class="op">$</span>alcohol_day[<span class="kw">which</span>(data<span class="op">$</span>alcfreq <span class="op">==</span><span class="st"> &quot;Once a week&quot;</span>)] &lt;-<span class="st"> </span>data<span class="op">$</span>alcohol_day<span class="op">/</span><span class="dv">7</span>
+data<span class="op">$</span>alcohol_day[<span class="kw">which</span>(data<span class="op">$</span>alcfreq <span class="op">==</span><span class="st"> &quot;2-3 times a month&quot;</span>)] &lt;-<span class="st"> </span>data<span class="op">$</span>alcohol_day<span class="op">/</span><span class="dv">10</span>
+data<span class="op">$</span>alcohol_day[<span class="kw">which</span>(data<span class="op">$</span>alcfreq <span class="op">==</span><span class="st"> &quot;Once a month&quot;</span>)] &lt;-<span class="st"> </span>data<span class="op">$</span>alcohol_day<span class="op">/</span><span class="dv">30</span>
+data<span class="op">$</span>alcohol_day[<span class="kw">which</span>(data<span class="op">$</span>alcfreq <span class="op">==</span><span class="st"> &quot;Less than once a month&quot;</span>)] &lt;-<span class="st"> </span>data<span class="op">$</span>alcohol_day<span class="op">/</span><span class="dv">50</span>
+data<span class="op">$</span>alcohol_day[<span class="kw">which</span>(data<span class="op">$</span>alcfreq <span class="op">==</span><span class="st"> &quot;Never&quot;</span>)] &lt;-<span class="st"> </span><span class="dv">0</span>
 
 resp.y &lt;-<span class="st"> </span><span class="kw">c</span>(resp.y, <span class="st">&quot;alcohol_day&quot;</span>)</code></pre></div>
 </div>
@@ -274,55 +274,96 @@ resp.y &lt;-<span class="st"> </span><span class="kw">c</span>(resp.y, <span cla
 <pre><code>## [1] 5600   39</code></pre>
 <p>The data set contains information about 2265 respondents and 3335 non-respondents.</p>
 <p>And this is a list of the variables it contains (with their labels). <strong>idno</strong> is the individual identification variable.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data.variables &lt;-<span class="st"> </span><span class="kw">cbind</span>(<span class="kw">names</span>(data),<span class="kw">attributes</span>(data)$variable.labels) %&gt;%<span class="st"> </span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data.variables &lt;-<span class="st"> </span><span class="kw">cbind</span>(<span class="kw">names</span>(data),<span class="kw">attributes</span>(data)<span class="op">$</span>variable.labels) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw">as_data_frame</span>()
 
-data.variables$V2 &lt;-<span class="st"> </span><span class="kw">format</span>(data.variables$V2 , <span class="dt">justify =</span> <span class="st">&quot;left&quot;</span>)
+data.variables<span class="op">$</span>V2 &lt;-<span class="st"> </span><span class="kw">format</span>(data.variables<span class="op">$</span>V2 , <span class="dt">justify =</span> <span class="st">&quot;left&quot;</span>)
 
-data.variables %&gt;%
+data.variables <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">print</span>(<span class="dt">n =</span> <span class="dv">40</span>)</code></pre></div>
 <pre><code>## # A tibble: 39 x 2
-##             V1                                                                              V2
-##          &lt;chr&gt;                                                                           &lt;chr&gt;
-##  1        idno Respondent&#39;s identification number                                             
-##  2    typesamp Type of the sample                                                             
-##  3     interva Interview information for the sample unit                                      
-##  4      telnum Telephone number                                                               
-##  5      agea_1 Estimation of age of respondent or household member who refuses, by interviewer
-##  6    gendera1 Gender of respondent or household member who refuses, recorded by interviewer  
-##  7        type Type of house respondent lives in                                              
-##  8      access Entry phone or locked gate/door before reaching respondent&#39;s individual door   
-##  9       physa Assessment overall physical condition building/house                           
-## 10     littera Amount of litter and rubbish in the immediate vicinity                         
-## 11      vandaa Amount of vandalism and graffiti in the immediate vicinity                     
-## 12         psu PSU                                                                            
-## 13        prob PROB                                                                           
-## 14        vote Voted last national election                                                   
-## 15    prtvtbgb Party voted for in last national election, United Kingdom                      
-## 16    prtclbgb Which party feel closer to, United Kingdom                                     
-## 17     prtdgcl How close to party                                                             
-## 18     ctzcntr Citizen of country                                                             
-## 19    ctzshipc Citizenship                                                                    
-## 20     brncntr Born in country                                                                
-## 21    cntbrthc Country of birth                                                               
-## 22     cgtsmke Cigarettes smoking behaviour                                                   
-## 23     cgtsday How many cigarettes smoke on typical day                                       
-## 24     alcfreq How often drink alcohol                                                        
-## 25     alcwkdy Grams alcohol, last time drinking on a weekday, Monday to Thursday             
-## 26     alcwknd Grams alcohol, last time drinking on a weekend day, Friday to Sunday           
-## 27       hhmmb Number of people living regularly as member of household                       
-## 28        gndr Gender                                                                         
-## 29        agea Age of respondent, calculated                                                  
-## 30      eisced Highest level of education, ES - ISCED                                         
-## 31       pdwrk Doing last 7 days: paid work                                                   
-## 32       edctn Doing last 7 days: education                                                   
-## 33      uempla Doing last 7 days: unemployed, actively looking for job                        
-## 34      uempli Doing last 7 days: unemployed, not actively looking for job                    
-## 35        rtrd Doing last 7 days: retired                                                     
-## 36     wrkctra Employment contract unlimited or limited duration                              
-## 37    hinctnta Household&#39;s total net income, all sources                                      
-## 38      region Region                                                                         
-## 39 alcohol_day Respondent&#39;s identification number</code></pre>
+##    V1         
+##    &lt;chr&gt;      
+##  1 idno       
+##  2 typesamp   
+##  3 interva    
+##  4 telnum     
+##  5 agea_1     
+##  6 gendera1   
+##  7 type       
+##  8 access     
+##  9 physa      
+## 10 littera    
+## 11 vandaa     
+## 12 psu        
+## 13 prob       
+## 14 vote       
+## 15 prtvtbgb   
+## 16 prtclbgb   
+## 17 prtdgcl    
+## 18 ctzcntr    
+## 19 ctzshipc   
+## 20 brncntr    
+## 21 cntbrthc   
+## 22 cgtsmke    
+## 23 cgtsday    
+## 24 alcfreq    
+## 25 alcwkdy    
+## 26 alcwknd    
+## 27 hhmmb      
+## 28 gndr       
+## 29 agea       
+## 30 eisced     
+## 31 pdwrk      
+## 32 edctn      
+## 33 uempla     
+## 34 uempli     
+## 35 rtrd       
+## 36 wrkctra    
+## 37 hinctnta   
+## 38 region     
+## 39 alcohol_day
+##    V2                                                                      
+##    &lt;chr&gt;                                                                   
+##  1 &quot;Respondent&#39;s identification number                                    ~
+##  2 &quot;Type of the sample                                                    ~
+##  3 &quot;Interview information for the sample unit                             ~
+##  4 &quot;Telephone number                                                      ~
+##  5 Estimation of age of respondent or household member who refuses, by int~
+##  6 &quot;Gender of respondent or household member who refuses, recorded by inte~
+##  7 &quot;Type of house respondent lives in                                     ~
+##  8 &quot;Entry phone or locked gate/door before reaching respondent&#39;s individua~
+##  9 &quot;Assessment overall physical condition building/house                  ~
+## 10 &quot;Amount of litter and rubbish in the immediate vicinity                ~
+## 11 &quot;Amount of vandalism and graffiti in the immediate vicinity            ~
+## 12 &quot;PSU                                                                   ~
+## 13 &quot;PROB                                                                  ~
+## 14 &quot;Voted last national election                                          ~
+## 15 &quot;Party voted for in last national election, United Kingdom             ~
+## 16 &quot;Which party feel closer to, United Kingdom                            ~
+## 17 &quot;How close to party                                                    ~
+## 18 &quot;Citizen of country                                                    ~
+## 19 &quot;Citizenship                                                           ~
+## 20 &quot;Born in country                                                       ~
+## 21 &quot;Country of birth                                                      ~
+## 22 &quot;Cigarettes smoking behaviour                                          ~
+## 23 &quot;How many cigarettes smoke on typical day                              ~
+## 24 &quot;How often drink alcohol                                               ~
+## 25 &quot;Grams alcohol, last time drinking on a weekday, Monday to Thursday    ~
+## 26 &quot;Grams alcohol, last time drinking on a weekend day, Friday to Sunday  ~
+## 27 &quot;Number of people living regularly as member of household              ~
+## 28 &quot;Gender                                                                ~
+## 29 &quot;Age of respondent, calculated                                         ~
+## 30 &quot;Highest level of education, ES - ISCED                                ~
+## 31 &quot;Doing last 7 days: paid work                                          ~
+## 32 &quot;Doing last 7 days: education                                          ~
+## 33 &quot;Doing last 7 days: unemployed, actively looking for job               ~
+## 34 &quot;Doing last 7 days: unemployed, not actively looking for job           ~
+## 35 &quot;Doing last 7 days: retired                                            ~
+## 36 &quot;Employment contract unlimited or limited duration                     ~
+## 37 &quot;Household&#39;s total net income, all sources                             ~
+## 38 &quot;Region                                                                ~
+## 39 &quot;Respondent&#39;s identification number                                    ~</code></pre>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">rm</span>(data.variables)</code></pre></div>
 <p>The goal of this guide will be to to give UK population estimates for cigarette and alcohol consumption based on ESS respondents. These will be our <em>Y</em> variables or variables of interest. The idea is to give descriptives of the distribution of these two variables (such as quantiles and mean) and then a simple extrapolation and compute total cigarette and alcohol consumption for the whole UK.</p>
 <p>These are our <em>Y</em> variables:</p>
@@ -330,22 +371,34 @@ data.variables %&gt;%
 <li><strong>cgtsday</strong> : Number of cigarettes smoked on a typical day.</li>
 <li><strong>alcohol_day</strong> : Grams of alcohol ingested on a daily basis. Computed in the <a href="import-data-management.html#recoding"><em>Recoding</em></a> section from the amount of alcohol drank last time during weekdays and weekend.</li>
 </ul>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data[resp.y] %&gt;%
-<span class="st">  </span><span class="kw">as_data_frame</span>() %&gt;%
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data[resp.y] <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">as_data_frame</span>() <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">print</span>()</code></pre></div>
 <pre><code>## # A tibble: 5,600 x 6
-##                            cgtsmke cgtsday              alcfreq alcwkdy alcwknd alcohol_day
-##  *                          &lt;fctr&gt;   &lt;dbl&gt;               &lt;fctr&gt;   &lt;dbl&gt;   &lt;dbl&gt;       &lt;dbl&gt;
-##  1             I have never smoked       0          Once a week       0       8  0.32653061
-##  2                   I smoke daily      10          Once a week      48      96  8.81632653
-##  3             I have never smoked       0 Several times a week      42       0  0.91428571
-##  4             I have never smoked       0                Never      NA      NA  0.00000000
-##  5                   I smoke daily      20    2-3 times a month      55       0  0.03265306
-##  6 I don&#39;t smoke now but I used to       0 Several times a week      26      32 24.68571429
-##  7 I don&#39;t smoke now but I used to       0          Once a week      17       0  0.13061224
-##  8                   I smoke daily      15                Never      NA      NA  0.00000000
-##  9             I have never smoked       0                Never      NA      NA  0.00000000
-## 10                   I smoke daily      20 Several times a week      42     121 12.00000000
+##    cgtsmke                         cgtsday alcfreq              alcwkdy
+##  * &lt;fct&gt;                             &lt;dbl&gt; &lt;fct&gt;                  &lt;dbl&gt;
+##  1 I have never smoked                   0 Once a week                0
+##  2 I smoke daily                        10 Once a week               48
+##  3 I have never smoked                   0 Several times a week      42
+##  4 I have never smoked                   0 Never                     NA
+##  5 I smoke daily                        20 2-3 times a month         55
+##  6 I don&#39;t smoke now but I used to       0 Several times a week      26
+##  7 I don&#39;t smoke now but I used to       0 Once a week               17
+##  8 I smoke daily                        15 Never                     NA
+##  9 I have never smoked                   0 Never                     NA
+## 10 I smoke daily                        20 Several times a week      42
+##    alcwknd alcohol_day
+##  *   &lt;dbl&gt;       &lt;dbl&gt;
+##  1       8      0.327 
+##  2      96      8.82  
+##  3       0      0.914 
+##  4      NA      0     
+##  5       0      0.0327
+##  6      32     24.7   
+##  7       0      0.131 
+##  8      NA      0     
+##  9      NA      0     
+## 10     121     12     
 ## # ... with 5,590 more rows</code></pre>
 <div id="paradata-variables" class="section level3">
 <h3><span class="header-section-number">2.1.1</span> Paradata variables</h3>
@@ -354,22 +407,22 @@ data.variables %&gt;%
 <li><strong>psu</strong>: This variable includes information on the primary sampling unit (PSU). In the UK this refers to the ‘postcode address file’.</li>
 <li><strong>prob</strong>: Probability of being included in the sample (i.e. approached for survey).</li>
 </ul>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data[vars.sample.data] %&gt;%
-<span class="st">  </span><span class="kw">as_data_frame</span>() %&gt;%
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data[vars.sample.data] <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw">as_data_frame</span>() <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">print</span>()</code></pre></div>
 <pre><code>## # A tibble: 5,600 x 3
-##         idno   psu          prob
-##  *     &lt;dbl&gt; &lt;dbl&gt;         &lt;dbl&gt;
-##  1 100000003  9388 0.00020306164
-##  2 100000005  9241 0.00020306164
-##  3 100000008  9472 0.00020306164
-##  4 100000009  9450 0.00005076541
-##  5 100000010  9479 0.00010153082
-##  6 100000012  9460 0.00010153082
-##  7 100000015  9440 0.00010153082
-##  8 100000016  9494 0.00020306164
-##  9 100000017  9376 0.00010153082
-## 10 100000020  9273 0.00010153082
+##         idno   psu      prob
+##  *     &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;
+##  1 100000003  9388 0.000203 
+##  2 100000005  9241 0.000203 
+##  3 100000008  9472 0.000203 
+##  4 100000009  9450 0.0000508
+##  5 100000010  9479 0.000102 
+##  6 100000012  9460 0.000102 
+##  7 100000015  9440 0.000102 
+##  8 100000016  9494 0.000203 
+##  9 100000017  9376 0.000102 
+## 10 100000020  9273 0.000102 
 ## # ... with 5,590 more rows</code></pre>
 <p>The 7th ESS also contains variables for all sampled units (i.e. respondents and non-respondents). These give information about the events that occurred during the data collection process. We will use these variables as covariates during the computation of <strong>Non-response weights</strong> in <a href="#nonresponse%20weights">step two</a>.</p>
 <ul>
@@ -385,7 +438,7 @@ data.variables %&gt;%
 <li><strong>littera</strong>: Interviewer assessment of amount of litter and rubbish in the immediate vicinity.</li>
 <li><strong>vandaa</strong>: Interviewer assessment of amount of vandalism and graffiti in the immediate vicinity.</li>
 </ul>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data[vars.paradata] %&gt;%
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data[vars.paradata] <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">head</span>(<span class="dv">6</span>)</code></pre></div>
 <pre><code>##        idno typesamp                                    interva  telnum
 ## 1 100000003  Address Complete and valid interview related to CF Present
@@ -432,7 +485,7 @@ data.variables %&gt;%
 <li><strong>wrkctra</strong>: Employment contract unlimited or limited duration</li>
 <li><strong>hinctnta</strong>: Household’s total net income, all sources</li>
 </ul>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data[<span class="kw">c</span>(resp.id, resp.x)] %&gt;%
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">data[<span class="kw">c</span>(resp.id, resp.x)] <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">head</span>(<span class="dv">6</span>)</code></pre></div>
 <pre><code>##        idno vote         prtvtbgb prtclbgb   prtdgcl ctzcntr ctzshipc
 ## 1 100000003  Yes Liberal Democrat     &lt;NA&gt;      &lt;NA&gt;     Yes     &lt;NA&gt;
@@ -490,17 +543,18 @@ data.variables %&gt;%
 <script src="libs/gitbook-2.6.7/js/plugin-bookdown.js"></script>
 <script src="libs/gitbook-2.6.7/js/jquery.highlight.js"></script>
 <script>
-require(["gitbook"], function(gitbook) {
+gitbook.require(["gitbook"], function(gitbook) {
 gitbook.start({
 "sharing": {
 "github": false,
 "facebook": true,
 "twitter": true,
 "google": false,
+"linkedin": false,
 "weibo": false,
 "instapper": false,
 "vk": false,
-"all": ["facebook", "google", "twitter", "weibo", "instapaper"]
+"all": ["facebook", "google", "twitter", "linkedin", "weibo", "instapaper"]
 },
 "fontsettings": {
 "theme": "white",
@@ -524,9 +578,11 @@ gitbook.start({
   (function () {
     var script = document.createElement("script");
     script.type = "text/javascript";
-    script.src  = "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML";
-    if (location.protocol !== "file:" && /^https?:/.test(script.src))
-      script.src  = script.src.replace(/^https?:/, '');
+    var src = "";
+    if (src === "" || src === "true") src = "https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML";
+    if (location.protocol !== "file:" && /^https?:/.test(src))
+      src = src.replace(/^https?:/, '');
+    script.src = src;
     document.getElementsByTagName("head")[0].appendChild(script);
   })();
 </script>
