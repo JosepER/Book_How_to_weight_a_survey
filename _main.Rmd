@@ -1,6 +1,6 @@
 ---
 title: "(Very) basic steps to weight a survey sample"
-subtitle: An explained example with R code - V0.3
+subtitle: An explained example with R code - V0.4
 author: "Josep Espasa Reig"
 date: "`r Sys.Date()`"
 site: bookdown::bookdown_site
